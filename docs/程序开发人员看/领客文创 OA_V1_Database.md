@@ -10,7 +10,7 @@
 
 ## 数据库全局约定
 
-1. **数据库引擎**：默认 **SQLite**（V1.4.4 起文件位于项目内 `backend/linkoa.db`，`backend/.env` 的 `DB_URL=sqlite:///./linkoa.db` 为相对路径写法，config.py 按 `__file__` 解析为项目内绝对路径，随文件夹整体迁移）；也支持 MySQL（改 `.env` 的 `DB_URL`，见互转指南）
+1. **数据库引擎**：默认 **SQLite**（V1.4.18 起文件统一位于项目根 `data/linkoa.db`，`backend/.env` 的 `DB_URL=sqlite:///./../data/linkoa.db` 为相对 backend/ 的写法，config.py 按 `__file__` 解析为绝对路径，本地与 Docker 共用一份数据，随文件夹整体迁移）；也支持 MySQL（改 `.env` 的 `DB_URL`，见互转指南）
 2. **MySQL 约定**：字符集 `utf8mb4`、排序规则 `utf8mb4_unicode_ci`、引擎 `InnoDB`
 3. **外键**：**不建物理外键**，纯逻辑关联；级联删除/约束由后端代码事务控制
 4. **主键**：全部 `bigint` 自增，起始值 1

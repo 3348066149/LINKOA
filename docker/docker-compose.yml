@@ -1,0 +1,55 @@
+# ============================================================================
+#  LINKOA 领客文创 OA - Docker Compose（默认 SQLite，零外部依赖）
+#
+#  使用方式（重要）：先进入 docker/ 目录，再执行以下命令
+#     cd docker
+#     docker compose up -d --build     # 首次构建 + 启动
+#     docker compose up -d             # 日常启动/重启（镜像已存在时）
+#     docker compose down              # 停止
+#  浏览器： http://localhost:8000   初始账号 admin / admin123
+#
+#  数据持久化：数据库 + 上传附件统一放在宿主机 项目根目录/data 文件夹
+#    （即本文件所在的 docker/ 的上一级 data/），备份/搬家只拷这一个文件夹
+#
+#  环境变量：可在本 docker/ 目录创建 .env 覆盖以下默认值：
+#     LINKOA_PORT=8000              # 宿主机访问端口
+#     LINKOA_JWT_SECRET=...         # JWT 密钥（生产必改，>=32 字节）
+#     LINKOA_AI_API_KEY=sk-...      # AI 助手 API Key（可选，也可登录后后台配置）
+#     LINKOA_AI_BASE_URL=...        # AI 接口地址，默认 DeepSeek
+#     LINKOA_AI_MODEL=...           # AI 模型名
+# ============================================================================
+name: linkoa
+
+services:
+  app:
+    # build context 指向项目根（..），Dockerfile 在 docker/ 下：
+    #   context = 项目根  →  Dockerfile 里的 COPY frontend/ / COPY backend/ 都相对项目根
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: linkoa:latest
+    container_name: linkoa
+    restart: unless-stopped
+    ports:
+      - "${LINKOA_PORT:-8000}:8000"
+    environment:
+      # 数据库：默认 SQLite，文件落在数据卷 /app/data/linkoa.db
+      DB_URL: "sqlite:////app/data/linkoa.db"
+      # 附件存储根目录（数据卷内）
+      UPLOAD_DIR: "/app/data/uploads"
+      # JWT 密钥与过期时间
+      JWT_SECRET: "${LINKOA_JWT_SECRET:-linkoa-docker-secret-0123456789abcdef-change-me}"
+      JWT_EXPIRE_HOURS: "${LINKOA_JWT_EXPIRE_HOURS:-24}"
+      # AI 助手（可选，空则启动后需管理员在「AI 设置」面板填写）
+      AI_API_KEY: "${LINKOA_AI_API_KEY:-}"
+      AI_BASE_URL: "${LINKOA_AI_BASE_URL:-https://api.deepseek.com}"
+      AI_MODEL: "${LINKOA_AI_MODEL:-deepseek-v4-flash}"
+    volumes:
+      # 数据库 + 附件统一放宿主机 项目根/data（docker/ 的上一级），备份/搬家只拷这一个文件夹
+      - ../data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 20s

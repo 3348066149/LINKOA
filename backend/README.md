@@ -1,6 +1,6 @@
 # 青岛领客文化传播｜项目流程管理 OA 后端
 
-FastAPI + SQLAlchemy 2.0，服务端口 8000。**数据库默认 SQLite**（文件位于项目内 `backend/linkoa.db`，相对路径配置，随文件夹迁移），也支持 MySQL（改 `.env` 的 `DB_URL` 即可）。
+FastAPI + SQLAlchemy 2.0，服务端口 8000。**数据库默认 SQLite**（文件位于项目根 `data/linkoa.db`（本地与 Docker 共用，备份只拷 data/），相对路径配置，随文件夹迁移），也支持 MySQL（改 `.env` 的 `DB_URL` 即可）。
 
 ## 启动步骤
 
@@ -19,16 +19,16 @@ cd backend
 
 > Windows 用户直接双击项目根目录的 `start.bat` 即可（自动建 venv、装依赖、启动）；停止用 `stop.bat`。Linux / macOS 运行项目根目录的 `start.sh` 等价一键启动（先 `chmod +x start.sh`），停止用 `stop.sh`。
 
-- 数据库文件：`backend/linkoa.db`（SQLite，V1.4.4 起回到项目内；`.env` 的 `DB_URL=sqlite:///./linkoa.db` 为相对写法，由 `config.py` 按 `__file__` 解析为绝对路径，**文件夹复制到任何机器都能正确定位**）
+- 数据库文件：`data/linkoa.db`（项目根 `data/`，SQLite，V1.4.18 起本地与 Docker 统一指向；`.env` 的 `DB_URL=sqlite:///./../data/linkoa.db` 为相对 `backend/` 的写法，由 `config.py` 按 `__file__` 解析为绝对路径，**备份/搬家只拷 `data/` 一个文件夹**）
 - 接口文档（Swagger）：http://localhost:8000/docs
 - 健康检查：`GET /api/health`
-- 附件目录：`uploads/`（相对路径存储，随项目走：`cover/` 封面、`node_icon/` 节点图标、`node_form/` 节点表单图像、`YYYYMMDD/` 附件）
+- 附件目录：`data/uploads/`（与数据库同目录，随项目走：`cover/` 封面、`node_icon/` 节点图标、`node_form/` 节点表单图像、`YYYYMMDD/` 附件）
 
 ## 数据库说明（SQLite / MySQL 双支持，可切换）
 
 | 数据库 | 适用场景 | DB_URL |
 |---|---|---|
-| **SQLite**（默认） | 单机 / 便携 / 单人使用 | `sqlite:///./linkoa.db` |
+| **SQLite**（默认） | 单机 / 便携 / 单人使用 | `sqlite:///./../data/linkoa.db`（项目根 data/） |
 | **MySQL** | 多用户并发协作 | `mysql+pymysql://root:pwd@localhost:3306/linkoa?charset=utf8mb4` |
 
 一键切换（需重启后端）与数据迁移：
@@ -44,7 +44,9 @@ python migrate_sqlite_to_mysql.py   # SQLite → MySQL
 - 启动时幂等执行存量迁移：V1.4 部门权限模板 → 用户角色；V1.4.2 老角色（设计师/设计总监/行政）→ 普通（admin 强制保持管理员）；V1.4.7 `_migrate_project_category()` 为历史项目回填客户单位并补对接人关联
 - **V1.4.4 起结构自愈**：启动时 `auto_add_missing_columns()` 比对 ORM 模型与实际库结构，缺失列自动 `ALTER TABLE ADD COLUMN` 补齐（SQLite / MySQL 均生效）。模型加列后无需手写迁移 SQL，启动一次即升级；仅补列，不改列类型、不删列。
 
-## 版本特性（V1.4.17）
+## 版本特性（V1.4.18）
+
+- **Docker 部署目录化（V1.4.18）**：Docker 相关文件统一收进项目根 `docker/` 目录（Dockerfile / docker-compose.yml / docker-compose.mysql.yml / docker-entrypoint.sh / 部署指南 docker/README.md），部署时进入 `docker/` 目录执行 `docker compose up -d --build` 即可；容器数据挂载到项目根 `data/`。本版本为部署与文档整理，**功能与接口无变更**。
 
 - **部门与角色解耦**：`sys_dept` 仅组织分组（不携带权限）；权限由用户自身角色决定（普通/管理员；客户账号独立只读）。
 - **客户门户（V1.4.7 重构）**：客户登录进入独立只读门户，按**所属客户单位**隔离（可见同单位全部项目）；不展示节点进度/总进度，改为立项时间 + 预计结束时间 + 倒计时；支持项目名搜索、进行中/已结项筛选、立项时间范围筛选；已归档展示为「已结项」。
@@ -79,20 +81,26 @@ tests/                 # 各版本自检脚本（见下）
 
 ## 自检脚本
 
+> **测试现状（V1.4.18 实测）**：`full_flow_check.py` 全流程回归 **92/92 通过**、`check_cover_api.py` **7/7 通过**、`check_customer_cover_api.py` **9/9 通过**。下列历史检查点脚本部分因接口演进（V1.4.7 客户单位 / V1.4.15 用户绑定单位 / V1.4.17 部门角色解耦）后未同步更新，**仅存档**，运行可能报错。
+
 ```bash
-python tests/check_step5_services.py        # Service 层检查点（33 项）
-python tests/check_step6_api.py             # API 层检查点（35 项，需 pip install httpx）
-python tests/check_cover_api.py             # 项目封面（7 项）
-python tests/check_dept_client_api.py       # 部门体系 + 客户门户（30 项）
-python tests/check_dept_role_split.py       # 部门-角色解耦（25 项）
-python tests/check_role_simple.py           # 角色二分 普通/管理员（25 项）
-python tests/check_node_icon_form.py        # 节点图标 + 表单 image/link（HTTP 版）
-python tests/check_icon_form_tc.py          # 节点图标 + 表单 image/link（TestClient 版，真实环境执行）
-python tests/full_flow_check.py             # 全流程回归（需后端已启动，覆盖 18 个模块含客户门户隔离与 AI 助手）
+# ---- 当前有效（实测通过）----
+python tests/full_flow_check.py             # ✅ 全流程回归（需后端已启动，92/92 通过）
+python tests/check_cover_api.py             # ✅ 项目封面（7/7 通过）
+python tests/check_customer_cover_api.py    # ✅ 客户封面（9/9 通过）
+
+# ---- 历史检查点（接口演进后未同步，仅存档）----
+python tests/check_step5_services.py        # ⚠️ Service 层检查点（V1.4.4 时代）
+python tests/check_step6_api.py             # ⚠️ API 层检查点（需 httpx）
+python tests/check_dept_client_api.py       # ⚠️ 部门体系 + 客户门户
+python tests/check_dept_role_split.py       # ⚠️ 部门-角色解耦
+python tests/check_role_simple.py           # ⚠️ 角色二分
+python tests/check_role_api.py              # ⚠️ 角色 API
+python tests/check_node_icon_form.py        # ⚠️ 节点图标 + 表单（HTTP 版）
+python tests/check_icon_form_tc.py          # ⚠️ 节点图标 + 表单（TestClient 版）
 ```
 
-> 说明：自检脚本多为模拟数据，跑完自动清理。`check_icon_form_tc.py` 建议在无沙箱的真实环境执行（沙箱对运行中进程写 SQLite 有写保护）。
-> `full_flow_check.py` 走真实 HTTP 请求，需先启动后端（默认 `http://127.0.0.1:8000`），会自动清理以「全流程测试」为前缀的数据。
+> 说明：`full_flow_check.py` 走真实 HTTP 请求，需先启动后端（默认 `http://127.0.0.1:8000`），会自动清理以「全流程测试」为前缀的数据。
 
 ## 统一约定
 

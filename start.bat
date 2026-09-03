@@ -14,7 +14,7 @@ if errorlevel 1 (
     rmdir /s /q ".venv"
     goto create_venv
 )
-goto install_deps
+goto check_deps
 
 :create_venv
 where python >nul 2>nul
@@ -26,10 +26,29 @@ if errorlevel 1 (
 echo Creating virtual env .venv ...
 python -m venv .venv
 
+:check_deps
+REM 依赖已就绪则跳过联网安装（避免每次启动都访问 PyPI）
+".venv\Scripts\python.exe" -c "import fastapi,uvicorn,sqlalchemy,pydantic,jwt,pymysql,cryptography,openpyxl,httpx" >nul 2>nul
+if not errorlevel 1 goto frontend
 :install_deps
 echo Installing backend dependencies ...
-".venv\Scripts\python.exe" -m pip install -r "backend\requirements.txt" -q
+".venv\Scripts\python.exe" -m pip install -r "backend\requirements.txt" -q --timeout 60
+if errorlevel 1 (
+    echo [WARN] default pip source failed, retrying with Tsinghua mirror ...
+    ".venv\Scripts\python.exe" -m pip install -r "backend\requirements.txt" -q -i https://pypi.tuna.tsinghua.edu.cn/simple --timeout 60
+)
+if errorlevel 1 (
+    echo [WARN] Tsinghua mirror failed, retrying with Aliyun mirror ...
+    ".venv\Scripts\python.exe" -m pip install -r "backend\requirements.txt" -q -i https://mirrors.aliyun.com/pypi/simple/ --timeout 60
+)
+".venv\Scripts\python.exe" -c "import fastapi,uvicorn" >nul 2>nul
+if errorlevel 1 (
+    echo [ERROR] backend dependency install failed. Please check network and rerun.
+    pause
+    exit /b 1
+)
 
+:frontend
 REM ==== 2. frontend: ensure node_modules and a HEALTHY dist ====
 REM   dist 存在但残缺（index.html 引用的资源缺失）也会被识别并自动重建，
 REM   避免上次那种"登录页 404"的问题。

@@ -26,16 +26,16 @@
 
 ### Q1：目前数据库是 SQLite 吗？
 
-**是。** 当前系统默认使用 SQLite。**V1.4.4 起数据库文件回到项目内 `backend/linkoa.db`**（配置见 `backend/.env` 的 `DB_URL`），相对路径写法，随项目文件夹整体迁移，不再依赖任何机器相关的绝对路径。
+**是。** 当前系统默认使用 SQLite。**V1.4.18 起数据库文件统一位于项目根 `data/linkoa.db`**（配置见 `backend/.env` 的 `DB_URL`），本地与 Docker 共用同一份数据，相对路径写法，随项目文件夹整体迁移，不再依赖任何机器相关的绝对路径。
 
-> 历史沿革：早期在 `backend/linkoa.db`；V1.4.3 曾迁到 `C:/Users/Administrator/.workbuddy/linkoa-data/app.db`（当时项目目录位于百度网盘下载目录、会被网盘客户端锁文件）；V1.4.4 改为相对路径写回项目内，兼顾便携与不被网盘锁文件。
+> 历史沿革：早期在 `backend/linkoa.db`；V1.4.3 曾迁到 `C:/Users/Administrator/.workbuddy/linkoa-data/app.db`（当时项目目录位于百度网盘下载目录、会被网盘客户端锁文件）；V1.4.4 改为相对路径写回项目内，兼顾便携与不被网盘锁文件；**V1.4.18 数据目录统一到项目根 `data/`**（本地 `start.bat` 与 Docker 均指向 `data/linkoa.db` + `data/uploads/`），一份数据、两种启动方式通用。
 
 ```ini
 # backend/.env 当前内容
-DB_URL=sqlite:///./linkoa.db
+DB_URL=sqlite:///./../data/linkoa.db
 ```
 
-`./linkoa.db` 是相对路径，`backend/app/config.py` 会按 `__file__` 解析为 `backend/linkoa.db` 的绝对路径，因此**项目文件夹复制到任何机器、任何目录都能正确定位数据库**。
+`./../data/linkoa.db` 是相对 `backend/` 的路径，`backend/app/config.py` 会按 `__file__` 解析为项目根 `data/linkoa.db` 的绝对路径，因此**项目文件夹复制到任何机器、任何目录都能正确定位数据库**。
 
 SQLite 的特点：零安装、单文件、随项目拷贝即走，适合单机/小团队。但它是**文件型数据库**，多用户并发写入能力弱，正式上线到服务器建议换 MySQL。
 
@@ -233,7 +233,7 @@ python migrate_sqlite_to_mysql.py
 
 | 步骤 | 说明 |
 |------|------|
-| 1. 读 SQLite | 路径从 `backend/.env` 的 `DB_URL` 读取（V1.4.4 起为项目内 `backend/linkoa.db`） |
+| 1. 读 SQLite | 路径从 `backend/.env` 的 `DB_URL` 读取（V1.4.18 起为项目根 `data/linkoa.db`） |
 | 2. 清空目标 | `Base.metadata.drop_all` 清空 MySQL linkoa 库旧表 |
 | 3. 重建表 | `Base.metadata.create_all` 按模型建 23 张表（utf8mb4，V1.4.7 含 project_contact_rel，V1.4.8 新增 ai 三表） |
 | 4. 逐表导数据 | 按 `sys_user → ... → sys_operation_log` 顺序逐行插入 |
@@ -243,15 +243,15 @@ python migrate_sqlite_to_mysql.py
 
 ## 6. 拷贝附件文件（uploads 目录）
 
-数据库只存了**文件的相对路径**，附件本体在 `backend/uploads/` 目录里。**必须一并拷到服务器**，否则历史附件下载会 404。
+数据库只存了**文件的相对路径**，附件本体在项目根 `data/uploads/` 目录里。**必须一并拷到服务器**，否则历史附件下载会 404。
 
 ```bash
-# 把本机的 backend/uploads 整个目录复制到服务器的 backend/uploads
+# 把本机的 data/uploads 整个目录复制到服务器的 data/uploads
 # Windows 用 robocopy：
-robocopy "E:\BaiduNetdiskDownload\LINKOA\backend\uploads" "D:\LINKOA\backend\uploads" /E
+robocopy "E:\BaiduNetdiskDownload\LINKOA\data\uploads" "D:\LINKOA\data\uploads" /E
 
 # Linux scp 示例：
-scp -r uploads 用户@服务器IP:/opt/linkoa/backend/
+scp -r data/uploads 用户@服务器IP:/opt/linkoa/data/
 ```
 
 > 迁移脚本 `migrate_sqlite_to_mysql.py` 不做文件搬运，只搬数据库记录，附件目录要手动拷贝。
@@ -378,7 +378,7 @@ mysql -u linkoa -p linkoa < linkoa_backup_20260831.sql
 直接复制文件即可：
 
 ```bash
-copy backend\linkoa.db backup\linkoa_20260831.db
+copy data\linkoa.db backup\linkoa_20260831.db
 ```
 
 ---
@@ -403,7 +403,7 @@ copy backend\linkoa.db backup\linkoa_20260831.db
 
 ### Q5：历史附件下载 404
 
-`uploads` 目录没拷贝到服务器（第 6 节）。数据库有记录、磁盘没文件，就会 404。
+`data/uploads` 目录没拷贝到服务器（第 6 节）。数据库有记录、磁盘没文件，就会 404。
 
 ### Q6：前端打包的 dist 需要重新构建吗？
 
@@ -430,10 +430,10 @@ python -m venv .venv
 
 | 文件 | 作用 |
 |------|------|
-| `backend/linkoa.db` | SQLite 数据库文件（V1.4.4 起，`backend/.env` 的 `DB_URL=sqlite:///./linkoa.db` 相对路径指定，随项目文件夹迁移） |
+| `data/linkoa.db` | SQLite 数据库文件（V1.4.18 起本地与 Docker 统一，`backend/.env` 的 `DB_URL=sqlite:///./../data/linkoa.db` 相对路径指定，随项目文件夹迁移） |
 | `backend/.env` | 数据库连接配置（`DB_URL` 在这里切换） |
 | `backend/switch_db.py` | 一键切换 `.env` 的数据库类型（两个分支均为相对路径/可配置路径，不含机器相关绝对路径） |
 | `backend/migrate_sqlite_to_mysql.py` | SQLite → MySQL 数据迁移 |
 | `backend/migrate_mysql_to_sqlite.py` | MySQL → SQLite 数据迁移 |
 | `backend/init.sql` | MySQL 手工建表/初始化脚本（可选，迁移脚本会替代它建表） |
-| `backend/uploads/` | 附件文件存储目录（迁移时要一并拷贝） |
+| `data/uploads/` | 附件文件存储目录（迁移时要一并拷贝） |

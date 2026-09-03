@@ -342,3 +342,8 @@ src/components/DynamicForm.vue      # 动态表单渲染器（根据 field_type 
   - **编排层**：`ai_service.chat_stream` 改为「`build_knowledge_base` → 知识库为空短路返回固定话术（不调 LLM）→ `_build_messages` 拼入 system 层 → `provider.stream_chat`」；知识库拼在 system 层（每次请求重建只发一次），历史层仅存问答文本，连续多轮不重复注入。
   - **摘联网**：`deepseek.py` 删除 `/responses` 路径仅留 `/chat/completions`；`base.py` 抽象 `stream_chat` 去掉 `web_search`；`schemas/ai.py` 的 `ChatStreamRequest`、`routers/ai.py` 的 `chat_stream` 摘除 `web_search`；前端 `ChatInput/ChatPanel/stores/api` 移除「联网搜索」开关与 `webSearch` 透传。
   - **自检**：`qa_retriever_verify.py` 重写为 `build_knowledge_base` 行为证明（30 项）+ `ai_full_check.py` 19 项 + `full_flow_check.py` 92 项全绿。接口与库结构无变化。
+
+- **V1.4.18（Docker 部署目录化 + 数据目录统一）**：
+  - **Docker 部署目录化**：Docker 相关文件（Dockerfile/docker-compose.yml/docker-compose.mysql.yml/docker-entrypoint.sh）统一收进项目根 docker/ 目录；部署时先 cd docker 再 docker compose up -d --build；compose 构建上下文指向项目根，数据卷挂载 ../data:/app/data。
+  - **数据目录统一（本地与 Docker 共用一套）**：ackend/.env 的 DB_URL 改为 sqlite:///./../data/linkoa.db、UPLOAD_DIR 改为 ../data/uploads，本地 start.bat 与 Docker 均指向项目根 data/（data/linkoa.db + data/uploads/），一份数据、两种启动方式通用；历史遗留 ackend/linkoa.db 不再被引用，可删。
+  - **启动脚本加固**：start.bat 增加依赖就绪检查（装好则跳过联网安装）、pip 三源 fallback（默认/清华/阿里）、装后强制验证，解决断网/SSL 失败时启动崩溃问题。

@@ -18,7 +18,9 @@ npm run build
 - 开发地址：http://localhost:5173
 - 初始账号：admin / admin123
 
-## 版本特性（V1.4.17）
+## 版本特性（V1.4.18）
+
+- **Docker 部署目录化（V1.4.18）**：Docker 相关文件统一收进项目根 `docker/` 目录；部署时进入 `docker/` 目录执行 `docker compose up -d --build`。本版本为部署与文档整理，**功能与界面无变更**。
 
 - **品牌与文案（V1.4.5）**：登录页为 logo 图（`public/link-icon.png`）+「青岛领客文化传播有限公司」，居中排版；顶部导航与窄屏抽屉仅保留 LINK 文字（去掉 Brush 图标）；浏览器标签页标题为 `页面 - 领客文创`；客户门户页头为 logo 小图 +「领客文化 · 客户门户」；工作台欢迎语「开始管理你的项目」。
 - **图片放大镜修复（V1.4.5）**：`DynamicForm.vue` 图片悬停遮罩的 ZoomIn 图标原先未绑点击处理，点击无反应；现通过函数 ref 调 `el-image` 的 `showPreview()` 打开全屏预览。

@@ -1,0 +1,31 @@
+# ============================================
+#  LINKOA OA - .gitignore
+#  保护：敏感配置、用户数据、构建产物一律不入库
+# ============================================
+
+# ---- Python 虚拟环境 / 缓存 ----
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# ---- 敏感配置（含 DeepSeek API Key，严禁入库）----
+backend/.env
+
+# ---- 数据库与上传附件（用户数据）----
+backend/*.db
+backend/uploads/
+data/
+
+# ---- 前端 ----
+frontend/node_modules/
+frontend/dist/
+frontend/vite.config.js.timestamp-*.mjs
+
+# ---- Docker 运行配置（本机私有覆盖）----
+docker/.env
+
+# ---- 系统杂项 ----
+.DS_Store
+Thumbs.db
+desktop.ini

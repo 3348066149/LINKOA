@@ -1,0 +1,47 @@
+# ============================================================================
+#  LINKOA - 可选 MySQL 覆盖文件（多用户并发协作时才需要）
+#
+#  用法（先进入 docker/ 目录，再执行）：
+#    docker compose -f docker-compose.yml -f docker-compose.mysql.yml up -d --build
+#
+#  默认 SQLite 已完全够用（单机/演示/单人使用）。仅当「多个员工同时在线改数据」
+#  时才启用 MySQL，并发写入更稳定。
+#
+#  可在 docker/ 目录的 .env 中配置：
+#    MYSQL_ROOT_PASSWORD=...     # MySQL root 密码，默认 root123456
+#    MYSQL_PASSWORD=...          # linkoa 应用账号密码，默认 linkoa123456
+# ============================================================================
+name: linkoa
+
+services:
+  app:
+    environment:
+      # 指向本组件的 MySQL 服务
+      DB_URL: "mysql+pymysql://linkoa:${MYSQL_PASSWORD:-linkoa123456}@mysql:3306/linkoa?charset=utf8mb4"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    container_name: linkoa-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-root123456}"
+      MYSQL_DATABASE: linkoa
+      MYSQL_USER: linkoa
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-linkoa123456}"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+volumes:
+  mysql_data:
