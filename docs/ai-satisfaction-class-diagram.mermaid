@@ -1,0 +1,88 @@
+classDiagram
+    class ProjectEvaluation {
+        +int id
+        +int project_id
+        +int design_score
+        +int service_score
+        +int product_score
+        +str customer_remark
+        +int evaluate_user_id
+        +datetime evaluate_time
+        +str reflection
+        +int reflection_user_id
+        +datetime reflection_time
+        +datetime create_time
+        +datetime update_time
+    }
+
+    class EvaluationSubmitRequest {
+        +int project_id
+        +int design_score
+        +int service_score
+        +int product_score
+        +str customer_remark
+    }
+
+    class ReflectionSaveRequest {
+        +int project_id
+        +str reflection
+    }
+
+    class EvaluationPublicOut {
+        +int design_score
+        +int service_score
+        +int product_score
+        +str customer_remark
+        +datetime evaluate_time
+    }
+
+    class EvaluationDetailOut {
+        +int design_score
+        +int service_score
+        +int product_score
+        +str customer_remark
+        +datetime evaluate_time
+        +str reflection
+        +str reflection_user_name
+        +datetime reflection_time
+    }
+
+    class ProjectListItem {
+        +EvaluationPublicOut evaluation
+    }
+
+    class ProjectDetail {
+        +EvaluationPublicOut evaluation
+    }
+
+    class EvaluationService {
+        +submit(db, current_user, req) EvaluationPublicOut
+        +get(db, project_id, current_user) EvaluationDetailOut|EvaluationPublicOut
+        +save_reflection(db, current_user, req) None
+        +_to_public(e) EvaluationPublicOut
+        +_to_detail(e) EvaluationDetailOut
+    }
+
+    class MessageService {
+        +push_evaluation_create(db, project) None
+        +_recipients(db, project, operator_id) set
+    }
+
+    class ProjectService {
+        +project_list(db, query, current_user) PageResult
+        +project_detail(db, project_id, current_user) ProjectDetail
+        +project_delete(db, operator_id, project_id) None
+        +_evaluation_map(db, project_ids) dict
+    }
+
+    class ExcelService {
+        +export_projects(db, query) tuple
+    }
+
+    ProjectService --> ProjectEvaluation : 批量查询/级联删除
+    EvaluationService --> ProjectEvaluation : 读写
+    EvaluationService --> MessageService : 提交后推送
+    ExcelService --> ProjectEvaluation : 读取导出
+    ProjectListItem --> EvaluationPublicOut : 嵌入
+    ProjectDetail --> EvaluationPublicOut : 嵌入
+    EvaluationDetailOut --|> EvaluationPublicOut : 继承

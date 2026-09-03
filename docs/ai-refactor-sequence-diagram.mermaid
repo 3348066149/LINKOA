@@ -1,0 +1,24 @@
+sequenceDiagram
+    participant FE as 前端 ChatPanel
+    participant Router as routers/ai.py
+    participant SVC as ai_service.chat_stream
+    participant KB as retriever.build_knowledge_base
+    participant DB as 数据库
+    participant LLM as DeepSeekProvider
+
+    FE->>Router: POST /api/ai/chat/stream {conversationId, message}
+    Router->>SVC: chat_stream(current_user, conversation_id, message)
+    SVC->>SVC: 限流校验 / 取配置 / 建会话 / 载历史 / 存用户消息
+    SVC->>KB: build_knowledge_base(db, current_user)
+    KB->>DB: 查项目（客户按 category_id 隔离 / 员工全量，含已归档）
+    KB->>DB: 批量查对接人（project_contact_rel → customer）
+    KB->>DB: 批量查设计师（project_designer_rel → user）
+    KB-->>SVC: (context, sources)
+    alt 知识库为空
+        SVC-->>FE: SSE delta(固定话术) → done
+    else 知识库非空
+        SVC->>SVC: _build_messages(system + 红线 + 身份 + 知识库 + 历史 + 问题)
+        SVC->>LLM: stream_chat(messages, temperature, max_tokens)
+        LLM-->>SVC: 增量文本 delta（/chat/completions SSE）
+        SVC-->>FE: SSE delta… → done{conversationId, messageId, sources}
+    end

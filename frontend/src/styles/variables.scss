@@ -1,0 +1,93 @@
+// ============================================================
+// variables.scss — 领客文创 OA 设计 Token（V1.3）
+// 全站样式统一从这里取值，禁止在组件中硬编码色值/圆角/间距
+// 品牌主色：蓝色系（经用户确认，保持与旧版连续性）
+// ============================================================
+:root {
+  // ---------- 品牌色（墨黑 + 强调红，取自品牌标识黑白红） ----------
+  --lk-primary: #161616; // 墨黑主色
+  --lk-primary-dark: #000000; // 主色加深（hover/active）
+  --lk-primary-darker: #000000; // 主色最暗（按压）
+  --lk-primary-light: #525252; // 主色变浅（light-3）
+  --lk-primary-lighter: #8f8f8f; // 主色更浅（light-5）
+  --lk-primary-lightest: #f5f5f5; // 主色极浅（背景/选中）
+  --lk-accent: #e2231a; // 品牌红（标识箭头红，强调用）
+  --lk-accent-dark: #bf1d15; // 红加深（hover）
+  --lk-accent-light: #ff6b61; // 红变浅
+  --lk-accent-bg: #fdeceb; // 红极浅底
+  --lk-accent-glow: rgba(226, 35, 26, 0.4); // 红发光
+
+  // ---------- 功能色 ----------
+  --lk-success: #67c23a;
+  --lk-success-bg: #f0f9eb;
+  --lk-warning: #e6a23c;
+  --lk-warning-bg: #fdf6ec;
+  --lk-danger: #f56c6c;
+  --lk-danger-bg: #fef0f0;
+  --lk-info: #909399;
+  --lk-info-bg: #f4f4f5;
+
+  // ---------- 中性色 ----------
+  --lk-text-1: #303133; // 主文本（白底对比度 12.6:1，AA 达标）
+  --lk-text-2: #606266; // 常规文本（白底对比度 5.9:1，AA 达标）
+  // 阶段四：次要文本从 #909399（3.1:1）加深至 #6f737a（4.8:1），满足 WCAG AA 4.5:1
+  --lk-text-3: #6f737a;
+  // 阶段四：占位文本从 #c0c4cc（1.9:1）加深至 #9aa0a6（3.2:1），提升弱视可读性
+  --lk-text-4: #9aa0a6;
+  --lk-border: #dcdfe6; // 实线边框
+  --lk-border-light: #e4e7ed; // 细分隔线
+  --lk-border-lighter: #ebeef5; // 卡片描边
+  --lk-bg-page: #f7f6f3; // 页面底色（微暖中性，衬品牌墨黑）
+  --lk-bg-card: #ffffff; // 卡片底色
+  --lk-bg-hover: #f5f7fa; // 悬浮底色
+
+  // ---------- 间距（4px 栅格） ----------
+  --lk-space-2xs: 2px;
+  --lk-space-xs: 4px;
+  --lk-space-sm: 8px;
+  --lk-space-md: 12px;
+  --lk-space-lg: 16px;
+  --lk-space-xl: 24px;
+  --lk-space-2xl: 32px;
+  --lk-space-3xl: 48px;
+
+  // ---------- 圆角 ----------
+  --lk-radius-sm: 6px;
+  --lk-radius-md: 8px;
+  --lk-radius-lg: 12px;
+  --lk-radius-xl: 16px;
+  --lk-radius-round: 999px;
+
+  // ---------- 阴影（层级由低到高） ----------
+  --lk-shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.04);
+  --lk-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --lk-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+
+  // ---------- 字号 ----------
+  --lk-font-xs: 12px;
+  --lk-font-sm: 13px;
+  --lk-font-md: 14px;
+  --lk-font-lg: 16px;
+  --lk-font-xl: 20px;
+  --lk-font-2xl: 24px;
+
+  // ---------- 容器与布局 ----------
+  --lk-container-max: 1200px; // 页面内容最大宽度
+  --lk-main-padding: clamp(12px, 2vw, 24px); // 主内容区响应式内边距
+  --lk-header-height: 60px;
+
+  // ---------- 断点（阶段二响应式使用） ----------
+  --lk-bp-lg: 1200px;
+  --lk-bp-md: 900px;
+  --lk-bp-sm: 768px;
+
+  // ---------- 动效 ----------
+  --lk-transition-fast: 0.15s;
+  --lk-transition-base: 0.25s;
+  --lk-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  // ---------- 字体（内网系统，使用系统字体栈） ----------
+  --lk-font-family: 'HarmonyOS Sans SC', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Helvetica Neue', Arial, sans-serif;
+}

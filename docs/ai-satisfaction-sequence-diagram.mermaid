@@ -1,0 +1,41 @@
+sequenceDiagram
+    participant C as 客户(Client)
+    participant R as EvaluationRouter
+    participant S as EvaluationService
+    participant M as MessageService
+    participant DB as Database
+
+    C->>R: POST /api/evaluation/submit {projectId, designScore, serviceScore, productScore, customerRemark}
+    R->>S: submit(db, current_user, req)
+    S->>DB: get(Project, project_id)
+    alt 不存在 / 非本单位 / 未归档 / 已评价
+        S-->>R: BusinessException(400/403)
+        R-->>C: {code:400/403, msg, data:null}
+    end
+    S->>DB: add(ProjectEvaluation(...))
+    S->>M: push_evaluation_create(db, project)
+    M->>DB: 批量 insert Message(创建人+设计师+全部管理员, evaluation_create)
+    S->>DB: commit()
+    S-->>R: EvaluationPublicOut
+    R-->>C: {code:200, msg:"", data:{designScore,...}}
+
+    note over C,M : ---- 内部查看评价 + 写反思 ----
+
+    participant E as 内部员工(Staff)
+    E->>R: GET /api/evaluation/{projectId}
+    R->>S: get(db, project_id, current_user)
+    S->>DB: get(Project) + 查 ProjectEvaluation + reflection_user_name
+    S-->>R: EvaluationDetailOut(含 reflection)
+    R-->>E: {code:200, data:{designScore, serviceScore, productScore, customerRemark, evaluateTime, reflection, reflectionUserName, reflectionTime}}
+
+    E->>R: POST /api/evaluation/reflection {projectId, reflection}
+    R->>S: save_reflection(db, current_user, req)
+    S->>DB: 查 ProjectEvaluation
+    alt 评价不存在
+        S-->>R: BusinessException(400 "客户尚未评价")
+        R-->>E: {code:400, ...}
+    end
+    S->>DB: 覆盖 reflection / reflection_user_id / reflection_time
+    S->>DB: commit()
+    S-->>R: None
+    R-->>E: {code:200, data:null}

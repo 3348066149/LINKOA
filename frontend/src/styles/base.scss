@@ -1,0 +1,72 @@
+// ============================================================
+// base.scss — 全局基础样式：重置 / 滚动条 / 选中态 / 动效降级
+// 内网 OA 系统，不使用远程字体，采用系统中文字体栈
+// ============================================================
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--lk-font-family);
+  font-size: var(--lk-font-md);
+  font-variant-numeric: tabular-nums;
+  color: var(--lk-text-1);
+  background-color: var(--lk-bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+#app {
+  height: 100%;
+}
+
+// ---------- 滚动条 ----------
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--lk-border);
+  border-radius: var(--lk-radius-round);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--lk-text-4);
+}
+
+// ---------- 文本选中态 ----------
+::selection {
+  background: var(--lk-primary-lightest);
+  color: var(--lk-primary-darker);
+}
+
+// ---------- 键盘焦点可见性（WCAG 2.4.7） ----------
+:focus-visible {
+  outline: 2px solid var(--lk-primary);
+  outline-offset: 2px;
+  border-radius: var(--lk-radius-xs, 2px);
+}
+
+// ---------- 动效降级（WCAG 2.3.3） ----------
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

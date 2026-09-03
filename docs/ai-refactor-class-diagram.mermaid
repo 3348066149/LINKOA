@@ -1,0 +1,58 @@
+classDiagram
+    class KnowledgeBaseBuilder {
+        +build_knowledge_base(db, current_user) tuple(str, list)
+        +_scope_category_id(current_user) int|None
+        +_fetch_projects(db, category_id) list
+        +_fetch_contacts(db, project_ids) dict
+        +_fetch_designers(db, project_ids) dict
+        +_format_date(value) str
+        +_status_label(status) str
+        +_join_names(names, fallback) str
+    }
+    class AiService {
+        +chat_stream(current_user, conversation_id, message)
+        +_build_messages(system_prompt, history, context, question, identity)
+        +_resolve_identity(db, current_user)
+        +_SECURITY_SYSTEM_PROMPT
+    }
+    class DeepSeekProvider {
+        +stream_chat(messages, temperature, max_tokens)
+        +_stream_chat_completions(messages, temperature, max_tokens)
+    }
+    class BaseLLMProvider {
+        <<abstract>>
+        +stream_chat(messages, temperature, max_tokens) Iterator
+    }
+    class ChatStreamRequest {
+        +conversation_id: int|None
+        +message: str
+    }
+    class Project {
+        +id, project_name, category_id, customer_id
+        +project_status, create_time, expect_time
+    }
+    class CustomerCategory {
+        +category_name
+    }
+    class Customer {
+        +customer_name
+    }
+    class ProjectContactRel {
+        +project_id, customer_id
+    }
+    class ProjectDesignerRel {
+        +project_id, user_id
+    }
+    class SysUser {
+        +real_name
+    }
+
+    AiService --> KnowledgeBaseBuilder : build_knowledge_base()
+    AiService --> DeepSeekProvider : stream_chat()
+    DeepSeekProvider --|> BaseLLMProvider : 实现
+    KnowledgeBaseBuilder --> Project : 读
+    KnowledgeBaseBuilder --> CustomerCategory : 读
+    KnowledgeBaseBuilder --> Customer : 读
+    KnowledgeBaseBuilder --> ProjectContactRel : 读
+    KnowledgeBaseBuilder --> ProjectDesignerRel : 读
+    KnowledgeBaseBuilder --> SysUser : 读
