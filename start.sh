@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 # ============================================
 #   LINKOA OA - One-Click Start (Linux/macOS)
 # ============================================

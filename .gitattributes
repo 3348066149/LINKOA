@@ -1,0 +1,31 @@
+# ============================================================
+# 统一 Git 换行符策略
+# 背景：此前在 core.autocrlf=true 的 Windows 上 git 拉取后，
+#   .sh 入口脚本被检出为 CRLF，容器/Linux 里 shebang 变成
+#   "#!/bin/sh\r" 导致报 "exec format error / no such file or
+#   directory"（对应"git拉取后 Docker 部署报错，下载 ZIP 正常"）。
+# 规则：文本入库一律 LF；检出按平台，但 .sh 强制 LF。
+# ============================================================
+
+# 默认：文本文件自动识别，换行符由 git 统一管理
+* text=auto
+
+# Shell 脚本强制 LF（任何平台检出都是 LF，杜绝 CRLF 污染）
+*.sh text eol=lf
+
+# Windows 批处理强制 CRLF（cmd 兼容性最佳）
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制文件：不做换行符转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.pyc binary
+*.db binary
+*.xlsx binary
+*.pptx binary
+*.zip binary
