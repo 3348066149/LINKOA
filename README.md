@@ -209,13 +209,10 @@ cd backend
 | Linux / macOS | `start.sh`  | 先 `chmod +x start.sh`，再 `./start.sh` |
 
 
-停止服务：
-
-
-| 系统            | 脚本         | 说明                      |
-| ------------- | ---------- | ----------------------- |
-| Windows       | `stop.bat` | 按端口 8000/5173 结束进程      |
-| Linux / macOS | `stop.sh`  | 同上（依赖 `lsof` 或 `fuser`） |
+停止服务（stop 脚本已移除，按以下方式停止）：
+- **脚本方式启动**：在运行 `start.bat` / `start.sh` 的窗口按 `Ctrl + C`。
+- **Docker 方式**：进入 `docker/` 目录执行 `docker compose down`。
+- **端口被占用时**：Windows 用 `netstat -ano` 查 PID 后 `taskkill /F /PID <PID>`；Linux 用 `lsof -ti:8000` 查 PID 后 `kill -9 <PID>`。
 
 
 > 脚本同样会做「dist 完整性自检」：dist 存在但残缺（比如构建失败留下的半成品）会自动识别并重新构建，避免出现登录页 404。
