@@ -395,3 +395,10 @@ python switch_db.py mysql
 
 **Q8：给客户演示，客户电脑打不开？**
 确认 ① 后端用 `--host 0.0.0.0` 启动；② 两台电脑在同一局域网；③ Windows 防火墙放行 8000 端口；④ 客户浏览器访问的是 `http://你的电脑IP:8000`，不是 localhost。
+
+**Q9：git 拉取/克隆后部署 Docker 报错、start.sh 在 Linux/macOS 打不开，但下载 ZIP 却正常？**
+这是**换行符（CRLF/LF）问题**（就是之前说的"符号问题"）：`.sh` 入口脚本在 `core.autocrlf=true` 的 Windows 上被 git 检出成 CRLF，容器/Linux 里 shebang 变成 `#!/bin/sh\r`，于是报 `exec format error` / `no such file or directory`；而 GitHub 下载的 ZIP 是原始 LF，所以正常。
+项目根目录已加入 **`.gitattributes`** 强制 `*.sh` 一律 LF、`*.bat` 保持 CRLF。处理方式：
+- **本机更新**：`git pull` 后若 `git status` 出现大量"换行符改动"，执行 `git add --renormalize .` 后重新提交一次即可（只影响换行符，不改内容）。
+- **其他机器**：重新 `git clone` 或 `git pull` 即可，无需手动改文件。
+- 换机器后**必须删掉生成物**（`.venv`、`node_modules`、`dist`）再运行 `start.bat`/`start.sh` 重新生成，详见 Q2。
