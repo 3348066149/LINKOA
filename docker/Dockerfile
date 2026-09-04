@@ -40,9 +40,9 @@ COPY --from=frontend-build /build/dist /app/frontend/dist
 # 入口脚本：启动前确保附件目录存在（main.py 导入阶段即挂载 /uploads，目录缺失会启动失败）
 # 注意：build context 是项目根，docker-entrypoint.sh 位于 docker/ 下，故路径带 docker/ 前缀
 COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
-    && tr -d '\r' < /usr/local/bin/docker-entrypoint.sh > /usr/local/bin/docker-entrypoint.sh.tmp \
-    && mv /usr/local/bin/docker-entrypoint.sh.tmp /usr/local/bin/docker-entrypoint.sh
+RUN tr -d '\r' < /usr/local/bin/docker-entrypoint.sh > /usr/local/bin/docker-entrypoint.sh.tmp \
+    && mv /usr/local/bin/docker-entrypoint.sh.tmp /usr/local/bin/docker-entrypoint.sh \
+    && chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # 数据卷：数据库 + 上传附件（推荐由 docker-compose 挂载到宿主机 ./data）
 VOLUME ["/app/data"]
