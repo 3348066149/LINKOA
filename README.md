@@ -399,6 +399,11 @@ python switch_db.py mysql
 **Q9：git 拉取/克隆后部署 Docker 报错、start.sh 在 Linux/macOS 打不开，但下载 ZIP 却正常？**
 这是**换行符（CRLF/LF）问题**（就是之前说的"符号问题"）：`.sh` 入口脚本在 `core.autocrlf=true` 的 Windows 上被 git 检出成 CRLF，容器/Linux 里 shebang 变成 `#!/bin/sh\r`，于是报 `exec format error` / `no such file or directory`；而 GitHub 下载的 ZIP 是原始 LF，所以正常。
 项目根目录已加入 **`.gitattributes`** 强制 `*.sh` 一律 LF、`*.bat` 保持 CRLF。处理方式：
-- **本机更新**：`git pull` 后若 `git status` 出现大量"换行符改动"，执行 `git add --renormalize .` 后重新提交一次即可（只影响换行符，不改内容）。
+- **本机更新**：直接 git pull 即可。若该机器此前已 clone 过、且 docker compose up 仍报"入口脚本 no such file or directory"，说明磁盘上的 .sh 还是旧 CRLF（Git 可能因"干净过滤器"跳过重写），执行下面两行强制落盘为 LF：
+  ```
+  del start.sh docker\docker-entrypoint.sh
+  git checkout -- start.sh docker\docker-entrypoint.sh
+  ```
+  注：Dockerfile 已内置 sed 去除行尾 CR 的兜底，即使构建上下文是 CRLF 也会自动修复。
 - **其他机器**：重新 `git clone` 或 `git pull` 即可，无需手动改文件。
 - 换机器后**必须删掉生成物**（`.venv`、`node_modules`、`dist`）再运行 `start.bat`/`start.sh` 重新生成，详见 Q2。
