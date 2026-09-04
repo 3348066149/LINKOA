@@ -21,6 +21,7 @@
 - [八、各模块使用说明](#八各模块使用说明)
 - [九、给客户演示前的检查清单](#九给客户演示前的检查清单)
 - [十、常见问题（FAQ）](#十常见问题faq)
+- [十一、项目目录与各文件夹 README](#十一项目目录与各文件夹-readme)
 
 ---
 
@@ -93,6 +94,8 @@ docker compose up -d --build   # 首次构建 + 启动（在线自动下载依�
 - 启动后访问 http://localhost:8000（admin / admin123）
 - 数据在项目根 `data/` 文件夹，备份只拷它
 - 完整操作、可选 MySQL、FAQ 见 **`docker/README.md`**
+- **无外网离线部署**：用 `docker/linkoa-latest.tar` 离线包（配套 `docker/离线部署说明.txt` 手把手），详见 `docker/README.md` 第三、四章
+- **Docker 版本太旧**（没有 `docker compose`）：用 `docker run` 一条命令兜底，详见 `docker/README.md` 第五章
 
 > 与脚本/手动方式的区别：Docker 把 Python + 依赖 + 前端全打进镜像，目标电脑**不用装任何运行时**，只需装 Docker。
 > 脚本虽然省事，但它把"装依赖、构建"都静默完成了——**一旦某一步失败（比如依赖没装全），它会带着残缺状态继续启动**，表面"起来了"、实际页面打不开（就是之前登录页 404 的那次）。所以**给客户演示请用手动方式**，逐条执行、每步验证。
@@ -406,3 +409,19 @@ python switch_db.py mysql
   注：Dockerfile 已内置 sed 去除行尾 CR 的兜底，即使构建上下文是 CRLF 也会自动修复。
 - **其他机器**：重新 `git clone` 或 `git pull` 即可，无需手动改文件。
 - 换机器后**必须删掉生成物**（`.venv`、`node_modules`、`dist`）再运行 `start.bat`/`start.sh` 重新生成，详见 Q2。
+
+---
+
+## 十一、项目目录与各文件夹 README
+
+> 每个文件夹都有 README.md 简要介绍自身内容，按需直达：
+
+| 目录 | 作用 | README |
+| --- | --- | --- |
+| 根目录 | 安装·启动·演示总入口 | `README.md`（本文件） |
+| `backend/` | 后端 FastAPI（端口 8000，SQLite/MySQL） | `backend/README.md` |
+| `frontend/` | 前端 Vue3 + Element Plus（构建产物由后端托管） | `frontend/README.md` |
+| `docker/` | Docker 部署全家桶（Dockerfile / compose / 离线包 / 部署指南） | `docker/README.md` + `docker/离线部署说明.txt` |
+| `data/` | **数据目录**（数据库 + 附件，备份只拷它） | `data/README.md` |
+| `docs/` | 文档索引（使用 / 开发 / 原理） | `docs/README.md` |
+| `artifacts/` | 方案与交付留档 | `artifacts/README.md` |

@@ -10,9 +10,10 @@
 | 文档 | 位置 | 说明 |
 | --- | --- | --- |
 | 安装·启动·演示指南 | 项目根 `README.md` | **使用入口**：环境要求、Docker/脚本/手动三种启动、数据库、模块说明、演示清单、FAQ |
-| Docker 部署指南 | `docker/README.md` | **Docker 专属**：进入 `docker/` 目录的操作、数据备份、MySQL 可选、FAQ |
+| Docker 部署指南 | `docker/README.md` | **Docker 专属总指南**：在线部署、离线部署、版本兼容（v2/v1）、低版本兜底、数据备份、MySQL 可选、FAQ |
+| 离线部署手册 | `docker/离线部署说明.txt` | **无外网场景**手把手：传包→校验→加载→启动→排错（与 docker/README.md 配合） |
 
-> 部署时只需看根 `README.md` + `docker/README.md` 两份。
+> 部署时只需看根 `README.md` + `docker/README.md`（离线再看同目录 `离线部署说明.txt`）三份。
 
 ## 二、原理学习（想弄懂 Docker）
 
@@ -40,13 +41,13 @@
 | `ai-refactor-design.md` + `ai-refactor-class-diagram.mermaid` + `ai-refactor-sequence-diagram.mermaid` | AI 助手重构设计（V1.4.16 前后） |
 | `ai-satisfaction-design.md` + `ai-satisfaction-class-diagram.mermaid` + `ai-satisfaction-sequence-diagram.mermaid` | 客户满意度评价设计 |
 
-> 同类历史材料另见 `artifacts/`（AI 助手改造方案、总体 overview 等）与 `deliverables/`（交付记录）。
+> 同类历史材料另见 `artifacts/`（AI 助手改造方案、总体 overview 等；交付记录已并入其中）。
 
 ---
 
 ## 快速定位
 
 - **"我要部署/启动"** → 根 `README.md` → 三章「启动方式总览」→ 3.1 Docker / 四章手动 / 五章脚本
-- **"我要用 Docker 跑起来"** → `docker/README.md`
+- **"我要用 Docker 跑起来"** → `docker/README.md`（离线看 `docker/离线部署说明.txt`）
 - **"我想搞懂 Docker"** → `docs/Docker入门与原理.md`
 - **"我要改代码"** → `docs/程序开发人员看/` + `backend/README.md` + `frontend/README.md`
