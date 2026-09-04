@@ -252,6 +252,9 @@ app.add_middleware(
 register_exception_handlers(app)
 
 # 附件静态资源挂载：/uploads -> ./uploads/
+# 注意：目录必须在 mount 之前就存在（StaticFiles 构造函数会校验目录），
+# 不能只依赖 lifespan —— mount 是模块加载期执行的，早于服务启动。
+os.makedirs(UPLOAD_PATH, exist_ok=True)
 app.mount("/uploads", ForceStaticFiles(directory=UPLOAD_PATH), name="uploads")
 
 # ---------------------------------------------------------------------------
