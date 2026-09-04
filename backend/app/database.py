@@ -1,4 +1,6 @@
 """SQLAlchemy 2.0 engine / SessionLocal / Declarative Base"""
+from pathlib import Path
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
@@ -6,6 +8,10 @@ from app.config import settings
 
 if settings.DB_URL.startswith("sqlite"):
     # SQLite：文件数据库，跨平台随项目走；check_same_thread 支持 FastAPI 多线程访问
+    # 首次启动前确保数据库所在目录存在（SQLite 不会自动创建父目录，缺目录会报 unable to open database file）
+    _db_path = settings.DB_URL[len("sqlite:///"):]
+    if _db_path and _db_path != ":memory:":
+        Path(_db_path).resolve().parent.mkdir(parents=True, exist_ok=True)
     engine = create_engine(
         settings.DB_URL,
         connect_args={"check_same_thread": False},

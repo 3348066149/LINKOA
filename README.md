@@ -223,6 +223,8 @@ cd backend
 
 系统默认使用 **SQLite**，零配置、单文件（`data/linkoa.db`），复制文件夹就能带走。
 
+> **本地与 Docker 数据统一（V1.4.18+）**：Windows（start.bat）和 Docker 容器**默认都读写项目根 `data/`**（`data/linkoa.db` + `data/uploads/`），一份数据、两种启动方式共用，无需额外配置。
+
 
 | 数据库            | 适用场景           | 特点                            |
 | -------------- | -------------- | ----------------------------- |
@@ -379,7 +381,7 @@ python switch_db.py mysql
 这些被 `.gitignore` 排除了（属于生成物和敏感配置），**故意不上传**。下载后必须按 4.2 在本机重新生成。
 
 **Q4：怎么把数据从一台机器搬到另一台？**
-复制整个项目文件夹即可（数据在 `data/linkoa.db`、附件在 `data/uploads/`）。目标机器装好 Python 3.10+，然后**删掉生成物**（`.venv`、`node_modules`、`dist`）重新生成，**保留** `linkoa.db`、`uploads`、`.env`。
+复制整个项目文件夹即可（数据在 `data/linkoa.db`、附件在 `data/uploads/`）。目标机器装好 Python 3.10+，然后**删掉生成物**（`.venv`、`node_modules`、`dist`）重新生成，**保留** `data/` 文件夹和 `backend/.env`。
 
 **Q5：启动后登录报错 / 数据为空？**
 确认 `backend/.env` 中 `DB_URL` 指向的数据库文件存在；若刚切换过数据库，可能需要先跑迁移脚本同步数据。

@@ -21,8 +21,9 @@ MYSQL_URL = os.environ.get(
     "mysql+pymysql://root:123456@localhost:3306/linkoa?charset=utf8mb4",
 )
 BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_ROOT = os.path.join(BACKEND_DIR, "uploads")
-SQLITE_PATH = os.path.join(BACKEND_DIR, "linkoa.db")
+DATA_DIR = os.path.join(os.path.dirname(BACKEND_DIR), "data")  # 项目根 data/，与 Docker 共用
+UPLOAD_ROOT = os.path.join(DATA_DIR, "uploads")
+SQLITE_PATH = os.path.join(DATA_DIR, "linkoa.db")
 def _load_sqlite_path():
     import io
     try:

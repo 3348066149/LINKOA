@@ -20,8 +20,8 @@ MYSQL_URL = os.environ.get(
     "mysql+pymysql://root:123456@localhost:3306/linkoa?charset=utf8mb4",
 )
 DB_URLS = {
-    # V1.4.4：SQLite 用相对路径，config.py 会自动规范化到 backend/ 目录下，随项目文件夹走
-    "sqlite": "sqlite:///./linkoa.db",
+    # V1.4.18：SQLite 统一落在项目根 data/linkoa.db（与 Docker 共用一套数据），config.py 自动规范化
+    "sqlite": "sqlite:///./../data/linkoa.db",
     "mysql": MYSQL_URL,
 }
 

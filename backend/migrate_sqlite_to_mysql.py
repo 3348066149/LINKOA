@@ -1,6 +1,6 @@
 """SQLite → MySQL 数据迁移（反向迁移，V1.4 双数据库支持）
 
-把 SQLite 库（路径取自 backend/.env 的 DB_URL，默认 backend/linkoa.db，随项目文件夹走）的数据迁移到 MySQL 的 linkoa 库（先清空目标表再写入）。
+把 SQLite 库（路径取自 backend/.env 的 DB_URL，默认 data/linkoa.db，随项目文件夹走）的数据迁移到 MySQL 的 linkoa 库（先清空目标表再写入）。
 MySQL 建表前请先确保库已存在：CREATE DATABASE linkoa ...（或用 init.sql）。
 
 运行：cd backend && python migrate_sqlite_to_mysql.py
@@ -23,7 +23,8 @@ MYSQL_URL = os.environ.get(
 )
 # SQLite 路径从 backend/.env 的 DB_URL 读取（V1.4.3 起数据库文件为 app.db），兜底 backend/linkoa.db
 BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
-SQLITE_URL = "sqlite:///" + os.path.join(BACKEND_DIR, "linkoa.db").replace("\\", "/")
+DATA_DIR = os.path.join(os.path.dirname(BACKEND_DIR), "data")  # 项目根 data/，与 Docker 共用
+SQLITE_URL = "sqlite:///" + os.path.join(DATA_DIR, "linkoa.db").replace("\\", "/")
 def _load_sqlite_url():
     try:
         with io.open(os.path.join(BACKEND_DIR, ".env"), encoding="utf-8") as f:

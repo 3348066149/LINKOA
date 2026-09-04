@@ -8,16 +8,18 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # backend/ 目录：基于本文件位置解析，保证从任意工作目录启动都能正确定位
 # 不再依赖当前工作目录（CWD），换机器/换启动方式都不会找错文件
 BACKEND_DIR = Path(__file__).resolve().parent.parent
+# 项目根 data/ 目录：本地运行与 Docker 容器共用的统一数据位置（V1.4.18）
+DATA_DIR = BACKEND_DIR.parent / "data"
 
 
 class Settings(BaseSettings):
     # env_file 用绝对路径：从任何目录启动都读取 backend/.env，而不是当前工作目录下的 .env
     model_config = SettingsConfigDict(env_file=str(BACKEND_DIR / ".env"), env_file_encoding="utf-8", extra="ignore")
 
-    # 数据库连接（V1.4 默认 SQLite，数据库文件随项目走，复制文件夹即可移植）
-    #   - SQLite: sqlite:///./linkoa.db 或 sqlite:///绝对路径（相对写法会自动转成 backend/ 下的绝对路径）
+    # 数据库连接（V1.4.18 起默认 SQLite，统一落在项目根 data/linkoa.db，与 Docker 容器共用一套数据）
+    #   - SQLite: 默认 data/linkoa.db；也可用 sqlite:///相对路径或绝对路径覆盖（相对写法自动转成绝对路径）
     #   - MySQL:  mysql+pymysql://root:pwd@localhost:3306/linkoa?charset=utf8mb4
-    DB_URL: str = f"sqlite:///{(BACKEND_DIR / 'linkoa.db').as_posix()}"
+    DB_URL: str = f"sqlite:///{(DATA_DIR / 'linkoa.db').as_posix()}"
 
     # JWT（密钥长度建议 >= 32 字节，满足 HS256 RFC 7518 推荐值）
     JWT_SECRET: str = "linkoa-dev-secret-0123456789abcdef-change-me"
@@ -25,7 +27,8 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
 
     # 附件存储根目录（相对 backend/ 目录，main.py / file_service.py 会拼接成绝对路径）
-    UPLOAD_DIR: str = "uploads"
+    # V1.4.18：默认 ../data/uploads → 项目根 data/uploads，与 Docker 挂载的 /app/data/uploads 对应同一份数据
+    UPLOAD_DIR: str = "../data/uploads"
 
     # CORS 放行来源，逗号分隔
     CORS_ORIGINS: str = "http://localhost:5173"
@@ -42,7 +45,7 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def _normalize_sqlite_path(self) -> "Settings":
-        """SQLite 相对路径规范化：sqlite:///./linkoa.db → sqlite:///backend/linkoa.db 的绝对路径。
+        """SQLite 相对路径规范化：sqlite:///./../data/linkoa.db → 项目根 data/linkoa.db 的绝对路径。
 
         原因：相对路径是相对进程启动时的工作目录（CWD）解析的。若有人未先 cd backend
         就以项目根目录启动 uvicorn，会在根目录新建一个空 linkoa.db，导致拷贝到新机器后

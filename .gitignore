@@ -15,7 +15,8 @@ backend/.env
 # ---- 数据库与上传附件（用户数据）----
 backend/*.db
 backend/uploads/
-data/
+data/*
+!data/.gitkeep
 
 # ---- 前端 ----
 frontend/node_modules/
