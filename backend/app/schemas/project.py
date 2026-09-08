@@ -15,6 +15,7 @@ class ProjectCreateRequest(CamelModel):
     contact_customer_ids: list[int] = Field(..., min_length=1)  # 客户对接人（单位下的 customer，至少 1 人）
     project_desc: str | None = None
     expect_time: datetime | None = None
+    create_time: datetime | None = None  # 立项时间（=创建时间）；不传默认当前时间，支持补录历史项目
     designer_rel_user_id_list: list[int] = []
     template_id: int | None = None  # 不为空时执行模板实例化
 
@@ -34,6 +35,7 @@ class ProjectUpdateBaseRequest(CamelModel):
     contact_customer_ids: list[int] = Field(..., min_length=1)  # 全量覆盖（先删后插）
     project_desc: str | None = None
     expect_time: datetime | None = None
+    create_time: datetime | None = None  # 立项时间（=创建时间），传则更新，不传保留原值
     designer_rel_user_id_list: list[int] = []  # 全量覆盖（先删后插）
 
 

@@ -1,0 +1,4 @@
+prep OK {'unit_a': 1, 'unit_b': 2, 'cust_a1': 1, 'cust_b1': 2, 'staff_id': 2}
+cleanup: {"projects": [[1, 200], [2, 200], [3, 200], [4, 200], [5, 200], [6, 200], [7, 200], [8, 200]], "errors": []}
+
+==== EXEC DONE: passed=37 failed=0 total=37 ====

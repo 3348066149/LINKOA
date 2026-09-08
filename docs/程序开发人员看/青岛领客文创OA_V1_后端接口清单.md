@@ -1298,3 +1298,33 @@
 - `PUT /api/ai/config`
 - **入参**：`{ systemPrompt(必填,1~4000), model(必填,1~64), apiKey(可空), baseUrl(必填,1~256), temperature(0~2,默认0.7), maxTokens(1~32768,默认2048) }`
 - **规则**：`apiKey` 传脱敏值（含 `****`）表示沿用旧值不修改；否则更新为新值；记录 `updatedBy`
+# 19. 客户满意度评价接口（V1.4.17 新增）
+
+### 19.1 客户提交评价
+
+- `POST /api/evaluation/submit`
+- **鉴权**：仅客户角色
+- **入参**：`{ projectId(必填), designScore(1~5,必填), serviceScore(1~5,必填), productScore(1~5,必填), customerRemark(可空,≤2000) }`
+- **返回**：`data: { designScore, serviceScore, productScore, customerRemark, evaluateTime }`
+- **规则**：
+  - 仅项目所属客户单位的客户账号可评（跨单位 403「无权评价该项目」）
+  - 仅已归档项目可评（未归档 400「项目尚未归档，暂不能评价」）
+  - 一次性锁定：已评价项目不可重复提交（400「该项目已评价，不可重复提交」）
+  - 提交后向项目相关成员推送评价消息
+
+### 19.2 查询评价
+
+- `GET /api/evaluation/{projectId}`
+- **鉴权**：全部登录角色
+- **返回**：
+  - 客户：公开 DTO `{ designScore, serviceScore, productScore, customerRemark, evaluateTime }`（不含反思；跨单位 403「无权查看该项目的评价」）
+  - 内部：详情 DTO，额外含 `{ reflection, reflectionUserName, reflectionTime }`（反思人已删除时兜底「已删除用户」）
+  - 未评价：`data: null`
+
+### 19.3 保存内部反思（覆盖式）
+
+- `POST /api/evaluation/reflection`
+- **鉴权**：仅内部角色（普通/管理员，客户不可用）
+- **入参**：`{ projectId(必填), reflection(必填,1~5000) }`
+- **返回**：`data: null`
+- **规则**：覆盖式写入；客户尚未评价时 400「客户尚未评价，暂不能填写反思」；反思内容对客户不可见

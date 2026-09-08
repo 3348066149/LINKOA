@@ -1,6 +1,7 @@
 """项目 Service：模板实例化（ID 重映射）、归档硬拦截、级联删除"""
 import os
 import uuid
+from datetime import datetime
 
 from fastapi import UploadFile
 from sqlalchemy import delete, func, select
@@ -159,6 +160,7 @@ def project_create(db: Session, operator_id: int, req: ProjectCreateRequest) -> 
         customer_id=contacts[0].id,
         project_desc=req.project_desc,
         expect_time=req.expect_time,
+        create_time=req.create_time or datetime.now(),
         project_status="进行中",
         create_user_id=operator_id,
     )
@@ -463,6 +465,8 @@ def project_update_base(db: Session, operator_id: int, req: ProjectUpdateBaseReq
     project.customer_id = contacts[0].id
     project.project_desc = req.project_desc
     project.expect_time = req.expect_time
+    if req.create_time is not None:
+        project.create_time = req.create_time
 
     # 参与设计师全量覆盖（先删后插）
     db.execute(delete(ProjectDesignerRel).where(ProjectDesignerRel.project_id == project.id))

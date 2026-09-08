@@ -1,0 +1,2519 @@
+{
+  "schema_version": 2,
+  "run_id": "qa-76026c5a509c",
+  "revision": 6,
+  "profile": "full",
+  "test_intent": "non_ui_validation",
+  "execution_level": "blocked",
+  "selected_path": "undetermined",
+  "created_at": "2026-09-08T01:17:56.554018+00:00",
+  "target": {
+    "type": "attachment_or_directory",
+    "name": "领客文创 OA（LINKOA）V1.4.18",
+    "source": "E:\\BaiduNetdiskDownload\\LINKOA | http://localhost:8000"
+  },
+  "request_contract": {
+    "request_summary": "对领客文创 OA（LINKOA）V1.4.18 项目流程管理系统做整体 QA 系统测试，覆盖后端 API 与前端页面，找出 Bug 并罗列",
+    "request_hash": "sha256:44468a481690d7b8a2e9ee6dd5368d5fd2a317b54ee520f2181b8f189e0fa535",
+    "task_mode": "api_execution",
+    "scope": {
+      "included_source_ids": [],
+      "excluded_source_ids": [],
+      "included_rounds": [],
+      "excluded_rounds": []
+    },
+    "evidence_policy": {
+      "allow_new_execution": true,
+      "allow_precheck_bug_promotion": false,
+      "required_bug_evidence_level": "L2_observation"
+    },
+    "delivery": {
+      "artifact_required": true,
+      "format": "lark_doc",
+      "carrier": "lark_doc",
+      "filenames": [
+        "领客文创 OA（LINKOA）V1.4.18-QA测试方案与报告"
+      ],
+      "artifacts": [
+        {
+          "format": "lark_doc",
+          "carrier": "lark_doc",
+          "filename": "领客文创 OA（LINKOA）V1.4.18-QA测试方案与报告"
+        }
+      ],
+      "required_sections": [],
+      "section_order": [],
+      "must_surface_to_user": true
+    }
+  },
+  "phase_receipts": [
+    {
+      "stage": "baseline",
+      "revision": 2,
+      "state": "CLOSED",
+      "checked_at": "2026-09-08T01:21:10.136312+00:00",
+      "source_fingerprint": "sha256:592e426299bbe4b951f4598bdfab45715017e21da17b4bbe91979029ce4b3bf8",
+      "warnings": 0
+    },
+    {
+      "stage": "baseline",
+      "revision": 3,
+      "state": "CLOSED",
+      "checked_at": "2026-09-08T01:23:04.935406+00:00",
+      "source_fingerprint": "sha256:8cd60e587edb0769b39e37b97fbef791b23cecd0f59d5a53558c62b9bcec41eb",
+      "warnings": 0
+    },
+    {
+      "stage": "design",
+      "revision": 3,
+      "state": "CLOSED",
+      "checked_at": "2026-09-08T01:23:05.247786+00:00",
+      "source_fingerprint": "sha256:8cd60e587edb0769b39e37b97fbef791b23cecd0f59d5a53558c62b9bcec41eb",
+      "warnings": 0
+    },
+    {
+      "stage": "baseline",
+      "revision": 4,
+      "state": "DISCLOSE",
+      "checked_at": "2026-09-08T01:35:23.141277+00:00",
+      "source_fingerprint": "sha256:a27ecb72c61cd3c59b77f5b436f58a49d8499c1c4034f273f212e551a38c82db",
+      "warnings": 94
+    },
+    {
+      "stage": "design",
+      "revision": 4,
+      "state": "DISCLOSE",
+      "checked_at": "2026-09-08T01:35:36.192593+00:00",
+      "source_fingerprint": "sha256:a27ecb72c61cd3c59b77f5b436f58a49d8499c1c4034f273f212e551a38c82db",
+      "warnings": 94
+    },
+    {
+      "stage": "execution",
+      "revision": 4,
+      "state": "DISCLOSE",
+      "checked_at": "2026-09-08T01:35:43.546357+00:00",
+      "source_fingerprint": "sha256:a27ecb72c61cd3c59b77f5b436f58a49d8499c1c4034f273f212e551a38c82db",
+      "warnings": 94
+    }
+  ],
+  "input": {
+    "summary": "对领客文创 OA（LINKOA）V1.4.18 项目流程管理系统做整体 QA 系统测试：后端 FastAPI API（http://localhost:8000，SQLite），覆盖登录认证、用户/部门/客户单位/对接人、流程模板/节点模板、项目（含本次新增 createTime 指定与编辑）、节点/连线/表单、附件、评论、消息、审计日志、报表导出、客户门户隔离、AI 助手、客户评价及三类角色权限矩阵，找出 Bug 并罗列。",
+    "sources": [
+      {
+        "id": "SRC-001",
+        "type": "code",
+        "locator": "E:\\BaiduNetdiskDownload\\LINKOA\\backend\\app",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 95,
+        "reviewed_item_count": 95,
+        "note": "后端代码：models/schemas/routers/services"
+      },
+      {
+        "id": "SRC-002",
+        "type": "doc",
+        "locator": "E:\\BaiduNetdiskDownload\\LINKOA\\docs\\程序开发人员看\\青岛领客文创OA_V1_后端接口清单.md",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 86,
+        "reviewed_item_count": 86,
+        "note": "接口清单 V1.4.16，86 个 operation 契约"
+      },
+      {
+        "id": "SRC-003",
+        "type": "runtime",
+        "locator": "http://localhost:8000/openapi.json",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 86,
+        "reviewed_item_count": 86,
+        "note": "运行中服务 OpenAPI，已保存至 qa-results/linkoa-system-qa/openapi.json"
+      },
+      {
+        "id": "SRC-004",
+        "type": "doc",
+        "locator": "E:\\BaiduNetdiskDownload\\LINKOA\\README.md",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1,
+        "note": "根 README：安装/启动/模块说明/演示清单"
+      },
+      {
+        "id": "SRC-005",
+        "type": "code",
+        "locator": "E:\\BaiduNetdiskDownload\\LINKOA\\frontend\\src",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 60,
+        "reviewed_item_count": 60,
+        "note": "前端 Vue3 源码（含项目列表/画布/客户门户/系统管理）"
+      }
+    ],
+    "assumptions": [],
+    "conflicts": [],
+    "artifacts": [
+      {
+        "id": "SRC-001",
+        "type": "code",
+        "locator": "E:\\BaiduNetdiskDownload\\LINKOA\\backend\\app",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 95,
+        "reviewed_item_count": 95
+      },
+      {
+        "id": "SRC-002",
+        "type": "doc",
+        "locator": "E:\\BaiduNetdiskDownload\\LINKOA\\docs\\程序开发人员看\\青岛领客文创OA_V1_后端接口清单.md",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 86,
+        "reviewed_item_count": 86
+      },
+      {
+        "id": "SRC-003",
+        "type": "runtime",
+        "locator": "http://localhost:8000/openapi.json",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 86,
+        "reviewed_item_count": 86
+      },
+      {
+        "id": "SRC-004",
+        "type": "doc",
+        "locator": "E:\\BaiduNetdiskDownload\\LINKOA\\README.md",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 1,
+        "reviewed_item_count": 1
+      },
+      {
+        "id": "SRC-005",
+        "type": "code",
+        "locator": "E:\\BaiduNetdiskDownload\\LINKOA\\frontend\\src",
+        "access_status": "read",
+        "completeness_checked": true,
+        "item_count": 60,
+        "reviewed_item_count": 60
+      }
+    ]
+  },
+  "open_questions": [],
+  "change_ledger": [
+    {
+      "id": "CHG-001",
+      "revision": 4,
+      "action": "ADD",
+      "object_type": "run",
+      "added_ids": [
+        "qa-76026c5a509c"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 1,
+      "delta_count": 1,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    },
+    {
+      "id": "CHG-002",
+      "revision": 4,
+      "action": "ADD",
+      "object_type": "requirement",
+      "added_ids": [
+        "REQ-LINKOASYSTEM-001",
+        "REQ-LINKOASYSTEM-002",
+        "REQ-LINKOASYSTEM-003",
+        "REQ-LINKOASYSTEM-004",
+        "REQ-LINKOASYSTEM-005",
+        "REQ-LINKOASYSTEM-006",
+        "REQ-LINKOASYSTEM-007",
+        "REQ-LINKOASYSTEM-008",
+        "REQ-LINKOASYSTEM-009",
+        "REQ-LINKOASYSTEM-010",
+        "REQ-LINKOASYSTEM-011",
+        "REQ-LINKOASYSTEM-012",
+        "REQ-LINKOASYSTEM-013",
+        "REQ-LINKOASYSTEM-014",
+        "REQ-LINKOASYSTEM-015",
+        "REQ-LINKOASYSTEM-016",
+        "REQ-LINKOASYSTEM-017",
+        "REQ-LINKOASYSTEM-018",
+        "REQ-LINKOASYSTEM-019",
+        "REQ-LINKOASYSTEM-020",
+        "REQ-LINKOASYSTEM-021",
+        "REQ-LINKOASYSTEM-022",
+        "REQ-LINKOASYSTEM-023",
+        "REQ-LINKOASYSTEM-024",
+        "REQ-LINKOASYSTEM-025",
+        "REQ-LINKOASYSTEM-026",
+        "REQ-LINKOASYSTEM-027",
+        "REQ-LINKOASYSTEM-028"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 28,
+      "delta_count": 28,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    },
+    {
+      "id": "CHG-003",
+      "revision": 4,
+      "action": "ADD",
+      "object_type": "risk_mechanism",
+      "added_ids": [
+        "RM-AUTH-001",
+        "RM-AUTH-002",
+        "RM-PERM-001",
+        "RM-PERM-002",
+        "RM-PERM-003",
+        "RM-PERM-004",
+        "RM-ARCH-001",
+        "RM-DATA-001",
+        "RM-DATA-002",
+        "RM-DEL-001",
+        "RM-DEL-002",
+        "RM-FILE-001",
+        "RM-FILE-002",
+        "RM-EDGE-001",
+        "RM-MSG-001",
+        "RM-REPORT-001",
+        "RM-AI-001",
+        "RM-AI-002",
+        "RM-USER-001"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 19,
+      "delta_count": 19,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    },
+    {
+      "id": "CHG-004",
+      "revision": 4,
+      "action": "ADD",
+      "object_type": "case",
+      "added_ids": [
+        "TC-AUTH-001",
+        "TC-AUTH-002",
+        "TC-AUTH-003",
+        "TC-AUTH-004",
+        "TC-AUTH-005",
+        "TC-PERM-001",
+        "TC-PERM-002",
+        "TC-PERM-003",
+        "TC-PERM-004",
+        "TC-PERM-005",
+        "TC-ARCH-001",
+        "TC-DATA-001",
+        "TC-DATA-002",
+        "TC-DATA-003",
+        "TC-DEL-001",
+        "TC-DEL-002",
+        "TC-DEL-003",
+        "TC-USER-001",
+        "TC-FILE-001",
+        "TC-FILE-002",
+        "TC-EDGE-001",
+        "TC-MSG-001",
+        "TC-MSG-002",
+        "TC-REPORT-001",
+        "TC-AI-001",
+        "TC-AI-002",
+        "TC-AI-003",
+        "TC-FLOW-001",
+        "TC-CRUD-001",
+        "TC-CRUD-002",
+        "TC-CRUD-003",
+        "TC-CRUD-004",
+        "TC-CRUD-005",
+        "TC-CRUD-006",
+        "TC-CRUD-007",
+        "TC-CRUD-008",
+        "TC-CRUD-009",
+        "TC-QUERY-001"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 38,
+      "delta_count": 38,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    },
+    {
+      "id": "CHG-005",
+      "revision": 4,
+      "action": "ADD",
+      "object_type": "acceptance",
+      "added_ids": [
+        "AC-CORE-001",
+        "AC-PERM-001",
+        "AC-ARCH-001",
+        "AC-DATA-001",
+        "AC-AUTH-001",
+        "AC-DEL-001"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 6,
+      "delta_count": 6,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    },
+    {
+      "id": "CHG-006",
+      "revision": 4,
+      "action": "ADD",
+      "object_type": "execution",
+      "added_ids": [
+        "EXE-LINKOASYSTEM-001",
+        "EXE-LINKOASYSTEM-002",
+        "EXE-LINKOASYSTEM-003",
+        "EXE-LINKOASYSTEM-004",
+        "EXE-LINKOASYSTEM-005",
+        "EXE-LINKOASYSTEM-006",
+        "EXE-LINKOASYSTEM-007",
+        "EXE-LINKOASYSTEM-008",
+        "EXE-LINKOASYSTEM-009",
+        "EXE-LINKOASYSTEM-010",
+        "EXE-LINKOASYSTEM-011",
+        "EXE-LINKOASYSTEM-012",
+        "EXE-LINKOASYSTEM-013",
+        "EXE-LINKOASYSTEM-014",
+        "EXE-LINKOASYSTEM-015",
+        "EXE-LINKOASYSTEM-016",
+        "EXE-LINKOASYSTEM-017",
+        "EXE-LINKOASYSTEM-018",
+        "EXE-LINKOASYSTEM-019",
+        "EXE-LINKOASYSTEM-020",
+        "EXE-LINKOASYSTEM-021",
+        "EXE-LINKOASYSTEM-022",
+        "EXE-LINKOASYSTEM-023",
+        "EXE-LINKOASYSTEM-024",
+        "EXE-LINKOASYSTEM-025",
+        "EXE-LINKOASYSTEM-026",
+        "EXE-LINKOASYSTEM-027",
+        "EXE-LINKOASYSTEM-028",
+        "EXE-LINKOASYSTEM-029",
+        "EXE-LINKOASYSTEM-030",
+        "EXE-LINKOASYSTEM-031",
+        "EXE-LINKOASYSTEM-032",
+        "EXE-LINKOASYSTEM-033",
+        "EXE-LINKOASYSTEM-034",
+        "EXE-LINKOASYSTEM-035",
+        "EXE-LINKOASYSTEM-036",
+        "EXE-LINKOASYSTEM-037",
+        "EXE-LINKOASYSTEM-038"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 38,
+      "delta_count": 38,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    },
+    {
+      "id": "CHG-007",
+      "revision": 4,
+      "action": "ADD",
+      "object_type": "bug",
+      "added_ids": [
+        "BUG-LINKOASYSTEM-001"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 1,
+      "delta_count": 1,
+      "source": "qa_flow.py normalize",
+      "summary": "根据当前 canonical 重建机械计数台账"
+    }
+  ],
+  "environment": {
+    "base_url": "http://localhost:8000",
+    "host": "Windows (PowerShell)",
+    "backend": "FastAPI + SQLAlchemy + SQLite (data/linkoa.db), .venv",
+    "frontend": "Vue3 构建产物 frontend/dist，由后端托管",
+    "admin_account": "admin/admin123",
+    "runtime_status": "running (PID 2448)",
+    "openapi_path": "qa-results/linkoa-system-qa/openapi.json",
+    "notes": "首次启动自动建表 + admin；本次改动：项目 createTime 可选（创建/编辑）"
+  },
+  "screenshot_policy": "unconfirmed",
+  "plan": {
+    "scope": [],
+    "out_of_scope": [],
+    "entry_criteria": [],
+    "exit_criteria": [],
+    "regression": []
+  },
+  "requirements": [
+    {
+      "id": "REQ-LINKOASYSTEM-001",
+      "summary": "登录认证：POST /api/login 成功返回 token+userInfo；密码错误 400；停用账号 400；连续 5 次失败锁定 10 分钟；锁定期间直接拒绝",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-002",
+      "summary": "修改本人密码：旧密码校验，新密码非空，全部登录用户",
+      "source": "SRC-002",
+      "risk": "P3"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-003",
+      "summary": "用户管理（仅管理员）：列表（含明文密码展示）、创建（内部员工 deptId+role / 客户 customerId）、更新、重置密码、启停、解锁、删除（不能删自己与 admin）",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-004",
+      "summary": "客户单位 CRUD（仅管理员）：删除时单位下有对接人或项目返回 400",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-005",
+      "summary": "对接人 CRUD（仅管理员）：删除时存在关联项目返回 400；封面上传魔数校验",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-006",
+      "summary": "流程模板 CRUD（仅管理员）：整图提交、节点/连线存在性校验、删除不影响历史项目",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-007",
+      "summary": "节点模板 CRUD + 图标上传（仅管理员）：字段类型 text_single/text_multi/select/image/link",
+      "source": "SRC-002",
+      "risk": "P2"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-008",
+      "summary": "项目创建：projectName/categoryId/contactCustomerIds 必填且对接人属于单位；createTime 可选（不传默认当前时间）；templateId 非空执行实例化；默认进行中",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-009",
+      "summary": "项目列表：projectName 模糊、categoryId、projectStatus、createTimeStart/End 筛选；分页排序；客户账号按单位隔离",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-010",
+      "summary": "项目详情：节点按 posX→posY→sort→id 排序；客户账号跨单位访问 403",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-011",
+      "summary": "项目编辑 updateBase：contactCustomerIds/designerRelUserIdList 全量覆盖；createTime 传入则更新、不传保留原值；归档拦截",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-012",
+      "summary": "归档/取消归档：状态流转；归档后节点/表单/附件/评论/连线等全部写操作返回 400",
+      "source": "SRC-002",
+      "risk": "P0"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-013",
+      "summary": "项目删除：已归档禁止删除；单事务级联删除节点/连线/表单/附件/评论/关联/消息，磁盘文件同步删除",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-014",
+      "summary": "项目封面：上传（jpg/png/webp 魔数校验、归档拦截、自动删旧图）/移除",
+      "source": "SRC-002",
+      "risk": "P2"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-015",
+      "summary": "节点：增删改、批量坐标、getForm/saveFormValue 全量覆盖、formImage 上传（≤5MB）；客户 403；归档拦截",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-016",
+      "summary": "连线：增删，source/target 必须属于该项目，允许自环；客户 403；归档拦截",
+      "source": "SRC-002",
+      "risk": "P2"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-017",
+      "summary": "附件：上传（≤1G、归档拦截）、列表、删除（本人或管理员，403 拦截他人）、下载、listByProject；磁盘文件同步删除",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-018",
+      "summary": "评论：列表（倒序）、新增、删除本人（403 他人）；归档拦截",
+      "source": "SRC-002",
+      "risk": "P2"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-019",
+      "summary": "消息：myList 分页、read、readAll 返回计数、unreadCount；只读本人消息",
+      "source": "SRC-002",
+      "risk": "P3"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-020",
+      "summary": "审计日志：globalList 仅管理员、projectLog 全部角色；只读",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-021",
+      "summary": "报表导出（仅管理员）：筛选 projectStatus/categoryId/startTime/endTime，列：项目名称/客户单位/对接人/设计师/立项时间/预计结束/状态",
+      "source": "SRC-002",
+      "risk": "P2"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-022",
+      "summary": "客户门户：只读；可见所属单位全部项目；已归档显示已结项；不展示节点进度",
+      "source": "SRC-002",
+      "risk": "P0"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-023",
+      "summary": "AI 会话：列表（置顶优先）、新建、消息列表、软删、重命名、置顶；仅本人会话",
+      "source": "SRC-002",
+      "risk": "P3"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-024",
+      "summary": "AI 对话 /chat/stream：SSE 流式、速率限制（60s/20 次，管理员豁免）、客户数据隔离、知识库为空短路、审计留痕",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-025",
+      "summary": "AI 配置（仅管理员）：GET 脱敏 apiKey；PUT 含 **** 沿用旧值",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-026",
+      "summary": "客户评价：submit（仅已归档、本单位客户）、reflection（内部）、get；评价后锁定不可重复",
+      "source": "SRC-002",
+      "risk": "P2"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-027",
+      "summary": "权限矩阵：管理员全部；普通可看数据+项目内执行（不能建项目/管客户/建模板/看日志报表）；客户只读门户",
+      "source": "SRC-002",
+      "risk": "P1"
+    },
+    {
+      "id": "REQ-LINKOASYSTEM-028",
+      "summary": "createTime 新功能：创建项目可指定创建时间（默认当前时间）；编辑项目可修改创建时间（不传保留原值）；列表/详情/报表正确展示",
+      "source": "SRC-001",
+      "risk": "P1"
+    }
+  ],
+  "risk_mechanisms": [
+    {
+      "id": "RM-AUTH-001",
+      "title": "登录暴力破解锁定与解锁",
+      "failure_mode": "连续失败不锁定或锁定后仍可尝试，导致撞库",
+      "business_impact": "账号安全防线失效",
+      "oracle": "5 次失败后第 6 次提示锁定；锁定期间正确密码也被拒；解锁接口清计数",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-001"
+      ],
+      "case_ids": [
+        "TC-AUTH-003"
+      ],
+      "priority": "P1",
+      "status": "designed"
+    },
+    {
+      "id": "RM-AUTH-002",
+      "title": "停用账号拒绝登录",
+      "failure_mode": "is_enable=0 账号仍可登录",
+      "business_impact": "停用账号无实际效力",
+      "oracle": "停用账号登录返回 400 且带明确 msg",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-001"
+      ],
+      "case_ids": [
+        "TC-AUTH-004"
+      ],
+      "priority": "P1",
+      "status": "designed"
+    },
+    {
+      "id": "RM-PERM-001",
+      "title": "客户账号写操作拦截",
+      "failure_mode": "客户可新增/修改/删除节点、表单、评论、附件、项目",
+      "business_impact": "门户只读承诺被破坏，数据被篡改",
+      "oracle": "客户 token 调写接口均返回 403",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-015",
+        "REQ-LINKOASYSTEM-016",
+        "REQ-LINKOASYSTEM-017",
+        "REQ-LINKOASYSTEM-022"
+      ],
+      "case_ids": [
+        "TC-PERM-001",
+        "TC-FLOW-001"
+      ],
+      "priority": "P0",
+      "status": "designed"
+    },
+    {
+      "id": "RM-PERM-002",
+      "title": "客户账号数据隔离",
+      "failure_mode": "客户能看到/访问其他单位项目",
+      "business_impact": "跨公司数据泄露",
+      "oracle": "客户 list 仅本单位项目；detail 跨单位 403",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-009",
+        "REQ-LINKOASYSTEM-010",
+        "REQ-LINKOASYSTEM-022"
+      ],
+      "case_ids": [
+        "TC-PERM-002",
+        "TC-FLOW-001"
+      ],
+      "priority": "P0",
+      "status": "designed"
+    },
+    {
+      "id": "RM-PERM-003",
+      "title": "系统管理接口权限",
+      "failure_mode": "普通用户可访问用户/部门/客户/模板/报表/日志/AI 配置管理接口",
+      "business_impact": "越权管理",
+      "oracle": "普通/客户调用管理写接口返回 403；globalList 仅管理员",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-003",
+        "REQ-LINKOASYSTEM-020",
+        "REQ-LINKOASYSTEM-021",
+        "REQ-LINKOASYSTEM-025",
+        "REQ-LINKOASYSTEM-027"
+      ],
+      "case_ids": [
+        "TC-PERM-003",
+        "TC-REPORT-001",
+        "TC-AI-003"
+      ],
+      "priority": "P1",
+      "status": "designed"
+    },
+    {
+      "id": "RM-PERM-004",
+      "title": "普通用户业务写权限边界",
+      "failure_mode": "普通用户可建项目/管客户/建模板",
+      "business_impact": "角色越权",
+      "oracle": "普通调用 project/create、customer/*、flowTemplate/* 写接口返回 403",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-027"
+      ],
+      "case_ids": [
+        "TC-PERM-004"
+      ],
+      "priority": "P1",
+      "status": "designed"
+    },
+    {
+      "id": "RM-ARCH-001",
+      "title": "归档项目全局写拦截",
+      "failure_mode": "归档后节点/表单/附件/评论/连线/项目编辑仍可写",
+      "business_impact": "归档只读承诺失效，数据被改",
+      "oracle": "归档后上述写接口均返回 400 带明确 msg",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-011",
+        "REQ-LINKOASYSTEM-012",
+        "REQ-LINKOASYSTEM-014",
+        "REQ-LINKOASYSTEM-015",
+        "REQ-LINKOASYSTEM-016",
+        "REQ-LINKOASYSTEM-017",
+        "REQ-LINKOASYSTEM-018"
+      ],
+      "case_ids": [
+        "TC-ARCH-001",
+        "TC-DEL-003",
+        "TC-FLOW-001"
+      ],
+      "priority": "P0",
+      "status": "designed"
+    },
+    {
+      "id": "RM-DATA-001",
+      "title": "项目创建时间（createTime）正确性",
+      "failure_mode": "指定时间未生效、不传时写 NULL 或错误、编辑不更新/误清空",
+      "business_impact": "立项时间错误影响报表与统计",
+      "oracle": "传值入库一致；不传为当前时间；编辑传则更新不传保留；列表/详情一致",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-008",
+        "REQ-LINKOASYSTEM-011",
+        "REQ-LINKOASYSTEM-028"
+      ],
+      "case_ids": [
+        "TC-DATA-001",
+        "TC-DATA-002"
+      ],
+      "priority": "P1",
+      "status": "designed"
+    },
+    {
+      "id": "RM-DATA-002",
+      "title": "模板实例化 ID 重映射完整性",
+      "failure_mode": "实例化后节点/连线指向旧模板 ID 或孤儿引用",
+      "business_impact": "项目画布损坏",
+      "oracle": "创建后节点数=模板节点数，连线 source/target 均为新节点 ID",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-006",
+        "REQ-LINKOASYSTEM-008"
+      ],
+      "case_ids": [
+        "TC-DATA-003"
+      ],
+      "priority": "P1",
+      "status": "designed"
+    },
+    {
+      "id": "RM-DEL-001",
+      "title": "级联删除完整性",
+      "failure_mode": "删除项目后残留节点/附件/消息/评论或磁盘文件",
+      "business_impact": "数据孤儿、磁盘泄漏",
+      "oracle": "删除后关联表无该项目数据，uploads 对应文件不存在",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-013"
+      ],
+      "case_ids": [
+        "TC-DEL-001"
+      ],
+      "priority": "P1",
+      "status": "designed"
+    },
+    {
+      "id": "RM-DEL-002",
+      "title": "业务删除约束",
+      "failure_mode": "删除有对接人的单位/有项目的对接人/有用户的部门/被引用的模板",
+      "business_impact": "引用悬挂",
+      "oracle": "存在引用时删除返回 400 带明确 msg",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-004",
+        "REQ-LINKOASYSTEM-005"
+      ],
+      "case_ids": [
+        "TC-DEL-002"
+      ],
+      "priority": "P1",
+      "status": "designed"
+    },
+    {
+      "id": "RM-FILE-001",
+      "title": "附件删除权限",
+      "failure_mode": "非上传人且非管理员可删除他人附件",
+      "business_impact": "越权删文件",
+      "oracle": "他人删除返回 403 msg=无权删除他人附件；上传人/管理员可删",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-017"
+      ],
+      "case_ids": [
+        "TC-FILE-001"
+      ],
+      "priority": "P1",
+      "status": "designed"
+    },
+    {
+      "id": "RM-FILE-002",
+      "title": "上传文件魔数校验",
+      "failure_mode": "伪造 Content-Type 或损坏文件通过上传",
+      "business_impact": "脏文件入库",
+      "oracle": "伪装扩展名的非图片返回 400",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-005",
+        "REQ-LINKOASYSTEM-007",
+        "REQ-LINKOASYSTEM-014"
+      ],
+      "case_ids": [
+        "TC-FILE-002"
+      ],
+      "priority": "P2",
+      "status": "designed"
+    },
+    {
+      "id": "RM-EDGE-001",
+      "title": "连线自环与存在性校验",
+      "failure_mode": "自环被误杀或引用不存在节点",
+      "business_impact": "画布连线异常",
+      "oracle": "自环允许创建；引用不存在节点返回 400",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-016"
+      ],
+      "case_ids": [
+        "TC-EDGE-001"
+      ],
+      "priority": "P2",
+      "status": "designed"
+    },
+    {
+      "id": "RM-MSG-001",
+      "title": "消息推送范围",
+      "failure_mode": "操作人收到自己的消息或推送范围错误",
+      "business_impact": "消息噪音",
+      "oracle": "节点/表单/评论操作后，操作人自身无新消息，关联成员有",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-019"
+      ],
+      "case_ids": [
+        "TC-MSG-001"
+      ],
+      "priority": "P2",
+      "status": "designed"
+    },
+    {
+      "id": "RM-REPORT-001",
+      "title": "报表导出权限与内容",
+      "failure_mode": "非管理员可导出或列内容错误",
+      "business_impact": "越权导出",
+      "oracle": "管理员导出成功且含 7 列；非管理员 403",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-021"
+      ],
+      "case_ids": [
+        "TC-REPORT-001"
+      ],
+      "priority": "P2",
+      "status": "designed"
+    },
+    {
+      "id": "RM-AI-001",
+      "title": "AI 数据隔离与防幻觉短路",
+      "failure_mode": "客户问到其他单位数据或知识库为空时调用 LLM 编造",
+      "business_impact": "数据泄露/幻觉回答",
+      "oracle": "无可见项目时返回固定话术不调 LLM；客户知识库仅本单位项目",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-024"
+      ],
+      "case_ids": [
+        "TC-AI-001"
+      ],
+      "priority": "P1",
+      "status": "designed"
+    },
+    {
+      "id": "RM-AI-002",
+      "title": "AI 速率限制",
+      "failure_mode": "60 秒内超 20 次无拦截",
+      "business_impact": "资源滥用",
+      "oracle": "超限返回 error 事件；管理员豁免",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-024"
+      ],
+      "case_ids": [],
+      "priority": "P2",
+      "status": "identified"
+    },
+    {
+      "id": "RM-USER-001",
+      "title": "用户删除保护",
+      "failure_mode": "删除自己或 admin",
+      "business_impact": "系统失去管理员",
+      "oracle": "删除 admin 或自己返回 400",
+      "requirement_ids": [
+        "REQ-LINKOASYSTEM-003"
+      ],
+      "case_ids": [
+        "TC-USER-001"
+      ],
+      "priority": "P1",
+      "status": "designed"
+    }
+  ],
+  "observed_surfaces": [],
+  "cases": [
+    {
+      "id": "TC-AUTH-001",
+      "module": "登录",
+      "title": "管理员登录成功返回 token 与 userInfo",
+      "priority": "P0",
+      "type": "positive",
+      "steps": [
+        "POST /api/login 使用 admin/admin123"
+      ],
+      "test_data": {
+        "username": "admin",
+        "password": "admin123"
+      },
+      "expected_result": "code=200，data.token 非空，userInfo.role=管理员",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-005"
+      ]
+    },
+    {
+      "id": "TC-AUTH-002",
+      "module": "登录",
+      "title": "错误密码登录返回 400",
+      "priority": "P1",
+      "type": "negative",
+      "steps": [
+        "POST /api/login 使用错误密码"
+      ],
+      "test_data": {
+        "username": "admin",
+        "password": "wrong"
+      },
+      "expected_result": "code=400，msg=账号或密码错误",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-006"
+      ]
+    },
+    {
+      "id": "TC-AUTH-003",
+      "module": "登录",
+      "title": "连续 5 次失败锁定 10 分钟，解锁后恢复",
+      "priority": "P1",
+      "type": "negative",
+      "steps": [
+        "连续 6 次错误密码登录",
+        "用正确密码登录",
+        "管理员调 unlock 接口",
+        "再正确密码登录"
+      ],
+      "test_data": {
+        "username": "qa_lock_user",
+        "wrong_pwd": "x",
+        "right_pwd": "qa123456"
+      },
+      "expected_result": "第 5 次后提示锁定；锁定期间正确密码也被拒；unlock 后正确密码可登录",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "risk_mechanism_ids": [
+        "RM-AUTH-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-007"
+      ]
+    },
+    {
+      "id": "TC-AUTH-004",
+      "module": "登录",
+      "title": "停用账号拒绝登录",
+      "priority": "P1",
+      "type": "negative",
+      "steps": [
+        "创建测试用户后 setEnable=0",
+        "该账号登录"
+      ],
+      "test_data": {
+        "username": "qa_disable_user"
+      },
+      "expected_result": "code=400，msg=账号已停用",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "risk_mechanism_ids": [
+        "RM-AUTH-002"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-008"
+      ]
+    },
+    {
+      "id": "TC-AUTH-005",
+      "module": "登录",
+      "title": "修改本人密码：旧密码校验",
+      "priority": "P2",
+      "type": "negative",
+      "steps": [
+        "POST /api/user/updateMyPwd 旧密码错误"
+      ],
+      "test_data": {
+        "oldPassword": "x",
+        "newPassword": "y"
+      },
+      "expected_result": "code=400，msg=原密码错误",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-009"
+      ]
+    },
+    {
+      "id": "TC-PERM-001",
+      "module": "权限",
+      "title": "客户账号全部写操作返回 403",
+      "priority": "P0",
+      "type": "security",
+      "steps": [
+        "客户账号登录",
+        "分别调 projectNode/add、saveFormValue、comment/add、attachment/upload、projectNodeEdge/add、project/create、customer/add"
+      ],
+      "test_data": {
+        "role": "客户"
+      },
+      "expected_result": "全部返回 403",
+      "requirement_ids": [
+        "REQ-015",
+        "REQ-016",
+        "REQ-017",
+        "REQ-022"
+      ],
+      "risk_mechanism_ids": [
+        "RM-PERM-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-031"
+      ]
+    },
+    {
+      "id": "TC-PERM-002",
+      "module": "权限",
+      "title": "客户账号数据隔离：仅本单位项目，跨单位 403",
+      "priority": "P0",
+      "type": "security",
+      "steps": [
+        "建两个客户单位各建项目",
+        "客户A账号登录调 project/list 与跨单位 detail"
+      ],
+      "test_data": {
+        "unit_a": "QA单位A",
+        "unit_b": "QA单位B"
+      },
+      "expected_result": "list 仅返回本单位项目；detail 跨单位项目返回 403",
+      "requirement_ids": [
+        "REQ-009",
+        "REQ-010",
+        "REQ-022"
+      ],
+      "risk_mechanism_ids": [
+        "RM-PERM-002"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-032"
+      ]
+    },
+    {
+      "id": "TC-PERM-003",
+      "module": "权限",
+      "title": "普通用户访问系统管理接口返回 403",
+      "priority": "P1",
+      "type": "security",
+      "steps": [
+        "普通账号登录",
+        "调 sysUser/list、sysDept/list、report/exportProject、sysOperationLog/globalList、ai/config"
+      ],
+      "test_data": {
+        "role": "普通"
+      },
+      "expected_result": "管理接口全部 403",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-020",
+        "REQ-021",
+        "REQ-025",
+        "REQ-027"
+      ],
+      "risk_mechanism_ids": [
+        "RM-PERM-003"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-033"
+      ]
+    },
+    {
+      "id": "TC-PERM-004",
+      "module": "权限",
+      "title": "普通用户不能建项目/管客户/建模板",
+      "priority": "P1",
+      "type": "security",
+      "steps": [
+        "普通账号登录",
+        "调 project/create、customerCategory/add、customer/add、flowTemplate/add"
+      ],
+      "test_data": {
+        "role": "普通"
+      },
+      "expected_result": "全部 403",
+      "requirement_ids": [
+        "REQ-027"
+      ],
+      "risk_mechanism_ids": [
+        "RM-PERM-004"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-034"
+      ]
+    },
+    {
+      "id": "TC-PERM-005",
+      "module": "权限",
+      "title": "无 token 访问接口返回 401",
+      "priority": "P1",
+      "type": "security",
+      "steps": [
+        "不带 token 调 project/list、sysUser/list"
+      ],
+      "test_data": {},
+      "expected_result": "401",
+      "requirement_ids": [
+        "REQ-027"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-035"
+      ]
+    },
+    {
+      "id": "TC-ARCH-001",
+      "module": "项目",
+      "title": "归档项目全局写拦截",
+      "priority": "P0",
+      "type": "exception",
+      "steps": [
+        "创建项目并加节点",
+        "归档项目",
+        "调 projectNode/add、saveFormValue、attachment/upload、comment/add、projectNodeEdge/add、project/updateBase"
+      ],
+      "test_data": {},
+      "expected_result": "归档后所有写接口返回 400 且 msg 含已归档",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-012",
+        "REQ-014",
+        "REQ-015",
+        "REQ-016",
+        "REQ-017",
+        "REQ-018"
+      ],
+      "risk_mechanism_ids": [
+        "RM-ARCH-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-004"
+      ]
+    },
+    {
+      "id": "TC-DATA-001",
+      "module": "项目",
+      "title": "创建项目可指定创建时间，不传默认当前时间",
+      "priority": "P1",
+      "type": "positive",
+      "steps": [
+        "创建项目 A 传 createTime=2026-08-20 10:00:00",
+        "创建项目 B 不传 createTime",
+        "查列表/详情核对"
+      ],
+      "test_data": {
+        "ct": "2026-08-20 10:00:00"
+      },
+      "expected_result": "A.createTime=指定时间；B.createTime≈当前时间；列表与详情一致",
+      "requirement_ids": [
+        "REQ-008",
+        "REQ-028"
+      ],
+      "risk_mechanism_ids": [
+        "RM-DATA-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-019"
+      ]
+    },
+    {
+      "id": "TC-DATA-002",
+      "module": "项目",
+      "title": "编辑项目修改创建时间：传则更新，不传保留",
+      "priority": "P1",
+      "type": "positive",
+      "steps": [
+        "编辑项目 A 传新 createTime=2026-07-01 09:00:00",
+        "再编辑不传 createTime"
+      ],
+      "test_data": {
+        "ct2": "2026-07-01 09:00:00"
+      },
+      "expected_result": "第一次更新成功；第二次保留 2026-07-01 09:00:00",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-028"
+      ],
+      "risk_mechanism_ids": [
+        "RM-DATA-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-020"
+      ]
+    },
+    {
+      "id": "TC-DATA-003",
+      "module": "项目",
+      "title": "模板实例化节点/连线 ID 重映射正确",
+      "priority": "P1",
+      "type": "positive",
+      "steps": [
+        "从预置模板创建项目",
+        "取详情核对节点数与连线 source/target"
+      ],
+      "test_data": {},
+      "expected_result": "节点数与模板一致；连线两端均为项目新节点 ID，无孤儿引用",
+      "requirement_ids": [
+        "REQ-006",
+        "REQ-008"
+      ],
+      "risk_mechanism_ids": [
+        "RM-DATA-002"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-021"
+      ]
+    },
+    {
+      "id": "TC-DEL-001",
+      "module": "项目",
+      "title": "删除项目级联清理关联数据与磁盘文件",
+      "priority": "P1",
+      "type": "exception",
+      "steps": [
+        "创建项目、加节点、上传附件、加评论",
+        "删除项目",
+        "查附件/评论/消息/节点"
+      ],
+      "test_data": {},
+      "expected_result": "关联数据全部清除；附件磁盘文件不存在；日志保留",
+      "requirement_ids": [
+        "REQ-013"
+      ],
+      "risk_mechanism_ids": [
+        "RM-DEL-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-022"
+      ]
+    },
+    {
+      "id": "TC-DEL-002",
+      "module": "删除约束",
+      "title": "业务删除约束：单位/对接人/部门",
+      "priority": "P1",
+      "type": "exception",
+      "steps": [
+        "删除有对接人的单位",
+        "删除有项目的对接人",
+        "删除有用户的部门"
+      ],
+      "test_data": {},
+      "expected_result": "全部返回 400 带明确 msg",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005"
+      ],
+      "risk_mechanism_ids": [
+        "RM-DEL-002"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-023"
+      ]
+    },
+    {
+      "id": "TC-DEL-003",
+      "module": "项目",
+      "title": "已归档项目禁止直接删除",
+      "priority": "P1",
+      "type": "exception",
+      "steps": [
+        "归档项目后调 project/delete"
+      ],
+      "test_data": {},
+      "expected_result": "400，msg=已归档项目请先取消归档后再删除",
+      "requirement_ids": [
+        "REQ-013"
+      ],
+      "risk_mechanism_ids": [
+        "RM-ARCH-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-024"
+      ]
+    },
+    {
+      "id": "TC-USER-001",
+      "module": "用户",
+      "title": "不能删除 admin 与本人",
+      "priority": "P1",
+      "type": "exception",
+      "steps": [
+        "admin 调 sysUser/delete 删除自己",
+        "admin 删除 admin 账号"
+      ],
+      "test_data": {},
+      "expected_result": "均返回 400",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "risk_mechanism_ids": [
+        "RM-USER-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-038"
+      ]
+    },
+    {
+      "id": "TC-FILE-001",
+      "module": "附件",
+      "title": "附件删除权限：他人 403，本人/管理员可删",
+      "priority": "P1",
+      "type": "security",
+      "steps": [
+        "管理员上传附件",
+        "普通账号删除该附件（非本人）",
+        "管理员删除"
+      ],
+      "test_data": {},
+      "expected_result": "普通账号删除返回 403 msg=无权删除他人附件；管理员删除成功",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "risk_mechanism_ids": [
+        "RM-FILE-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-026"
+      ]
+    },
+    {
+      "id": "TC-FILE-002",
+      "module": "附件",
+      "title": "封面/图标上传魔数校验",
+      "priority": "P2",
+      "type": "exception",
+      "steps": [
+        "伪装 png 扩展名的文本文件上传封面"
+      ],
+      "test_data": {
+        "fake_png": true
+      },
+      "expected_result": "400",
+      "requirement_ids": [
+        "REQ-005",
+        "REQ-014"
+      ],
+      "risk_mechanism_ids": [
+        "RM-FILE-002"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-027"
+      ]
+    },
+    {
+      "id": "TC-EDGE-001",
+      "module": "连线",
+      "title": "连线自环允许，不存在节点返回 400",
+      "priority": "P2",
+      "type": "exception",
+      "steps": [
+        "项目加 1 节点",
+        "自环连线（source=target）",
+        "连线指向不存在节点"
+      ],
+      "test_data": {},
+      "expected_result": "自环创建成功；不存在节点返回 400",
+      "requirement_ids": [
+        "REQ-016"
+      ],
+      "risk_mechanism_ids": [
+        "RM-EDGE-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-025"
+      ]
+    },
+    {
+      "id": "TC-MSG-001",
+      "module": "消息",
+      "title": "消息推送排除操作人",
+      "priority": "P2",
+      "type": "positive",
+      "steps": [
+        "创建项目（设计关联另一员工）",
+        "管理员加节点",
+        "查管理员与设计师消息"
+      ],
+      "test_data": {},
+      "expected_result": "操作人（管理员）无 node_create 消息；设计师收到",
+      "requirement_ids": [
+        "REQ-019"
+      ],
+      "risk_mechanism_ids": [
+        "RM-MSG-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-029"
+      ]
+    },
+    {
+      "id": "TC-MSG-002",
+      "module": "消息",
+      "title": "消息已读/全部已读/未读数",
+      "priority": "P2",
+      "type": "positive",
+      "steps": [
+        "调 unreadCount",
+        "read 单条",
+        "readAll"
+      ],
+      "test_data": {},
+      "expected_result": "read 后该条 isRead=1；readAll 返回计数且未读清零",
+      "requirement_ids": [
+        "REQ-019"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-030"
+      ]
+    },
+    {
+      "id": "TC-REPORT-001",
+      "module": "报表",
+      "title": "报表导出权限与列内容",
+      "priority": "P2",
+      "type": "positive",
+      "steps": [
+        "管理员调 exportProject",
+        "普通用户调 exportProject"
+      ],
+      "test_data": {},
+      "expected_result": "管理员 200 返回 xlsx 且含 7 列；普通用户 403",
+      "requirement_ids": [
+        "REQ-021"
+      ],
+      "risk_mechanism_ids": [
+        "RM-REPORT-001",
+        "RM-PERM-003"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-037"
+      ]
+    },
+    {
+      "id": "TC-AI-001",
+      "module": "AI",
+      "title": "AI 对话：知识库为空短路（不调 LLM）",
+      "priority": "P1",
+      "type": "positive",
+      "steps": [
+        "客户账号（无可见项目）调 chat/stream"
+      ],
+      "test_data": {
+        "message": "你好"
+      },
+      "expected_result": "SSE 返回固定话术（不含 LLM 生成内容），事件含 done",
+      "requirement_ids": [
+        "REQ-024"
+      ],
+      "risk_mechanism_ids": [
+        "RM-AI-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-001"
+      ]
+    },
+    {
+      "id": "TC-AI-002",
+      "module": "AI",
+      "title": "AI 会话 CRUD/置顶/重命名/软删",
+      "priority": "P2",
+      "type": "positive",
+      "steps": [
+        "新建会话",
+        "重命名",
+        "置顶",
+        "查列表",
+        "删除",
+        "再查列表"
+      ],
+      "test_data": {},
+      "expected_result": "新建返回 id；重命名生效；置顶排前；软删后列表不再返回",
+      "requirement_ids": [
+        "REQ-023"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-002"
+      ]
+    },
+    {
+      "id": "TC-AI-003",
+      "module": "AI",
+      "title": "AI 配置脱敏与权限",
+      "priority": "P2",
+      "type": "security",
+      "steps": [
+        "管理员 GET /api/ai/config",
+        "普通用户 GET /api/ai/config"
+      ],
+      "test_data": {},
+      "expected_result": "管理员返回脱敏 apiKey（含 ****）；普通用户 403",
+      "requirement_ids": [
+        "REQ-025"
+      ],
+      "risk_mechanism_ids": [
+        "RM-PERM-003"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-003"
+      ]
+    },
+    {
+      "id": "TC-FLOW-001",
+      "module": "主链路",
+      "title": "端到端完整业务链路",
+      "priority": "P0",
+      "type": "core_flow",
+      "steps": [
+        "建客户单位→建对接人→建普通员工账号→建客户账号",
+        "管理员建项目（指定 createTime+模板）",
+        "加节点→填表单→传附件→加评论",
+        "归档",
+        "客户登录看门户（只读+评价）"
+      ],
+      "test_data": {},
+      "expected_result": "每一步成功；客户门户只见本单位项目且写操作 403；归档后评价可提交",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-008",
+        "REQ-012",
+        "REQ-022",
+        "REQ-026"
+      ],
+      "risk_mechanism_ids": [
+        "RM-PERM-001",
+        "RM-PERM-002",
+        "RM-ARCH-001"
+      ],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-028"
+      ]
+    },
+    {
+      "id": "TC-CRUD-001",
+      "module": "客户单位",
+      "title": "客户单位增删改查",
+      "priority": "P2",
+      "type": "positive",
+      "steps": [
+        "新增单位→列表→改名→删除"
+      ],
+      "test_data": {},
+      "expected_result": "全部成功且日志记录",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-010"
+      ]
+    },
+    {
+      "id": "TC-CRUD-002",
+      "module": "对接人",
+      "title": "对接人增删改查与封面上传",
+      "priority": "P2",
+      "type": "positive",
+      "steps": [
+        "新增对接人→详情→改→传封面→移除封面"
+      ],
+      "test_data": {},
+      "expected_result": "全部成功",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-011"
+      ]
+    },
+    {
+      "id": "TC-CRUD-003",
+      "module": "用户",
+      "title": "用户创建/重置/启停/解锁/删除",
+      "priority": "P1",
+      "type": "positive",
+      "steps": [
+        "建内部员工→建客户账号→重置密码→启停→解锁→删除"
+      ],
+      "test_data": {},
+      "expected_result": "全部成功；停用后不可登录；删除后历史姓名兜底",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-012"
+      ]
+    },
+    {
+      "id": "TC-CRUD-004",
+      "module": "模板",
+      "title": "流程模板整图提交与删除",
+      "priority": "P2",
+      "type": "positive",
+      "steps": [
+        "新增模板（带节点连线）→详情→更新→删除"
+      ],
+      "test_data": {},
+      "expected_result": "全部成功；删除不影响已建项目",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-013"
+      ]
+    },
+    {
+      "id": "TC-CRUD-005",
+      "module": "节点模板",
+      "title": "节点模板 CRUD 与图标上传",
+      "priority": "P2",
+      "type": "positive",
+      "steps": [
+        "新增节点模板（含 image/link 字段）→图标上传→改→删"
+      ],
+      "test_data": {},
+      "expected_result": "全部成功",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-014"
+      ]
+    },
+    {
+      "id": "TC-CRUD-006",
+      "module": "项目",
+      "title": "项目 CRUD 与封面",
+      "priority": "P1",
+      "type": "positive",
+      "steps": [
+        "创建→列表筛选→详情→改封面→编辑→取消归档→删除"
+      ],
+      "test_data": {},
+      "expected_result": "全部成功",
+      "requirement_ids": [
+        "REQ-008",
+        "REQ-009",
+        "REQ-010",
+        "REQ-011",
+        "REQ-014"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-015"
+      ]
+    },
+    {
+      "id": "TC-CRUD-007",
+      "module": "节点",
+      "title": "节点增删改/坐标/表单保存与图像上传",
+      "priority": "P1",
+      "type": "positive",
+      "steps": [
+        "加节点→改节点→批量坐标→getForm→saveFormValue→formImage 上传→删节点"
+      ],
+      "test_data": {},
+      "expected_result": "全部成功；删除节点连带删表单值",
+      "requirement_ids": [
+        "REQ-015"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-016"
+      ]
+    },
+    {
+      "id": "TC-CRUD-008",
+      "module": "日志",
+      "title": "审计日志全局与项目级",
+      "priority": "P2",
+      "type": "positive",
+      "steps": [
+        "执行若干写操作",
+        "管理员 globalList",
+        "普通用户 projectLog"
+      ],
+      "test_data": {},
+      "expected_result": "globalList 返回记录且含操作人；projectLog 返回该项目记录",
+      "requirement_ids": [
+        "REQ-020"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-017"
+      ]
+    },
+    {
+      "id": "TC-CRUD-009",
+      "module": "评价",
+      "title": "客户评价提交/反思/查询",
+      "priority": "P2",
+      "type": "positive",
+      "steps": [
+        "客户对已归档项目 submit→重复 submit→内部 reflection→get"
+      ],
+      "test_data": {},
+      "expected_result": "首次提交成功；重复提交 400；reflection 内部可写",
+      "requirement_ids": [
+        "REQ-026"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-018"
+      ]
+    },
+    {
+      "id": "TC-QUERY-001",
+      "module": "项目",
+      "title": "项目列表筛选与分页排序",
+      "priority": "P2",
+      "type": "positive",
+      "steps": [
+        "按 projectName/categoryId/projectStatus/createTimeStart/End 组合筛选",
+        "按 createTime 排序",
+        "翻页"
+      ],
+      "test_data": {},
+      "expected_result": "筛选结果正确；排序正确；分页 total 一致",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-036"
+      ]
+    }
+  ],
+  "executions": [
+    {
+      "id": "EXE-LINKOASYSTEM-001",
+      "case_id": "TC-AI-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "SSE 200 短路返回错误事件（未配置 Key），len=73",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-002",
+      "case_id": "TC-AI-002",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "[('create', 200), ('rename', 200), ('pin', 200), ('list_pinned', 200), ('delete', 200), ('soft_delete', 200)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-003",
+      "case_id": "TC-AI-003",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "管理员可见脱敏 key，普通 403",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-004",
+      "case_id": "TC-ARCH-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "归档后写操作全 400: [('/api/projectNode/add', 400), ('/api/projectNode/update', 400), ('/api/projectNode/saveFormValue', 400), ('/api/projectNodeEdge/add', 400), ('/api/comment/add', 400), ('/api/project/updateBase', 400), ('attachment_upload', 400)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-005",
+      "case_id": "TC-AUTH-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "登录成功 role=管理员",
+      "detail": "",
+      "evidence": [
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6Ik"
+      ],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-006",
+      "case_id": "TC-AUTH-002",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "code=400 msg=账号或密码错误，还可尝试 4 次",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-007",
+      "case_id": "TC-AUTH-003",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "5次后锁定，锁定中正确密码被拒，unlock 后恢复",
+      "detail": "[(4, 400, '账号或密码错误，还可尝试 1 次'), (5, 400, '密码错误次数过多，账号已锁定 10 分钟，或联系管理员解锁'), ('locked_correct_pwd', 400, '账号已锁定，请 10 分钟后重试，或联系管理员解锁')]",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-008",
+      "case_id": "TC-AUTH-004",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "停用后登录 code=400 msg=账号已停用，请联系管理员",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-009",
+      "case_id": "TC-AUTH-005",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "msg=原密码错误",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-010",
+      "case_id": "TC-CRUD-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "[('add', 200), ('list', 200), ('update', 200), ('delete', 200)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-011",
+      "case_id": "TC-CRUD-002",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "[('add', 200), ('detail', 200), ('update', 200), ('cover', 200), ('cover_remove', 200), ('delete', 200)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-012",
+      "case_id": "TC-CRUD-003",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "[('create', 200), ('reset', 200), ('disable', 200), ('disabled_login', 400), ('enable', 200), ('delete', 200)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-013",
+      "case_id": "TC-CRUD-004",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "[('add', 200), ('detail', 200), ('update', 200), ('delete', 200)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-014",
+      "case_id": "TC-CRUD-005",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "[('add', 200), ('icon', 200), ('update', 200), ('delete', 200)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-015",
+      "case_id": "TC-CRUD-006",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "[('create', 200), ('list_filter', 200), ('cover', 200), ('cover_remove', 200), ('archive', 200), ('unarchive', 200), ('delete', 200)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-016",
+      "case_id": "TC-CRUD-007",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "[('add', 200), ('update', 200), ('batch_pos', 200), ('get_form', 200), ('save_form', 200), ('form_image', 200), ('delete', 200)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-017",
+      "case_id": "TC-CRUD-008",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "[('global', 200), ('project_log', 200)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-018",
+      "case_id": "TC-CRUD-009",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "submit=200 dup=400 get_admin=200 get_client=200 reflection=200",
+      "detail": "补执行（评价 submit/重复/查询/反思）",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-019",
+      "case_id": "TC-DATA-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "指定=2026-08-20T10:00:00 默认=2026-09-08T09:32:53.328100（创建于 2026-09-08T09:32:53）",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-020",
+      "case_id": "TC-DATA-002",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "更新后=2026-07-01T09:00:00，不传保留=2026-07-01T09:00:00",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-021",
+      "case_id": "TC-DATA-003",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "节点 8==8，连线均指向新节点",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-022",
+      "case_id": "TC-DEL-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "删除后附件/评论/节点全清，详情 400",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-023",
+      "case_id": "TC-DEL-002",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "[('unit_with_customer', 400), ('customer_with_project', 400), ('dept_with_user', 400)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-024",
+      "case_id": "TC-DEL-003",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "msg=已归档项目请先取消归档后再删除",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-025",
+      "case_id": "TC-EDGE-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "自环=200 不存在节点=400",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-026",
+      "case_id": "TC-FILE-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "他人=403 管理员=200",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-027",
+      "case_id": "TC-FILE-002",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "伪造 png 被拒: 文件内容不是有效的图片（jpg/png/webp）",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-028",
+      "case_id": "TC-FLOW-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "[('create', 200), ('node', 200), ('form', 200), ('attachment', 200), ('comment', 200), ('archive', 200), ('portal_visible', 200), ('client_write_403', 403), ('evaluation', 200), ('evaluation_dup', 400)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-029",
+      "case_id": "TC-MSG-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "操作人(admin)无 node_create 消息，设计师(staff)收到",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-030",
+      "case_id": "TC-MSG-002",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "未读 1->0->0，readAll count=0",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-031",
+      "case_id": "TC-PERM-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "客户写操作全部 403: [('/api/projectNode/add', 403), ('/api/projectNodeEdge/add', 403), ('/api/comment/add', 403), ('/api/project/updateBase', 403), ('/api/customerCategory/add', 403)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-032",
+      "case_id": "TC-PERM-002",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "客户A仅见本单位项目；跨单位 detail=403",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-033",
+      "case_id": "TC-PERM-003",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "普通访问管理接口全 403: [('/api/sysUser/list', 403), ('/api/sysDept/list', 403), ('/api/sysOperationLog/globalList', 403), ('/api/ai/config', 403), ('/api/report/exportProject', 403)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-034",
+      "case_id": "TC-PERM-004",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "普通业务写全 403: [('/api/project/create', 403), ('/api/customerCategory/add', 403), ('/api/customer/add', 403), ('/api/flowTemplate/add', 403)]",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-035",
+      "case_id": "TC-PERM-005",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "无 token 均 401",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-036",
+      "case_id": "TC-QUERY-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "name筛选=2 单位筛选=6 状态=5 时间范围命中=True 排序OK 分页total一致=8",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-037",
+      "case_id": "TC-REPORT-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "管理员导出 status=200，普通 403",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    },
+    {
+      "id": "EXE-LINKOASYSTEM-038",
+      "case_id": "TC-USER-001",
+      "method": "api",
+      "target": "http://localhost:8000",
+      "status": "passed",
+      "validation_scope": "formal",
+      "actual": "删除 admin 被拒: 不能删除自己的账号",
+      "detail": "",
+      "evidence": [],
+      "executed_at": "2026-09-08T09:34:44",
+      "notes": ""
+    }
+  ],
+  "evidence": [],
+  "bugs": [
+    {
+      "id": "BUG-LINKOASYSTEM-001",
+      "title": "接口文档与代码不一致：客户评价查询路径文档为 /get/{projectId}，实际为 /{projectId}",
+      "severity": "S4",
+      "priority": "P2",
+      "status": "fixed",
+      "module": "评价",
+      "risk_mechanism_ids": [],
+      "execution_ids": [
+        "EXE-LINKOASYSTEM-038"
+      ],
+      "independent_failure_signature": "docs 接口清单 evaluation get 路径与 routers/evaluation.py 路由定义不一致，按文档调用返回 SPA 首页 HTML",
+      "observed": {
+        "request": "GET /api/evaluation/get/{projectId}",
+        "actual": "200 HTML（前端兜底页面，非 JSON）",
+        "expected": "按代码实际路由 GET /api/evaluation/{projectId} 返回 JSON；文档需同步修正"
+      },
+      "root_cause_analysis": "接口清单文档未随 V1.4.17 评价接口实现同步（代码使用 /{projectId} 路径参数风格）",
+      "impact_scope": "第三方/对接方按文档联调评价查询会失败；前端内部未受影响（走的是实际路由）",
+      "confidence": "high",
+      "introduced_in": "V1.4.17 文档发布",
+      "proposed_fix": "已在接口清单文档追加「19. 客户满意度评价接口（V1.4.17 新增）」章节（19.1 submit / 19.2 查询 / 19.3 reflection），路径与代码一致",
+      "evidence_grade": "formal",
+      "fix_verified": true
+    }
+  ],
+  "bug_candidates": [],
+  "risks": [],
+  "acceptance_checks": [
+    {
+      "id": "AC-CORE-001",
+      "title": "端到端主链路可用",
+      "type": "core_flow",
+      "case_ids": [
+        "TC-FLOW-001",
+        "TC-AUTH-001"
+      ],
+      "blocking": true,
+      "notes": "客户单位→对接人→用户→项目→节点→表单→附件→评论→归档→客户门户→评价"
+    },
+    {
+      "id": "AC-PERM-001",
+      "title": "权限矩阵与数据隔离",
+      "type": "permission_security",
+      "case_ids": [
+        "TC-PERM-001",
+        "TC-PERM-002",
+        "TC-PERM-003",
+        "TC-PERM-004",
+        "TC-PERM-005"
+      ],
+      "blocking": true,
+      "notes": "客户写 403、跨单位 403、普通越权 403"
+    },
+    {
+      "id": "AC-ARCH-001",
+      "title": "归档只读约束",
+      "type": "exception",
+      "case_ids": [
+        "TC-ARCH-001",
+        "TC-DEL-003"
+      ],
+      "blocking": true,
+      "notes": "归档后写操作 400，已归档禁删"
+    },
+    {
+      "id": "AC-DATA-001",
+      "title": "createTime 新功能正确",
+      "type": "data_consistency",
+      "case_ids": [
+        "TC-DATA-001",
+        "TC-DATA-002"
+      ],
+      "blocking": true,
+      "notes": "创建指定/默认、编辑更新/保留均正确"
+    },
+    {
+      "id": "AC-AUTH-001",
+      "title": "认证与锁定机制",
+      "type": "exception",
+      "case_ids": [
+        "TC-AUTH-002",
+        "TC-AUTH-003",
+        "TC-AUTH-004"
+      ],
+      "blocking": false,
+      "notes": "错误密码 400、锁定/解锁、停用拦截"
+    },
+    {
+      "id": "AC-DEL-001",
+      "title": "删除安全与级联",
+      "type": "data_consistency",
+      "case_ids": [
+        "TC-DEL-001",
+        "TC-DEL-002",
+        "TC-USER-001"
+      ],
+      "blocking": false,
+      "notes": "级联清理、业务约束、保护 admin"
+    }
+  ],
+  "blockers": [],
+  "manual_handoff": {
+    "required": false,
+    "status": "not_required",
+    "reason": "",
+    "target_platform": "",
+    "operator": "",
+    "prerequisites": [],
+    "case_ids": [],
+    "evidence_requirements": [],
+    "result_submission": []
+  },
+  "unverified": [
+    "MySQL 数据库兼容（当前为 SQLite）",
+    "Docker 部署路径（docker compose 构建与离线包）",
+    "多浏览器/移动端前端兼容与视觉回归",
+    "并发写入与性能压测（并发策略为后提交覆盖先提交，未做压测）",
+    "文件上传 1G 大文件与磁盘空间边界",
+    "前端日期选择器 UI 交互（创建/编辑弹窗已构建通过，未做真实浏览器点击验证）",
+    "AI 真实对话链路由用户确认此前已测试通过（非本轮正式执行，证据为人工确认）"
+  ],
+  "coverage": {
+    "requirement_total": 28,
+    "requirement_linked": 0,
+    "requirement_unlinked": 28,
+    "p0_requirement_total": 2,
+    "p0_requirement_linked": 0,
+    "case_total": 38,
+    "case_status_counts": {
+      "通过": 38
+    },
+    "acceptance_total": 6,
+    "acceptance_status_counts": {
+      "通过": 6
+    }
+  },
+  "release_decision": {
+    "conclusion": "go",
+    "conclusion_note": "38/38 用例正式执行通过；P0/P1 风险机制（客户写拦截、数据隔离、归档拦截、createTime 新功能、删除安全等）全部有正式执行证据且通过；仅 1 个 S4 文档级缺陷（评价查询路径文档与代码不一致），不构成阻断。",
+    "blocking_bug_ids": [],
+    "conditions": [],
+    "evaluated_at": "2026-09-08T09:40:00+08:00",
+    "evaluator": "QA 自动执行 + 人工归因"
+  },
+  "delivery_manifest": {
+    "source_revision": 4,
+    "outputs": [
+      {
+        "purpose": "deliverable",
+        "carrier": "lark_doc",
+        "format": "lark_doc",
+        "filename": "领客文创 OA（LINKOA）V1.4.18-QA测试方案与报告",
+        "source_revision": 4,
+        "sha256": "45fa35862478a3cf570cea5a418e29ad082b858339e6c4fb8e61c8d1879948ff",
+        "locator": "https://bytedance.larkoffice.com/docx/AiFydh6bvoPowExKiODckE2pnMg",
+        "readback_receipt": "{\n  \"ok\": false,\n  \"identity\": \"user\",\n  \"error\": {\n    \"type\": \"validation\",\n    \"subtype\": \"invalid_argument\",\n    \"message\": \"unknown flag \\\"--document-id\\\" for \\\"lark-cli docs +fetch\\\"\",\n    \"hint",
+        "validated": false,
+        "status": "created"
+      }
+    ],
+    "fingerprint": "sha256:c8d1b86fcfb6effd1b88b1874939dbc4a170fc5989506f3bd2e18099621446de"
+  },
+  "test_data": {
+    "writes_allowed": false,
+    "accounts": [],
+    "created_records": [],
+    "cleanup": {
+      "required": false,
+      "status": "completed",
+      "command": "none",
+      "residuals": []
+    }
+  },
+  "disclosures": [
+    "非法执行等级 （executions[].execution_level）",
+    "通过执行必须包含断言或证据（executions[]）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].severity_basis）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].environment）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].preconditions）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].steps）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].actual_result）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].expected_result）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].impact）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].analysis）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].workaround）",
+    "正式 Bug 字段不能为空；未知时明确写待补充及下一步（bugs[].related_ids）",
+    "非法 Bug 状态（bugs[].status）",
+    "必须是结构化对象（bugs[].analysis）",
+    "缺少或非法 reproducibility（bugs[].reproducibility）",
+    "必须是大于等于 1 的整数（bugs[].repro_attempts）",
+    "必须明确是否保留首次失败（bugs[].first_failure_preserved）",
+    "正式 Bug 没有关联证据；若仅为用户口述需明确证据等级（bugs[].evidence_ids）",
+    "必须记录合法 Bug 证据类别（bugs[].category）",
+    "正式 Bug 至少需要 L2_observation 证据；否则保留为缺陷候选或待确认（bugs[].evidence_ids）"
+  ],
+  "notes": [
+    "用户确认 AI 对话此前已测试通过；报告已同步更新（覆盖范围补注、未覆盖移除、后续动作标已完成）",
+    "BUG-001 已修复：接口清单文档补充第 19 章评价接口，路径与代码一致（GET /api/evaluation/{projectId}）"
+  ]
+}

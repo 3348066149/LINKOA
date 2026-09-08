@@ -1,0 +1,4061 @@
+{
+  "schema_version": 1,
+  "source": "E:\\BaiduNetdiskDownload\\LINKOA\\qa-results\\linkoa-system-qa\\openapi.json",
+  "document_version": "3.1.0",
+  "title": "领客文创OA",
+  "suggested_base_url": null,
+  "execution_policy": {
+    "base_url_requires_explicit_env": true,
+    "safe_methods_default": [
+      "GET",
+      "HEAD",
+      "OPTIONS"
+    ],
+    "write_methods_require_env": "QA_ALLOW_WRITES=1"
+  },
+  "operations": [
+    {
+      "operation_id": "chat_stream_api_ai_chat_stream_post",
+      "method": "POST",
+      "path": "/api/ai/chat/stream",
+      "summary": "Chat Stream",
+      "tags": [
+        "AI助手"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "message": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-CHAT-STREAM-API-AI-CHAT-STREAM-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-CHAT-STREAM-API-AI-CHAT-STREAM-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "get_config_api_ai_config_get",
+      "method": "GET",
+      "path": "/api/ai/config",
+      "summary": "Get Config",
+      "tags": [
+        "AI助手"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-GET-CONFIG-API-AI-CONFIG-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "update_config_api_ai_config_put",
+      "method": "PUT",
+      "path": "/api/ai/config",
+      "summary": "Update Config",
+      "tags": [
+        "AI助手"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "systemPrompt": "qa-sample",
+        "model": "qa-sample",
+        "apiKey": "",
+        "baseUrl": "qa-sample",
+        "temperature": 0.7,
+        "maxTokens": 2048
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-PUT-UPDATE-CONFIG-API-AI-CONFIG-PUT-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-PUT-UPDATE-CONFIG-API-AI-CONFIG-PUT-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "conversation_list_api_ai_conversations_get",
+      "method": "GET",
+      "path": "/api/ai/conversations",
+      "summary": "Conversation List",
+      "tags": [
+        "AI助手"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-CONVERSATION-LIST-API-AI-CONVERSATIONS-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "conversation_create_api_ai_conversations_post",
+      "method": "POST",
+      "path": "/api/ai/conversations",
+      "summary": "Conversation Create",
+      "tags": [
+        "AI助手"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-CONVERSATION-CREATE-API-AI-CONVERSATIONS-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "conversation_rename_api_ai_conversations__conversation_id__patch",
+      "method": "PATCH",
+      "path": "/api/ai/conversations/{conversation_id}",
+      "summary": "Conversation Rename",
+      "tags": [
+        "AI助手"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "conversation_id",
+          "in": "path",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "title": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-PATCH-CONVERSATION-RENAME-API-AI-CONVERSATIONS-CONVERSATION-ID-PATCH-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-PATCH-CONVERSATION-RENAME-API-AI-CONVERSATIONS-CONVERSATION-ID-PATCH-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "path",
+            "name": "conversation_id"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "conversation_delete_api_ai_conversations__conversation_id__delete",
+      "method": "DELETE",
+      "path": "/api/ai/conversations/{conversation_id}",
+      "summary": "Conversation Delete",
+      "tags": [
+        "AI助手"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "conversation_id",
+          "in": "path",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-DELETE-CONVERSATION-DELETE-API-AI-CONVERSATIONS-CONVERSATION-ID-DELETE-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-DELETE-CONVERSATION-DELETE-API-AI-CONVERSATIONS-CONVERSATION-ID-DELETE-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "path",
+            "name": "conversation_id"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "conversation_messages_api_ai_conversations__conversation_id__messages_get",
+      "method": "GET",
+      "path": "/api/ai/conversations/{conversation_id}/messages",
+      "summary": "Conversation Messages",
+      "tags": [
+        "AI助手"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "conversation_id",
+          "in": "path",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-CONVERSATION-MESSAGES-API-AI-CONVERSATIONS-CONVERSATION-ID-MESSAGES-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-GET-CONVERSATION-MESSAGES-API-AI-CONVERSATIONS-CONVERSATION-ID-MESSAGES-GET-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "path",
+            "name": "conversation_id"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "conversation_pin_api_ai_conversations__conversation_id__pin_post",
+      "method": "POST",
+      "path": "/api/ai/conversations/{conversation_id}/pin",
+      "summary": "Conversation Pin",
+      "tags": [
+        "AI助手"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "conversation_id",
+          "in": "path",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "pinned": true
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-CONVERSATION-PIN-API-AI-CONVERSATIONS-CONVERSATION-ID-PIN-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-CONVERSATION-PIN-API-AI-CONVERSATIONS-CONVERSATION-ID-PIN-POST-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "path",
+            "name": "conversation_id"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "delete_attachment_api_attachment_delete_post",
+      "method": "POST",
+      "path": "/api/attachment/delete",
+      "summary": "Delete Attachment",
+      "tags": [
+        "附件"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "attachmentId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-DELETE-ATTACHMENT-API-ATTACHMENT-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-DELETE-ATTACHMENT-API-ATTACHMENT-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "download_api_attachment_download__attachmentId__get",
+      "method": "GET",
+      "path": "/api/attachment/download/{attachmentId}",
+      "summary": "Download",
+      "tags": [
+        "附件"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "attachmentId",
+          "in": "path",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-DOWNLOAD-API-ATTACHMENT-DOWNLOAD-ATTACHMENTID-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-GET-DOWNLOAD-API-ATTACHMENT-DOWNLOAD-ATTACHMENTID-GET-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "path",
+            "name": "attachmentId"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "list_by_node_api_attachment_list_get",
+      "method": "GET",
+      "path": "/api/attachment/list",
+      "summary": "List By Node",
+      "tags": [
+        "附件"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "projectNodeId",
+          "in": "query",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-LIST-BY-NODE-API-ATTACHMENT-LIST-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-GET-LIST-BY-NODE-API-ATTACHMENT-LIST-GET-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "query",
+            "name": "projectNodeId"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "list_by_project_api_attachment_listByProject_get",
+      "method": "GET",
+      "path": "/api/attachment/listByProject",
+      "summary": "List By Project",
+      "tags": [
+        "附件"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "projectId",
+          "in": "query",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-LIST-BY-PROJECT-API-ATTACHMENT-LISTBYPROJECT-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-GET-LIST-BY-PROJECT-API-ATTACHMENT-LISTBYPROJECT-GET-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "query",
+            "name": "projectId"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "upload_api_attachment_upload_post",
+      "method": "POST",
+      "path": "/api/attachment/upload",
+      "summary": "Upload",
+      "tags": [
+        "附件"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "file": "qa-sample",
+        "projectId": 1,
+        "projectNodeId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-UPLOAD-API-ATTACHMENT-UPLOAD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-UPLOAD-API-ATTACHMENT-UPLOAD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "comment_add_api_comment_add_post",
+      "method": "POST",
+      "path": "/api/comment/add",
+      "summary": "Comment Add",
+      "tags": [
+        "评论"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "projectId": 1,
+        "content": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-COMMENT-ADD-API-COMMENT-ADD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-COMMENT-ADD-API-COMMENT-ADD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "comment_delete_api_comment_delete_post",
+      "method": "POST",
+      "path": "/api/comment/delete",
+      "summary": "Comment Delete",
+      "tags": [
+        "评论"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "commentId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-COMMENT-DELETE-API-COMMENT-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-COMMENT-DELETE-API-COMMENT-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "comment_list_api_comment_list_get",
+      "method": "GET",
+      "path": "/api/comment/list",
+      "summary": "Comment List",
+      "tags": [
+        "评论"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "projectId",
+          "in": "query",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-COMMENT-LIST-API-COMMENT-LIST-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-GET-COMMENT-LIST-API-COMMENT-LIST-GET-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "query",
+            "name": "projectId"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "customer_add_api_customer_add_post",
+      "method": "POST",
+      "path": "/api/customer/add",
+      "summary": "Customer Add",
+      "tags": [
+        "客户库"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "categoryId": 1,
+        "customerName": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-CUSTOMER-ADD-API-CUSTOMER-ADD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-CUSTOMER-ADD-API-CUSTOMER-ADD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "customer_cover_remove_api_customer_cover_remove_post",
+      "method": "POST",
+      "path": "/api/customer/cover/remove",
+      "summary": "Customer Cover Remove",
+      "tags": [
+        "客户库"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "customerId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-CUSTOMER-COVER-REMOVE-API-CUSTOMER-COVER-REMOVE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-CUSTOMER-COVER-REMOVE-API-CUSTOMER-COVER-REMOVE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "customer_cover_upload_api_customer_cover_upload_post",
+      "method": "POST",
+      "path": "/api/customer/cover/upload",
+      "summary": "Customer Cover Upload",
+      "tags": [
+        "客户库"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "file": "qa-sample",
+        "customerId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-CUSTOMER-COVER-UPLOAD-API-CUSTOMER-COVER-UPLOAD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-CUSTOMER-COVER-UPLOAD-API-CUSTOMER-COVER-UPLOAD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "customer_delete_api_customer_delete_post",
+      "method": "POST",
+      "path": "/api/customer/delete",
+      "summary": "Customer Delete",
+      "tags": [
+        "客户库"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-CUSTOMER-DELETE-API-CUSTOMER-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-CUSTOMER-DELETE-API-CUSTOMER-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "customer_detail_api_customer_detail__id__get",
+      "method": "GET",
+      "path": "/api/customer/detail/{id}",
+      "summary": "Customer Detail",
+      "tags": [
+        "客户库"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-CUSTOMER-DETAIL-API-CUSTOMER-DETAIL-ID-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-GET-CUSTOMER-DETAIL-API-CUSTOMER-DETAIL-ID-GET-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "path",
+            "name": "id"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "customer_list_api_customer_list_get",
+      "method": "GET",
+      "path": "/api/customer/list",
+      "summary": "Customer List",
+      "tags": [
+        "客户库"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "pageNum",
+          "in": "query",
+          "required": false,
+          "value": 1
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "required": false,
+          "value": 10
+        },
+        {
+          "name": "sortField",
+          "in": "query",
+          "required": false,
+          "value": "qa-sample"
+        },
+        {
+          "name": "sortOrder",
+          "in": "query",
+          "required": false,
+          "value": "asc"
+        },
+        {
+          "name": "categoryId",
+          "in": "query",
+          "required": false,
+          "value": 1
+        },
+        {
+          "name": "customerName",
+          "in": "query",
+          "required": false,
+          "value": "qa-sample"
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-CUSTOMER-LIST-API-CUSTOMER-LIST-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "customer_update_api_customer_update_post",
+      "method": "POST",
+      "path": "/api/customer/update",
+      "summary": "Customer Update",
+      "tags": [
+        "客户库"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1,
+        "categoryId": 1,
+        "customerName": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-CUSTOMER-UPDATE-API-CUSTOMER-UPDATE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-CUSTOMER-UPDATE-API-CUSTOMER-UPDATE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "category_add_api_customerCategory_add_post",
+      "method": "POST",
+      "path": "/api/customerCategory/add",
+      "summary": "Category Add",
+      "tags": [
+        "客户分类"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "categoryName": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-CATEGORY-ADD-API-CUSTOMERCATEGORY-ADD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-CATEGORY-ADD-API-CUSTOMERCATEGORY-ADD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "category_delete_api_customerCategory_delete_post",
+      "method": "POST",
+      "path": "/api/customerCategory/delete",
+      "summary": "Category Delete",
+      "tags": [
+        "客户分类"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-CATEGORY-DELETE-API-CUSTOMERCATEGORY-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-CATEGORY-DELETE-API-CUSTOMERCATEGORY-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "category_list_api_customerCategory_list_get",
+      "method": "GET",
+      "path": "/api/customerCategory/list",
+      "summary": "Category List",
+      "tags": [
+        "客户分类"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-CATEGORY-LIST-API-CUSTOMERCATEGORY-LIST-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "category_update_api_customerCategory_update_post",
+      "method": "POST",
+      "path": "/api/customerCategory/update",
+      "summary": "Category Update",
+      "tags": [
+        "客户分类"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1,
+        "categoryName": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-CATEGORY-UPDATE-API-CUSTOMERCATEGORY-UPDATE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-CATEGORY-UPDATE-API-CUSTOMERCATEGORY-UPDATE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "evaluation_reflection_api_evaluation_reflection_post",
+      "method": "POST",
+      "path": "/api/evaluation/reflection",
+      "summary": "Evaluation Reflection",
+      "tags": [
+        "客户评价"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "projectId": 1,
+        "reflection": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-EVALUATION-REFLECTION-API-EVALUATION-REFLECTION-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-EVALUATION-REFLECTION-API-EVALUATION-REFLECTION-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "evaluation_submit_api_evaluation_submit_post",
+      "method": "POST",
+      "path": "/api/evaluation/submit",
+      "summary": "Evaluation Submit",
+      "tags": [
+        "客户评价"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "projectId": 1,
+        "designScore": 1.0,
+        "serviceScore": 1.0,
+        "productScore": 1.0
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-EVALUATION-SUBMIT-API-EVALUATION-SUBMIT-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-EVALUATION-SUBMIT-API-EVALUATION-SUBMIT-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "evaluation_get_api_evaluation__projectId__get",
+      "method": "GET",
+      "path": "/api/evaluation/{projectId}",
+      "summary": "Evaluation Get",
+      "tags": [
+        "客户评价"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "projectId",
+          "in": "path",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-EVALUATION-GET-API-EVALUATION-PROJECTID-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-GET-EVALUATION-GET-API-EVALUATION-PROJECTID-GET-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "path",
+            "name": "projectId"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "template_add_api_flowTemplate_add_post",
+      "method": "POST",
+      "path": "/api/flowTemplate/add",
+      "summary": "Template Add",
+      "tags": [
+        "流程模板"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "templateName": "qa-sample",
+        "nodes": [],
+        "edges": []
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-TEMPLATE-ADD-API-FLOWTEMPLATE-ADD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-TEMPLATE-ADD-API-FLOWTEMPLATE-ADD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "template_delete_api_flowTemplate_delete_post",
+      "method": "POST",
+      "path": "/api/flowTemplate/delete",
+      "summary": "Template Delete",
+      "tags": [
+        "流程模板"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-TEMPLATE-DELETE-API-FLOWTEMPLATE-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-TEMPLATE-DELETE-API-FLOWTEMPLATE-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "template_detail_api_flowTemplate_detail__id__get",
+      "method": "GET",
+      "path": "/api/flowTemplate/detail/{id}",
+      "summary": "Template Detail",
+      "tags": [
+        "流程模板"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-TEMPLATE-DETAIL-API-FLOWTEMPLATE-DETAIL-ID-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-GET-TEMPLATE-DETAIL-API-FLOWTEMPLATE-DETAIL-ID-GET-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "path",
+            "name": "id"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "template_list_api_flowTemplate_list_get",
+      "method": "GET",
+      "path": "/api/flowTemplate/list",
+      "summary": "Template List",
+      "tags": [
+        "流程模板"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-TEMPLATE-LIST-API-FLOWTEMPLATE-LIST-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "template_update_api_flowTemplate_update_post",
+      "method": "POST",
+      "path": "/api/flowTemplate/update",
+      "summary": "Template Update",
+      "tags": [
+        "流程模板"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1,
+        "templateName": "qa-sample",
+        "nodes": [],
+        "edges": []
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-TEMPLATE-UPDATE-API-FLOWTEMPLATE-UPDATE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-TEMPLATE-UPDATE-API-FLOWTEMPLATE-UPDATE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "edge_add_api_flowTemplateEdge_add_post",
+      "method": "POST",
+      "path": "/api/flowTemplateEdge/add",
+      "summary": "Edge Add",
+      "tags": [
+        "模板连线"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "templateId": 1,
+        "sourceNodeId": 1,
+        "targetNodeId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-EDGE-ADD-API-FLOWTEMPLATEEDGE-ADD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-EDGE-ADD-API-FLOWTEMPLATEEDGE-ADD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "edge_delete_api_flowTemplateEdge_delete_post",
+      "method": "POST",
+      "path": "/api/flowTemplateEdge/delete",
+      "summary": "Edge Delete",
+      "tags": [
+        "模板连线"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-EDGE-DELETE-API-FLOWTEMPLATEEDGE-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-EDGE-DELETE-API-FLOWTEMPLATEEDGE-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "health_api_health_get",
+      "method": "GET",
+      "path": "/api/health",
+      "summary": "Health",
+      "tags": [],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-HEALTH-API-HEALTH-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "login_api_login_post",
+      "method": "POST",
+      "path": "/api/login",
+      "summary": "Login",
+      "tags": [
+        "登录"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [],
+      "body": {
+        "username": "qa-sample",
+        "password": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-LOGIN-API-LOGIN-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-LOGIN-API-LOGIN-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "my_list_api_message_myList_get",
+      "method": "GET",
+      "path": "/api/message/myList",
+      "summary": "My List",
+      "tags": [
+        "消息中心"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "pageNum",
+          "in": "query",
+          "required": false,
+          "value": 1
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "required": false,
+          "value": 10
+        },
+        {
+          "name": "sortField",
+          "in": "query",
+          "required": false,
+          "value": "qa-sample"
+        },
+        {
+          "name": "sortOrder",
+          "in": "query",
+          "required": false,
+          "value": "asc"
+        },
+        {
+          "name": "isRead",
+          "in": "query",
+          "required": false,
+          "value": 0
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-MY-LIST-API-MESSAGE-MYLIST-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "mark_read_api_message_read_post",
+      "method": "POST",
+      "path": "/api/message/read",
+      "summary": "Mark Read",
+      "tags": [
+        "消息中心"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "messageId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-MARK-READ-API-MESSAGE-READ-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-MARK-READ-API-MESSAGE-READ-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "mark_read_all_api_message_readAll_post",
+      "method": "POST",
+      "path": "/api/message/readAll",
+      "summary": "Mark Read All",
+      "tags": [
+        "消息中心"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-MARK-READ-ALL-API-MESSAGE-READALL-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "unread_count_api_message_unreadCount_get",
+      "method": "GET",
+      "path": "/api/message/unreadCount",
+      "summary": "Unread Count",
+      "tags": [
+        "消息中心"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-UNREAD-COUNT-API-MESSAGE-UNREADCOUNT-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "add_api_nodeTemplate_add_post",
+      "method": "POST",
+      "path": "/api/nodeTemplate/add",
+      "summary": "Add",
+      "tags": [
+        "节点模板"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "nodeTitle": "qa-sample",
+        "sort": 0,
+        "formFields": []
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-ADD-API-NODETEMPLATE-ADD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-ADD-API-NODETEMPLATE-ADD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "delete_api_nodeTemplate_delete_post",
+      "method": "POST",
+      "path": "/api/nodeTemplate/delete",
+      "summary": "Delete",
+      "tags": [
+        "节点模板"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-DELETE-API-NODETEMPLATE-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-DELETE-API-NODETEMPLATE-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "upload_icon_api_nodeTemplate_icon_upload_post",
+      "method": "POST",
+      "path": "/api/nodeTemplate/icon/upload",
+      "summary": "Upload Icon",
+      "tags": [
+        "节点模板"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "file": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-UPLOAD-ICON-API-NODETEMPLATE-ICON-UPLOAD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-UPLOAD-ICON-API-NODETEMPLATE-ICON-UPLOAD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "list_all_api_nodeTemplate_list_get",
+      "method": "GET",
+      "path": "/api/nodeTemplate/list",
+      "summary": "List All",
+      "tags": [
+        "节点模板"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-LIST-ALL-API-NODETEMPLATE-LIST-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "update_api_nodeTemplate_update_post",
+      "method": "POST",
+      "path": "/api/nodeTemplate/update",
+      "summary": "Update",
+      "tags": [
+        "节点模板"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1,
+        "nodeTitle": "qa-sample",
+        "sort": 0,
+        "formFields": []
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-UPDATE-API-NODETEMPLATE-UPDATE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-UPDATE-API-NODETEMPLATE-UPDATE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "project_archive_api_project_archive_post",
+      "method": "POST",
+      "path": "/api/project/archive",
+      "summary": "Project Archive",
+      "tags": [
+        "项目"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "projectId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-PROJECT-ARCHIVE-API-PROJECT-ARCHIVE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-PROJECT-ARCHIVE-API-PROJECT-ARCHIVE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "project_cover_remove_api_project_cover_remove_post",
+      "method": "POST",
+      "path": "/api/project/cover/remove",
+      "summary": "Project Cover Remove",
+      "tags": [
+        "项目"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "projectId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-PROJECT-COVER-REMOVE-API-PROJECT-COVER-REMOVE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-PROJECT-COVER-REMOVE-API-PROJECT-COVER-REMOVE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "project_cover_upload_api_project_cover_upload_post",
+      "method": "POST",
+      "path": "/api/project/cover/upload",
+      "summary": "Project Cover Upload",
+      "tags": [
+        "项目"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "file": "qa-sample",
+        "projectId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-PROJECT-COVER-UPLOAD-API-PROJECT-COVER-UPLOAD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-PROJECT-COVER-UPLOAD-API-PROJECT-COVER-UPLOAD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "project_create_api_project_create_post",
+      "method": "POST",
+      "path": "/api/project/create",
+      "summary": "Project Create",
+      "tags": [
+        "项目"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "projectName": "qa-sample",
+        "categoryId": 1,
+        "contactCustomerIds": [
+          1
+        ],
+        "designerRelUserIdList": []
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-PROJECT-CREATE-API-PROJECT-CREATE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-PROJECT-CREATE-API-PROJECT-CREATE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "project_delete_api_project_delete_post",
+      "method": "POST",
+      "path": "/api/project/delete",
+      "summary": "Project Delete",
+      "tags": [
+        "项目"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "projectId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-PROJECT-DELETE-API-PROJECT-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-PROJECT-DELETE-API-PROJECT-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "project_detail_api_project_detail__projectId__get",
+      "method": "GET",
+      "path": "/api/project/detail/{projectId}",
+      "summary": "Project Detail",
+      "tags": [
+        "项目"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "projectId",
+          "in": "path",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-PROJECT-DETAIL-API-PROJECT-DETAIL-PROJECTID-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-GET-PROJECT-DETAIL-API-PROJECT-DETAIL-PROJECTID-GET-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "path",
+            "name": "projectId"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "project_list_api_project_list_get",
+      "method": "GET",
+      "path": "/api/project/list",
+      "summary": "Project List",
+      "tags": [
+        "项目"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "pageNum",
+          "in": "query",
+          "required": false,
+          "value": 1
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "required": false,
+          "value": 10
+        },
+        {
+          "name": "sortField",
+          "in": "query",
+          "required": false,
+          "value": "qa-sample"
+        },
+        {
+          "name": "sortOrder",
+          "in": "query",
+          "required": false,
+          "value": "asc"
+        },
+        {
+          "name": "projectName",
+          "in": "query",
+          "required": false,
+          "value": "qa-sample"
+        },
+        {
+          "name": "categoryId",
+          "in": "query",
+          "required": false,
+          "value": 1
+        },
+        {
+          "name": "projectStatus",
+          "in": "query",
+          "required": false,
+          "value": "进行中"
+        },
+        {
+          "name": "createTimeStart",
+          "in": "query",
+          "required": false,
+          "value": "2026-01-01T00:00:00Z"
+        },
+        {
+          "name": "createTimeEnd",
+          "in": "query",
+          "required": false,
+          "value": "2026-01-01T00:00:00Z"
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-PROJECT-LIST-API-PROJECT-LIST-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "project_unarchive_api_project_unArchive_post",
+      "method": "POST",
+      "path": "/api/project/unArchive",
+      "summary": "Project Unarchive",
+      "tags": [
+        "项目"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "projectId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-PROJECT-UNARCHIVE-API-PROJECT-UNARCHIVE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-PROJECT-UNARCHIVE-API-PROJECT-UNARCHIVE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "project_update_base_api_project_updateBase_post",
+      "method": "POST",
+      "path": "/api/project/updateBase",
+      "summary": "Project Update Base",
+      "tags": [
+        "项目"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1,
+        "projectName": "qa-sample",
+        "categoryId": 1,
+        "contactCustomerIds": [
+          1
+        ],
+        "designerRelUserIdList": []
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-PROJECT-UPDATE-BASE-API-PROJECT-UPDATEBASE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-PROJECT-UPDATE-BASE-API-PROJECT-UPDATEBASE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "node_add_api_projectNode_add_post",
+      "method": "POST",
+      "path": "/api/projectNode/add",
+      "summary": "Node Add",
+      "tags": [
+        "项目节点"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "projectId": 1,
+        "nodeTemplateId": 1,
+        "sort": 0,
+        "posX": "0.00",
+        "posY": "0.00"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-NODE-ADD-API-PROJECTNODE-ADD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-NODE-ADD-API-PROJECTNODE-ADD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "batch_update_positions_api_projectNode_batchUpdatePositions_post",
+      "method": "POST",
+      "path": "/api/projectNode/batchUpdatePositions",
+      "summary": "Batch Update Positions",
+      "tags": [
+        "项目节点"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "projectId": 1,
+        "positions": [
+          {
+            "id": 1,
+            "posX": 1.0,
+            "posY": 1.0
+          }
+        ]
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-BATCH-UPDATE-POSITIONS-API-PROJECTNODE-BATCHUPDATEPOSITIONS-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-BATCH-UPDATE-POSITIONS-API-PROJECTNODE-BATCHUPDATEPOSITIONS-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "node_delete_api_projectNode_delete_post",
+      "method": "POST",
+      "path": "/api/projectNode/delete",
+      "summary": "Node Delete",
+      "tags": [
+        "项目节点"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "nodeId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-NODE-DELETE-API-PROJECTNODE-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-NODE-DELETE-API-PROJECTNODE-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "upload_form_image_api_projectNode_formImage_upload_post",
+      "method": "POST",
+      "path": "/api/projectNode/formImage/upload",
+      "summary": "Upload Form Image",
+      "tags": [
+        "项目节点"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "file": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-UPLOAD-FORM-IMAGE-API-PROJECTNODE-FORMIMAGE-UPLOAD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-UPLOAD-FORM-IMAGE-API-PROJECTNODE-FORMIMAGE-UPLOAD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "get_form_api_projectNode_getForm__projectNodeId__get",
+      "method": "GET",
+      "path": "/api/projectNode/getForm/{projectNodeId}",
+      "summary": "Get Form",
+      "tags": [
+        "项目节点"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "projectNodeId",
+          "in": "path",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-GET-FORM-API-PROJECTNODE-GETFORM-PROJECTNODEID-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-GET-GET-FORM-API-PROJECTNODE-GETFORM-PROJECTNODEID-GET-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "path",
+            "name": "projectNodeId"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "save_form_value_api_projectNode_saveFormValue_post",
+      "method": "POST",
+      "path": "/api/projectNode/saveFormValue",
+      "summary": "Save Form Value",
+      "tags": [
+        "项目节点"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "projectNodeId": 1,
+        "formValueList": []
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-SAVE-FORM-VALUE-API-PROJECTNODE-SAVEFORMVALUE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-SAVE-FORM-VALUE-API-PROJECTNODE-SAVEFORMVALUE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "node_update_api_projectNode_update_post",
+      "method": "POST",
+      "path": "/api/projectNode/update",
+      "summary": "Node Update",
+      "tags": [
+        "项目节点"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1,
+        "nodeTitle": "qa-sample",
+        "sort": 0,
+        "posX": "0.00",
+        "posY": "0.00"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-NODE-UPDATE-API-PROJECTNODE-UPDATE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-NODE-UPDATE-API-PROJECTNODE-UPDATE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "edge_add_api_projectNodeEdge_add_post",
+      "method": "POST",
+      "path": "/api/projectNodeEdge/add",
+      "summary": "Edge Add",
+      "tags": [
+        "项目节点连线"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "projectId": 1,
+        "sourceNodeId": 1,
+        "targetNodeId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-EDGE-ADD-API-PROJECTNODEEDGE-ADD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-EDGE-ADD-API-PROJECTNODEEDGE-ADD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "edge_delete_api_projectNodeEdge_delete_post",
+      "method": "POST",
+      "path": "/api/projectNodeEdge/delete",
+      "summary": "Edge Delete",
+      "tags": [
+        "项目节点连线"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-EDGE-DELETE-API-PROJECTNODEEDGE-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-EDGE-DELETE-API-PROJECTNODEEDGE-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "export_project_api_report_exportProject_get",
+      "method": "GET",
+      "path": "/api/report/exportProject",
+      "summary": "Export Project",
+      "tags": [
+        "报表导出"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "projectStatus",
+          "in": "query",
+          "required": false,
+          "value": "进行中"
+        },
+        {
+          "name": "categoryId",
+          "in": "query",
+          "required": false,
+          "value": 1
+        },
+        {
+          "name": "startTime",
+          "in": "query",
+          "required": false,
+          "value": "2026-01-01T00:00:00Z"
+        },
+        {
+          "name": "endTime",
+          "in": "query",
+          "required": false,
+          "value": "2026-01-01T00:00:00Z"
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-EXPORT-PROJECT-API-REPORT-EXPORTPROJECT-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "add_dept_api_sysDept_add_post",
+      "method": "POST",
+      "path": "/api/sysDept/add",
+      "summary": "Add Dept",
+      "tags": [
+        "部门管理"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "deptName": "qa-sample",
+        "deptType": "internal"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-ADD-DEPT-API-SYSDEPT-ADD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-ADD-DEPT-API-SYSDEPT-ADD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "delete_dept_api_sysDept_delete_post",
+      "method": "POST",
+      "path": "/api/sysDept/delete",
+      "summary": "Delete Dept",
+      "tags": [
+        "部门管理"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-DELETE-DEPT-API-SYSDEPT-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-DELETE-DEPT-API-SYSDEPT-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "list_depts_api_sysDept_list_get",
+      "method": "GET",
+      "path": "/api/sysDept/list",
+      "summary": "List Depts",
+      "tags": [
+        "部门管理"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-LIST-DEPTS-API-SYSDEPT-LIST-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "update_dept_api_sysDept_update_post",
+      "method": "POST",
+      "path": "/api/sysDept/update",
+      "summary": "Update Dept",
+      "tags": [
+        "部门管理"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1,
+        "deptName": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-UPDATE-DEPT-API-SYSDEPT-UPDATE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-UPDATE-DEPT-API-SYSDEPT-UPDATE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "global_list_api_sysOperationLog_globalList_get",
+      "method": "GET",
+      "path": "/api/sysOperationLog/globalList",
+      "summary": "Global List",
+      "tags": [
+        "审计日志"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "pageNum",
+          "in": "query",
+          "required": false,
+          "value": 1
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "required": false,
+          "value": 10
+        },
+        {
+          "name": "sortField",
+          "in": "query",
+          "required": false,
+          "value": "qa-sample"
+        },
+        {
+          "name": "sortOrder",
+          "in": "query",
+          "required": false,
+          "value": "asc"
+        },
+        {
+          "name": "operUserId",
+          "in": "query",
+          "required": false,
+          "value": 1
+        },
+        {
+          "name": "startTime",
+          "in": "query",
+          "required": false,
+          "value": "2026-01-01T00:00:00Z"
+        },
+        {
+          "name": "endTime",
+          "in": "query",
+          "required": false,
+          "value": "2026-01-01T00:00:00Z"
+        },
+        {
+          "name": "operType",
+          "in": "query",
+          "required": false,
+          "value": "qa-sample"
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-GLOBAL-LIST-API-SYSOPERATIONLOG-GLOBALLIST-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "project_log_api_sysOperationLog_projectLog_get",
+      "method": "GET",
+      "path": "/api/sysOperationLog/projectLog",
+      "summary": "Project Log",
+      "tags": [
+        "审计日志"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "projectId",
+          "in": "query",
+          "required": true,
+          "value": 1
+        },
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-PROJECT-LOG-API-SYSOPERATIONLOG-PROJECTLOG-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-GET-PROJECT-LOG-API-SYSOPERATIONLOG-PROJECTLOG-GET-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "query",
+            "name": "projectId"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "add_role_api_sysRole_add_post",
+      "method": "POST",
+      "path": "/api/sysRole/add",
+      "summary": "Add Role",
+      "tags": [
+        "自定义角色"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "roleName": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-ADD-ROLE-API-SYSROLE-ADD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-ADD-ROLE-API-SYSROLE-ADD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "delete_role_api_sysRole_delete_post",
+      "method": "POST",
+      "path": "/api/sysRole/delete",
+      "summary": "Delete Role",
+      "tags": [
+        "自定义角色"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-DELETE-ROLE-API-SYSROLE-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-DELETE-ROLE-API-SYSROLE-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "list_roles_api_sysRole_list_get",
+      "method": "GET",
+      "path": "/api/sysRole/list",
+      "summary": "List Roles",
+      "tags": [
+        "自定义角色"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-LIST-ROLES-API-SYSROLE-LIST-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "create_user_api_sysUser_create_post",
+      "method": "POST",
+      "path": "/api/sysUser/create",
+      "summary": "Create User",
+      "tags": [
+        "用户管理"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "username": "qa-sample",
+        "password": "qa-sample",
+        "realName": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-CREATE-USER-API-SYSUSER-CREATE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-CREATE-USER-API-SYSUSER-CREATE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "delete_user_api_sysUser_delete_post",
+      "method": "POST",
+      "path": "/api/sysUser/delete",
+      "summary": "Delete User",
+      "tags": [
+        "用户管理"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "userId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-DELETE-USER-API-SYSUSER-DELETE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-DELETE-USER-API-SYSUSER-DELETE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "list_users_api_sysUser_list_get",
+      "method": "GET",
+      "path": "/api/sysUser/list",
+      "summary": "List Users",
+      "tags": [
+        "用户管理"
+      ],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-LIST-USERS-API-SYSUSER-LIST-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "reset_pwd_api_sysUser_resetPwd_post",
+      "method": "POST",
+      "path": "/api/sysUser/resetPwd",
+      "summary": "Reset Pwd",
+      "tags": [
+        "用户管理"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "userId": 1,
+        "newPassword": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-RESET-PWD-API-SYSUSER-RESETPWD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-RESET-PWD-API-SYSUSER-RESETPWD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "set_enable_api_sysUser_setEnable_post",
+      "method": "POST",
+      "path": "/api/sysUser/setEnable",
+      "summary": "Set Enable",
+      "tags": [
+        "用户管理"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "userId": 1,
+        "isEnable": 0
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-SET-ENABLE-API-SYSUSER-SETENABLE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-SET-ENABLE-API-SYSUSER-SETENABLE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "unlock_user_api_sysUser_unlock_post",
+      "method": "POST",
+      "path": "/api/sysUser/unlock",
+      "summary": "Unlock User",
+      "tags": [
+        "用户管理"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "userId": 1
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-UNLOCK-USER-API-SYSUSER-UNLOCK-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-UNLOCK-USER-API-SYSUSER-UNLOCK-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "update_user_api_sysUser_update_post",
+      "method": "POST",
+      "path": "/api/sysUser/update",
+      "summary": "Update User",
+      "tags": [
+        "用户管理"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "id": 1,
+        "realName": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-UPDATE-USER-API-SYSUSER-UPDATE-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-UPDATE-USER-API-SYSUSER-UPDATE-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "update_my_pwd_api_user_updateMyPwd_post",
+      "method": "POST",
+      "path": "/api/user/updateMyPwd",
+      "summary": "Update My Pwd",
+      "tags": [
+        "登录"
+      ],
+      "safe_by_default": false,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "authorization",
+          "in": "header",
+          "required": false,
+          "value": ""
+        }
+      ],
+      "body": {
+        "oldPassword": "qa-sample",
+        "newPassword": "qa-sample"
+      },
+      "body_required": true,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-POST-UPDATE-MY-PWD-API-USER-UPDATEMYPWD-POST-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-POST-UPDATE-MY-PWD-API-USER-UPDATEMYPWD-POST-MISSING-BODY",
+          "kind": "missing_body",
+          "expected_statuses": [
+            400,
+            415,
+            422
+          ]
+        }
+      ]
+    },
+    {
+      "operation_id": "spa_fallback__full_path__get",
+      "method": "GET",
+      "path": "/{full_path}",
+      "summary": "Spa Fallback",
+      "tags": [],
+      "safe_by_default": true,
+      "requires_auth": false,
+      "parameters": [
+        {
+          "name": "full_path",
+          "in": "path",
+          "required": true,
+          "value": "qa-sample"
+        }
+      ],
+      "body": null,
+      "body_required": false,
+      "success_statuses": [
+        200
+      ],
+      "response_schema": {},
+      "cases": [
+        {
+          "case_id": "TC-API-GET-SPA-FALLBACK-FULL-PATH-GET-HAPPY",
+          "kind": "happy",
+          "expected_statuses": [
+            200
+          ]
+        },
+        {
+          "case_id": "TC-API-GET-SPA-FALLBACK-FULL-PATH-GET-MISSING-REQUIRED",
+          "kind": "missing_required",
+          "omit": {
+            "in": "path",
+            "name": "full_path"
+          },
+          "expected_statuses": [
+            400,
+            404,
+            422
+          ]
+        }
+      ]
+    }
+  ]
+}

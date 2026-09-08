@@ -147,6 +147,9 @@
         <el-form-item label="项目描述">
           <el-input v-model="createForm.projectDesc" type="textarea" :rows="3" />
         </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker v-model="createForm.createTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="默认当前时间，可改为实际立项日期（补录历史项目）" />
+        </el-form-item>
         <el-form-item label="预计截止时间">
           <el-date-picker v-model="createForm.expectTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="选择截止时间，项目卡片将显示倒计时" />
         </el-form-item>
@@ -210,6 +213,9 @@
           <el-select v-model="editForm.contactCustomerIds" multiple placeholder="选择该单位下的对接人（可多选）" style="width: 100%" :disabled="!editForm.categoryId">
             <el-option v-for="c in contactsOf(editForm.categoryId)" :key="c.id" :label="c.customerName" :value="c.id" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker v-model="editForm.createTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="立项时间，可修改为实际日期" />
         </el-form-item>
         <el-form-item label="预计截止时间">
           <el-date-picker v-model="editForm.expectTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="设置后卡片显示倒计时" />
@@ -345,13 +351,13 @@ const createVisible = ref(false)
 const creating = ref(false)
 const createForm = reactive({
   projectName: '', categoryId: null, contactCustomerIds: [], projectDesc: '',
-  expectTime: null, designerRelUserIdList: [], templateId: null
+  createTime: new Date(), expectTime: null, designerRelUserIdList: [], templateId: null
 })
 
 function openCreate() {
   Object.assign(createForm, {
     projectName: '', categoryId: null, contactCustomerIds: [], projectDesc: '',
-    expectTime: null, designerRelUserIdList: [], templateId: null
+    createTime: new Date(), expectTime: null, designerRelUserIdList: [], templateId: null
   })
   createVisible.value = true
 }
@@ -386,7 +392,8 @@ const editVisible = ref(false)
 const editLoading = ref(false)
 const saving = ref(false)
 const editForm = reactive({
-  id: null, projectName: '', categoryId: null, contactCustomerIds: [], projectDesc: '', expectTime: null,
+  id: null, projectName: '', categoryId: null, contactCustomerIds: [], projectDesc: '',
+  createTime: null, expectTime: null,
   designerRelUserIdList: [], designerList: [], coverImage: null, projectStatus: ''
 })
 
@@ -409,6 +416,7 @@ async function openQuickEdit(row) {
       categoryId: detail.categoryId ?? row.categoryId ?? null,
       contactCustomerIds: (detail.contactList || []).map((c) => c.customerId),
       projectDesc: row.projectDesc || detail.projectDesc || '',
+      createTime: row.createTime || detail.createTime || null,
       expectTime: row.expectTime || detail.expectTime || null,
       designerRelUserIdList: (detail.designerList || []).map((d) => d.userId),
       designerList: detail.designerList || [],
@@ -475,6 +483,7 @@ async function submitEdit() {
       categoryId: editForm.categoryId,
       contactCustomerIds: editForm.contactCustomerIds,
       projectDesc: editForm.projectDesc,
+      createTime: editForm.createTime,
       expectTime: editForm.expectTime,
       designerRelUserIdList: editForm.designerRelUserIdList
     })
