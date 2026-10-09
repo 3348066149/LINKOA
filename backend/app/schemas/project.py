@@ -14,6 +14,7 @@ class ProjectCreateRequest(CamelModel):
     category_id: int = Field(..., gt=0)  # 归属客户单位（customer_category.id）
     contact_customer_ids: list[int] = Field(..., min_length=1)  # 客户对接人（单位下的 customer，至少 1 人）
     project_desc: str | None = None
+    start_time: datetime | None = None  # 项目开始时间（可编辑）
     expect_time: datetime | None = None
     create_time: datetime | None = None  # 立项时间（=创建时间）；不传默认当前时间，支持补录历史项目
     designer_rel_user_id_list: list[int] = []
@@ -34,6 +35,7 @@ class ProjectUpdateBaseRequest(CamelModel):
     category_id: int = Field(..., gt=0)
     contact_customer_ids: list[int] = Field(..., min_length=1)  # 全量覆盖（先删后插）
     project_desc: str | None = None
+    start_time: datetime | None = None  # 项目开始时间（可编辑）
     expect_time: datetime | None = None
     create_time: datetime | None = None  # 立项时间（=创建时间），传则更新，不传保留原值
     designer_rel_user_id_list: list[int] = []  # 全量覆盖（先删后插）
@@ -57,6 +59,7 @@ class ProjectListItem(CamelModel):
     contact_names: str = ""  # 全部客户对接人，顿号分隔
     designer_names: str = ""  # 全部我方设计师，顿号分隔
     create_time: datetime | None = None  # 立项时间（=创建时间）
+    start_time: datetime | None = None  # 项目开始时间
     expect_time: datetime | None = None  # 预计结束时间（卡片倒计时用）
     cover_image: str | None = None  # 卡片封面图相对路径
     project_status: str
@@ -87,6 +90,8 @@ class ProjectNodeBrief(CamelModel):
     has_form: bool = False
     form_filled: bool = False
     attachment_count: int = 0
+    create_time: datetime | None = None  # 节点创建时间
+    update_time: datetime | None = None  # 节点最后更新时间
 
 
 class ProjectEdgeOut(CamelModel):
@@ -104,6 +109,7 @@ class ProjectDetail(CamelModel):
     customer_id: int  # 首位对接人ID（兼容保留）
     customer_name: str | None = None  # 首位对接人姓名（兼容保留）
     project_desc: str | None = None
+    start_time: datetime | None = None  # 项目开始时间
     expect_time: datetime | None = None  # 预计结束时间
     cover_image: str | None = None  # 卡片封面图相对路径
     project_status: str

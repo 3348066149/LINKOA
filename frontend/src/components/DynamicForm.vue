@@ -68,6 +68,7 @@
             </div>
           </el-upload>
           <div class="image-tip">jpg/png/webp ≤5MB，可点击放大查看，可替换或删除</div>
+          <div v-if="field.updateTime" class="image-time">🕐 上传时间：{{ formatTime(field.updateTime) }}</div>
         </div>
         <!-- 链接 -->
         <div v-else-if="field.fieldType === 'link'" class="link-field">
@@ -183,6 +184,8 @@ function normalizeLink(v) {
   return /^https?:\/\//i.test(v) ? v : `https://${v}`
 }
 
+function formatTime(t) { return t ? t.slice(0, 16) : '' }
+
 function collect() {
   // 全量覆盖提交：[{id, fieldValue}]
   return props.fields.map((f) => ({
@@ -242,6 +245,7 @@ defineExpose({ collect, isDirty, markClean })
 .image-mask .el-icon { cursor: pointer; }
 .image-mask .el-icon:hover { color: #66b1ff; }
 .image-tip { font-size: 12px; color: var(--lk-text-3, #6f737a); margin-top: 6px; }
+.image-time { font-size: 12px; color: var(--lk-text-3, #6f737a); margin-top: 4px; }
 
 /* 链接字段 */
 .link-hint {

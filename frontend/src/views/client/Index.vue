@@ -70,6 +70,7 @@
               <div class="meta-row"><span class="meta-label">项目参与者</span><span class="meta-value">{{ row.designerNames || '—' }}</span></div>
               <div class="meta-row"><span class="meta-label">项目对接人</span><span class="meta-value">{{ row.contactNames || '—' }}</span></div>
               <div class="meta-row"><span class="meta-label">立项时间</span><span class="meta-value">{{ (row.createTime || '').slice(0, 10) || '—' }}</span></div>
+              <div class="meta-row"><span class="meta-label">开始时间</span><span class="meta-value">{{ (row.startTime || '').slice(0, 10) || '—' }}</span></div>
               <div class="meta-row"><span class="meta-label">预计结束</span><span class="meta-value">{{ (row.expectTime || '').slice(0, 10) || '—' }}</span></div>
             </div>
             <div v-if="row.coverImage" class="proj-cover">

@@ -26,6 +26,7 @@
           <div class="meta-row"><span class="meta-label">项目对接人</span><span class="meta-value">{{ contactNames || '—' }}</span></div>
           <div class="meta-row"><span class="meta-label">项目描述</span><span class="meta-value">{{ detail.projectDesc || '—' }}</span></div>
           <div class="meta-row"><span class="meta-label">立项时间</span><span class="meta-value">{{ formatTime(detail.createTime) }}</span></div>
+          <div class="meta-row"><span class="meta-label">开始时间</span><span class="meta-value">{{ formatTime(detail.startTime) }}</span></div>
           <div class="meta-row"><span class="meta-label">预计结束时间</span><span class="meta-value">{{ formatTime(detail.expectTime) }}</span></div>
           <div v-if="deadlineInfo(detail.expectTime, detail.projectStatus)" class="deadline-badge" :class="`dl-${deadlineInfo(detail.expectTime, detail.projectStatus).type}`">
             {{ deadlineInfo(detail.expectTime, detail.projectStatus).label }}
@@ -33,34 +34,25 @@
         </div>
       </div>
 
-      <!-- 节点进度时间线 -->
-      <h3 class="section-title">节点进度</h3>
-      <div v-if="detail.nodes.length" class="node-list">
-        <div v-for="(n, idx) in sortedNodes" :key="n.id" class="node-item" :class="{ done: n.formFilled }">
-          <div class="node-rail">
-            <div class="node-dot" :class="{ done: n.formFilled }">
-              <el-icon v-if="n.formFilled"><Check /></el-icon>
-              <span v-else>{{ idx + 1 }}</span>
-            </div>
-            <div v-if="idx < sortedNodes.length - 1" class="node-line" :class="{ done: n.formFilled }" />
-          </div>
-          <div class="node-card" @click="openForm(n)">
-            <div class="node-head">
-              <span class="node-title">{{ n.nodeTitle }}</span>
-              <el-tag :type="n.formFilled ? 'success' : 'info'" size="small" effect="light">
-                {{ n.formFilled ? '已完成' : '未开始' }}
-              </el-tag>
-            </div>
-            <div v-if="n.nodeRemark" class="node-remark">{{ n.nodeRemark }}</div>
-            <div v-if="n.formFilled" class="node-hint"><el-icon><Document /></el-icon> 点击查看已填内容</div>
-            <div v-else class="node-hint pending"><el-icon><Clock /></el-icon> 该节点暂未更新</div>
-          </div>
-        </div>
+      <!-- 节点进度：画布式拓扑图（只读，客户不能修改） -->
+      <h3 class="section-title">流程进度</h3>
+      <div v-if="detail.nodes.length" class="topo-wrap">
+        <FlowCanvas
+          :nodes="detail.nodes"
+          :edges="detail.edges"
+          readonly
+          :deletable="false"
+          :selected-node-id="null"
+          :presets="[]"
+          @node-click="openFormById"
+        />
+        <div class="topo-tip">仅可查看节点内容与时间，如需修改请联系我方负责人</div>
       </div>
       <el-empty v-else description="该项目暂无节点" />
 
       <!-- 节点表单只读弹窗 -->
       <el-dialog v-model="formVisible" :title="`${currentNode?.nodeTitle || ''} - 已填内容`" width="min(560px, 92vw)">
+        <div v-if="currentNode" class="node-time-bar">🕐 创建：{{ formatTime(currentNode.createTime) }}</div>
         <el-descriptions v-if="currentFormFields.length" :column="1" border>
           <el-descriptions-item v-for="f in currentFormFields" :key="f.id || f.fieldLabel" :label="f.fieldLabel">
             <template v-if="f.fieldType === 'image' && f.fieldValue">
@@ -71,6 +63,7 @@
                 fit="cover"
                 style="width: 120px; height: 120px; border-radius: 8px"
               />
+              <div v-if="f.updateTime" class="image-time">🕐 上传时间：{{ formatTime(f.updateTime) }}</div>
             </template>
             <template v-else-if="f.fieldType === 'select' && Array.isArray(f.fieldValueParsed)">
               <el-tag v-for="(opt, i) in f.fieldValueParsed" :key="i" size="small" style="margin-right: 6px">{{ opt }}</el-tag>
@@ -98,7 +91,8 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Back, Check, Clock, Document, Lock } from '@element-plus/icons-vue'
+import { Back, Lock } from '@element-plus/icons-vue'
+import FlowCanvas from '@/components/FlowCanvas.vue'
 import { projectDetail } from '@/api/project'
 import { getNodeForm } from '@/api/projectNode'
 import { useUserStore } from '@/stores/user'
@@ -116,14 +110,6 @@ const formVisible = ref(false)
 const currentNode = ref(null)
 const currentFormFields = ref([])
 
-const sortedNodes = computed(() => {
-  if (!detail.value) return []
-  // 按画布位置排序（左→右，再上→下），与删除重加节点后的实际流程顺序一致
-  return [...detail.value.nodes].sort(
-    (a, b) => Number(a.posX) - Number(b.posX) || Number(a.posY) - Number(b.posY) || a.sort - b.sort || a.id - b.id
-  )
-})
-
 // 项目参与者 / 我方负责人（顿号分隔）
 const designerNames = computed(() => (detail.value?.designerList || []).map((d) => d.realName).join('、'))
 const contactNames = computed(() => (detail.value?.contactList || []).map((c) => c.customerName).join('、'))
@@ -139,8 +125,10 @@ async function loadData() {
   }
 }
 
-async function openForm(node) {
-  if (!node.formFilled) return
+// 客户点拓扑图中的节点：只读查看表单内容与时间（未填节点也展示空表单）
+async function openFormById(nodeId) {
+  const node = detail.value?.nodes?.find((n) => n.id === nodeId)
+  if (!node) return
   currentNode.value = node
   currentFormFields.value = []
   formVisible.value = true
@@ -204,34 +192,22 @@ onMounted(loadData)
 
 .section-title { font-size: 17px; font-weight: 700; color: var(--lk-text-1, #303133); margin: 24px 0 14px; }
 
-.node-list { display: flex; flex-direction: column; }
-.node-item { display: flex; gap: 14px; }
-.node-rail { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
-.node-dot {
-  width: 28px; height: 28px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--lk-fill, #f5f7fa);
-  border: 2px solid var(--lk-border, #dcdfe6);
-  color: var(--lk-text-3, #6f737a); font-size: 13px; font-weight: 700;
-  flex-shrink: 0; z-index: 1;
+/* 画布式拓扑图（客户只读） */
+.topo-wrap {
+  background: #fff; border: 1px solid var(--lk-border, #ebeef5); border-radius: 12px;
+  overflow: hidden; height: 480px; position: relative;
 }
-.node-dot.done { background: var(--lk-success, #67c23a); border-color: var(--lk-success, #67c23a); color: #fff; }
-.node-line { width: 2px; flex: 1; min-height: 24px; background: var(--lk-border, #dcdfe6); margin: 4px 0; }
-.node-line.done { background: var(--lk-success, #67c23a); }
+.topo-wrap .flow-canvas-wrapper { height: 100%; }
+.topo-tip {
+  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.92); border: 1px solid var(--lk-border, #ebeef5);
+  color: var(--lk-text-3, #6f737a); font-size: 12px; padding: 4px 12px; border-radius: 999px;
+  white-space: nowrap; pointer-events: none; z-index: 5;
+}
+.node-time-bar { font-size: 12px; color: var(--lk-text-3, #6f737a); margin-bottom: 12px; }
 
-.node-card {
-  flex: 1; margin-bottom: 14px;
-  background: #fff; border: 1px solid var(--lk-border, #ebeef5); border-radius: 10px;
-  padding: 14px 16px; cursor: pointer;
-  transition: box-shadow 0.2s, border-color 0.2s;
-}
-.node-card:hover { border-color: var(--lk-primary, #409eff); box-shadow: var(--lk-shadow-md, 0 4px 14px rgba(64, 158, 255, 0.12)); }
-.node-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.node-title { font-size: 15px; font-weight: 700; color: var(--lk-text-1, #303133); }
-.node-remark { margin-top: 6px; font-size: 13px; color: var(--lk-text-2, #606266); line-height: 1.5; }
-.node-hint { margin-top: 8px; font-size: 12px; color: var(--lk-primary, #409eff); display: flex; align-items: center; gap: 4px; }
-.node-hint.pending { color: var(--lk-text-3, #6f737a); }
 .empty-value { color: var(--lk-text-3, #6f737a); }
+.image-time { font-size: 12px; color: var(--lk-text-3, #6f737a); margin-top: 6px; }
 .link-value { color: var(--lk-primary, #409eff); word-break: break-all; }
 .readonly-tip {
   margin-top: 12px; font-size: 12px; color: var(--lk-text-3, #6f737a);

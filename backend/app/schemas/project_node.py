@@ -1,4 +1,5 @@
 """项目画布节点 + 连线 + 表单 DTO（Api.md 第 8、9 章）"""
+from datetime import datetime
 from decimal import Decimal
 
 from pydantic import Field
@@ -67,6 +68,7 @@ class FormFieldOut(CamelModel):
     select_options: list[str] | None = None
     sort: int = 0
     field_value: str | None = None
+    update_time: datetime | None = None  # 字段最后保存/更新时间（图像字段=上传保存时间）
 
 
 # ---- 项目节点连线 ----

@@ -222,6 +222,7 @@ def get_form(db: Session, project_node_id: int) -> list[FormFieldOut]:
             select_options=_load_options(r.select_options),
             sort=0,
             field_value=r.field_value,
+            update_time=r.update_time,
         )
         for r in rows
     ]

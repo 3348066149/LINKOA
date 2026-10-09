@@ -140,7 +140,7 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/minimap/dist/style.css'
 
 const props = defineProps({
-  // 业务节点数组：[{id, nodeTitle, nodeRemark, sort, posX, posY, hasForm, formFilled, attachmentCount}]
+  // 业务节点数组：[{id, nodeTitle, nodeRemark, sort, posX, posY, createTime, updateTime, hasForm, formFilled, attachmentCount}]
   nodes: { type: Array, default: () => [] },
   // 业务连线数组：[{id, sourceNodeId, targetNodeId, label}]
   edges: { type: Array, default: () => [] },
@@ -185,6 +185,8 @@ function toVfNode(n) {
       hasForm: n.hasForm,
       formFilled: n.formFilled,
       attachmentCount: n.attachmentCount ?? 0,
+      createTime: n.createTime,
+      updateTime: n.updateTime,
       showDelete: props.deletable && !props.readonly
     },
     selected: String(props.selectedNodeId) === String(n.id)

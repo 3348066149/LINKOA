@@ -22,9 +22,10 @@
       </el-icon>
     </div>
 
-    <!-- 节点体：信息徽章（说明不再展示，仅在节点库悬停时提示） -->
-    <div v-if="data.hasForm || data.attachmentCount > 0" class="node-body">
-      <div class="badges">
+    <!-- 节点体：创建/更新时间 + 信息徽章（说明不再展示，仅在节点库悬停时提示） -->
+    <div v-if="data.createTime || data.hasForm || data.attachmentCount > 0" class="node-body">
+      <div v-if="data.createTime" class="node-created">🕐 创建：{{ data.createTime }}</div>
+      <div v-if="data.hasForm || data.attachmentCount > 0" class="badges">
         <span v-if="data.hasForm" class="badge form-badge" :class="{ filled: data.formFilled }">
           🏷️ 表单({{ data.formFilled ? '已填' : '未填' }})
         </span>
@@ -114,6 +115,7 @@ const emit = defineEmits(['delete'])
 .delete-icon:hover { transform: scale(1.2); }
 
 .node-body { padding: 0 12px 10px; }
+.node-created { font-size: 11px; color: #a0a6b0; margin-bottom: 4px; }
 .badges { display: flex; flex-wrap: wrap; gap: 6px; }
 .badge {
   font-size: 11px;

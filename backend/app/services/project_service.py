@@ -159,6 +159,7 @@ def project_create(db: Session, operator_id: int, req: ProjectCreateRequest) -> 
         category_id=req.category_id,
         customer_id=contacts[0].id,
         project_desc=req.project_desc,
+        start_time=req.start_time,
         expect_time=req.expect_time,
         create_time=req.create_time or datetime.now(),
         project_status="进行中",
@@ -298,7 +299,7 @@ def project_list(db: Session, query: ProjectListQuery, current_user: dict | None
             customer_id=p.customer_id, customer_name=first_contact_name,
             contact_names=contact_map.get(p.id, ""),
             designer_names=name_map.get(p.id, ""),
-            create_time=p.create_time, expect_time=p.expect_time,
+            create_time=p.create_time, start_time=p.start_time, expect_time=p.expect_time,
             cover_image=p.cover_image,
             progress_percent=progress_map.get(p.id, 0),
             project_status=p.project_status,
@@ -424,6 +425,7 @@ def project_detail(db: Session, project_id: int, current_user: dict | None = Non
         customer_id=project.customer_id,
         customer_name=customer.customer_name if customer else None,
         project_desc=project.project_desc,
+        start_time=project.start_time,
         expect_time=project.expect_time,
         cover_image=project.cover_image,
         project_status=project.project_status,
@@ -438,6 +440,8 @@ def project_detail(db: Session, project_id: int, current_user: dict | None = Non
                 has_form=n.id in form_node_ids,
                 form_filled=n.id in form_filled_node_ids,
                 attachment_count=attachment_count_map.get(n.id, 0),
+                create_time=n.create_time,
+                update_time=n.update_time,
             )
             for n in nodes
         ],
@@ -464,6 +468,7 @@ def project_update_base(db: Session, operator_id: int, req: ProjectUpdateBaseReq
     project.category_id = req.category_id
     project.customer_id = contacts[0].id
     project.project_desc = req.project_desc
+    project.start_time = req.start_time
     project.expect_time = req.expect_time
     if req.create_time is not None:
         project.create_time = req.create_time

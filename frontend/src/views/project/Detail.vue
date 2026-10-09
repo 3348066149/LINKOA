@@ -5,6 +5,7 @@
       <div class="top-left">
         <span class="project-name">{{ detail.projectName }}</span>
         <el-tag :type="isArchived ? 'info' : 'success'" effect="dark">{{ detail.projectStatus }}</el-tag>
+        <span v-if="detail.startTime" class="expect-time">开始：{{ formatTime(detail.startTime) }}</span>
         <span v-if="detail.expectTime" class="expect-time">预计截止：{{ formatTime(detail.expectTime) }}</span>
         <el-tag
           v-if="deadlineInfo(detail.expectTime, detail.projectStatus)"
@@ -73,9 +74,9 @@
           <el-tabs v-model="nodeTab">
             <el-tab-pane label="表单" name="form">
               <el-form label-position="top">
-                <el-form-item label="节点类型">
-                  <!-- 节点类型固定为节点库预设，不可改名 -->
-                  <el-input :model-value="selectedNode.nodeTitle" disabled />
+                <el-form-item label="节点名称">
+                  <!-- 员工可直接修改当前节点名称，保存表单时自动保存（不影响模板与其他同类型节点） -->
+                  <el-input v-model="renameDraft" :disabled="isArchived" maxlength="128" placeholder="节点名称" />
                 </el-form-item>
               </el-form>
               <DynamicForm
@@ -237,6 +238,9 @@
         <el-form-item label="项目描述">
           <el-input v-model="baseForm.projectDesc" type="textarea" :rows="3" />
         </el-form-item>
+        <el-form-item label="开始时间">
+          <el-date-picker v-model="baseForm.startTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="项目开始时间（可留空）" />
+        </el-form-item>
         <el-form-item label="预计截止时间">
           <el-date-picker v-model="baseForm.expectTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" />
         </el-form-item>
@@ -272,7 +276,7 @@ import { addComment, deleteComment, listComments } from '@/api/comment'
 import { getEvaluation, saveReflection } from '@/api/evaluation'
 import { listCategories, listCustomers } from '@/api/customer'
 import { projectLogs } from '@/api/log'
-import { addEdge, addNode, batchUpdatePositions, deleteEdge, deleteNode, getNodeForm, saveFormValue } from '@/api/projectNode'
+import { addEdge, addNode, batchUpdatePositions, deleteEdge, deleteNode, getNodeForm, saveFormValue, updateNode } from '@/api/projectNode'
 import { archiveProject, deleteProject, projectDetail, unArchiveProject, updateProjectBase } from '@/api/project'
 import { listUsers } from '@/api/sysUser'
 import { listNodeTemplates } from '@/api/nodeTemplate'
@@ -297,6 +301,8 @@ const selectedNode = computed(() => nodes.value.find((n) => n.id === selectedNod
 
 const nodeTab = ref('form')
 const projectTab = ref('overview')
+// 节点名称（保存表单时一并保存；仅当前节点，不影响模板）
+const renameDraft = ref('')
 
 const canvasRef = ref(null)
 
@@ -395,6 +401,7 @@ async function onNodeClick(nodeId) {
   selectedNodeId.value = nodeId
   nodeTab.value = 'form'
   const n = nodes.value.find((x) => x.id === nodeId)
+  renameDraft.value = n.nodeTitle
   const [form, attach] = await Promise.all([getNodeForm(nodeId), listAttachments(nodeId)])
   formFields.value = form.fields || []
   attachments.value = attach || []
@@ -444,6 +451,7 @@ async function onAddPreset(preset) {
   await loadDetail()
   selectedNodeId.value = data.id
   nodeTab.value = 'form'
+  renameDraft.value = selectedNode.value?.nodeTitle || ''
   // 新增节点后面板保持新节点：加载其空表单与空附件，避免残留上一节点的表单字段
   const [form, attach] = await Promise.all([getNodeForm(data.id), listAttachments(data.id)])
   formFields.value = form.fields || []
@@ -470,6 +478,7 @@ async function onAddConnected({ sourceNodeId, preset, posX, posY }) {
   await loadDetail()
   selectedNodeId.value = data.id
   nodeTab.value = 'form'
+  renameDraft.value = selectedNode.value?.nodeTitle || ''
   // 与 onAddPreset 同理：加载新节点的空表单与附件
   const [form, attach] = await Promise.all([getNodeForm(data.id), listAttachments(data.id)])
   formFields.value = form.fields || []
@@ -477,12 +486,13 @@ async function onAddConnected({ sourceNodeId, preset, posX, posY }) {
   messageStore.fetchUnread()
 }
 
-// 顶部栏「保存」：保存当前选中节点的表单填写值（节点标题/说明来自节点模板，不可改）
+// 顶部栏「保存」：保存当前选中节点的表单填写值；若节点名称被修改，一并保存名称
 async function saveSelectedNode() {
   if (!selectedNodeId.value || isArchived.value) return
-  if (formFields.value.length === 0) return
   savingAll.value = true
   try {
+    await persistNodeRename()
+    if (formFields.value.length === 0) return
     const formValueList = dynamicFormRef.value?.collect()
     if (formValueList && formValueList.length) {
       await saveFormValue({ projectNodeId: selectedNodeId.value, formValueList })
@@ -496,6 +506,29 @@ async function saveSelectedNode() {
   } finally {
     savingAll.value = false
   }
+}
+
+// 节点名称同步：仅改当前节点名称（保存表单时调用），不影响模板与其他同类型节点
+async function persistNodeRename() {
+  const n = selectedNode.value
+  if (!n) return
+  const name = (renameDraft.value || '').trim()
+  if (!name) {
+    ElMessage.warning('节点名称不能为空')
+    throw new Error('空名称')
+  }
+  if (name === n.nodeTitle) return
+  await updateNode({
+    id: n.id,
+    nodeTitle: name,
+    nodeRemark: n.nodeRemark,
+    sort: n.sort,
+    posX: n.posX,
+    posY: n.posY
+  })
+  n.nodeTitle = name // 本地同步，画布卡片立即刷新
+  renameDraft.value = name
+  messageStore.fetchUnread()
 }
 
 async function onDeleteNode(nodeId) {
@@ -555,6 +588,7 @@ const savingForm = ref(false)
 async function onSaveForm(formValueList) {
   savingForm.value = true
   try {
+    await persistNodeRename() // 节点名称被修改时一并保存
     await saveFormValue({ projectNodeId: selectedNodeId.value, formValueList })
     ElMessage.success('表单已保存')
     if (selectedNode.value) {
@@ -628,7 +662,7 @@ const customerOptions = ref([])
 const designerOptions = ref([])
 const baseForm = reactive({
   id: projectId, projectName: '', categoryId: null, contactCustomerIds: [], projectDesc: '',
-  expectTime: null, designerRelUserIdList: []
+  startTime: null, expectTime: null, designerRelUserIdList: []
 })
 
 // 某客户单位下的对接人选项（V1.4.7）
@@ -647,6 +681,7 @@ function openEditBase() {
     categoryId: detail.value.categoryId,
     contactCustomerIds: (detail.value.contactList || []).map((c) => c.customerId),
     projectDesc: detail.value.projectDesc,
+    startTime: detail.value.startTime,
     expectTime: detail.value.expectTime,
     designerRelUserIdList: (detail.value.designerList || []).map((d) => d.userId)
   })
