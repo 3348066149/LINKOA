@@ -19,3 +19,6 @@ export const uploadProjectCover = (projectId, file) => {
   })
 }
 export const removeProjectCover = (data) => request.post('/project/cover/remove', data)
+
+// 项目环节（V1.4.19）
+export const saveProjectStages = (data) => request.post('/project/stage/save', data)

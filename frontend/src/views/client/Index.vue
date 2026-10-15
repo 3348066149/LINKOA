@@ -17,6 +17,23 @@
       <h2 class="page-title">我的项目</h2>
       <p class="page-sub">以下为您单位名下的全部项目，点击查看节点进度</p>
 
+      <!-- 待我审核（V1.4.19） -->
+      <div v-if="pendingReviewsGrouped.length" class="pending-box">
+        <div class="pending-head">
+          <span class="pending-title">待我审核</span>
+          <span class="pending-count">{{ pendingReviewsGrouped.length }} 个项目待处理</span>
+        </div>
+        <div class="pending-list">
+          <div v-for="g in pendingReviewsGrouped" :key="g.projectId" class="pending-item" @click="$router.push(`/client/projects/${g.projectId}?reviewNodeId=${g.nodes[0].nodeId}`)">
+            <div class="pending-info">
+              <div class="pending-proj">{{ g.projectName }}</div>
+              <div class="pending-nodes">{{ g.nodes.map(n => n.nodeTitle).join('、') }}</div>
+            </div>
+            <el-tag type="danger" effect="dark" size="small">待审 {{ g.nodes.length }}</el-tag>
+          </div>
+        </div>
+      </div>
+
       <!-- 筛选栏：搜索 + 状态 + 立项时间范围 -->
       <div class="filter-bar">
         <el-input
@@ -54,10 +71,10 @@
 
       <div v-else-if="projects.length" class="card-grid">
         <div v-for="row in projects" :key="row.id" class="proj-card" @click="$router.push(`/client/projects/${row.id}`)">
-          <div v-if="deadlineInfo(row.expectTime, row.projectStatus)" class="cd-strip" :class="`cd-${deadlineInfo(row.expectTime, row.projectStatus).type}`">
-            <span class="cd-label">距截止</span>
-            <span class="cd-value">{{ deadlineInfo(row.expectTime, row.projectStatus).label }}</span>
-            <span class="cd-date">{{ (row.expectTime || '').slice(0, 10) }}</span>
+          <div v-if="row.stageCount > 0 && row.projectStatus !== '已归档' && row.activeStagePlanTime" class="cd-strip" :class="`cd-${deadlineInfo(row.activeStagePlanTime, row.projectStatus, row.activeStageName).type}`">
+            <span class="cd-label">{{ row.activeStageName ? '当前环节' : '距截止' }}</span>
+            <span class="cd-value">{{ deadlineInfo(row.activeStagePlanTime, row.projectStatus, row.activeStageName).label }}</span>
+            <span class="cd-date">{{ (row.activeStagePlanTime || '').slice(0, 10) }}</span>
           </div>
           <div class="proj-body">
             <div class="proj-info">
@@ -148,12 +165,13 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Refresh, Search } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { submitEvaluation } from '@/api/evaluation'
 import { listProjects } from '@/api/project'
+import { listPendingReviews } from '@/api/review'
 import EvaluationStars from '@/components/EvaluationStars.vue'
 import { useUserStore } from '@/stores/user'
 import { deadlineInfo } from '@/utils/deadline'
@@ -177,6 +195,17 @@ const query = reactive({
 // 立项时间范围（daterange，YYYY-MM-DD）
 const createTimeRange = ref(null)
 
+// 待我审核（V1.4.19）
+const pendingReviews = ref([])
+const pendingReviewsGrouped = computed(() => {
+  const map = {}
+  for (const r of pendingReviews.value) {
+    if (!map[r.projectId]) map[r.projectId] = { projectId: r.projectId, projectName: r.projectName, nodes: [] }
+    map[r.projectId].nodes.push(r)
+  }
+  return Object.values(map)
+})
+
 function buildParams() {
   const params = {
     pageNum: query.pageNum,
@@ -199,6 +228,14 @@ async function loadData() {
     total.value = data.total || 0
   } finally {
     loading.value = false
+  }
+}
+
+async function loadPending() {
+  try {
+    pendingReviews.value = await listPendingReviews()
+  } catch {
+    pendingReviews.value = []
   }
 }
 
@@ -288,7 +325,7 @@ function onLogout() {
   router.push('/login')
 }
 
-onMounted(loadData)
+onMounted(() => { loadData(); loadPending() })
 </script>
 
 <style scoped>
@@ -316,6 +353,28 @@ onMounted(loadData)
 .page-title { font-size: 22px; font-weight: 700; color: var(--lk-text-1, #303133); margin: 0 0 4px; }
 .page-sub { font-size: 13px; color: var(--lk-text-3, #6f737a); margin: 0 0 16px; }
 .empty-hint { color: var(--lk-text-3, #6f737a); font-size: 13px; }
+
+/* 待我审核（V1.4.19） */
+.pending-box {
+  background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+  border: 1px solid #fbc4c4;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.pending-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.pending-title { font-size: 15px; font-weight: 700; color: var(--lk-danger, #f56c6c); }
+.pending-count { font-size: 12px; color: var(--lk-text-3, #6f737a); }
+.pending-list { display: flex; flex-direction: column; gap: 8px; }
+.pending-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px; background: #fff; border: 1px solid #fde2e2;
+  border-radius: 8px; cursor: pointer; transition: all 0.15s;
+}
+.pending-item:hover { border-color: var(--lk-danger, #f56c6c); box-shadow: 0 2px 8px rgba(245, 108, 108, 0.15); }
+.pending-info { min-width: 0; flex: 1; }
+.pending-proj { font-size: 14px; font-weight: 600; color: var(--lk-text-1, #303133); }
+.pending-nodes { font-size: 12px; color: var(--lk-text-3, #6f737a); margin-top: 2px; }
 
 /* 筛选栏 */
 .filter-bar {
@@ -359,6 +418,7 @@ onMounted(loadData)
 .cd-primary { background: var(--lk-primary, #409eff); }
 .cd-warning { background: var(--lk-warning, #e6a23c); }
 .cd-danger { background: var(--lk-danger, #f56c6c); animation: cd-pulse 1.6s ease-in-out infinite; }
+.cd-done { background: #909399; justify-content: center; }
 @keyframes cd-pulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.18); } }
 
 .proj-body { display: flex; gap: 12px; padding: 14px 16px 12px; flex: 1; min-height: 0; }

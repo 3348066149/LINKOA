@@ -1076,7 +1076,9 @@
 ### 12.1 获取本人消息列表（分页）
 
 - **请求**：`GET /api/message/myList`
-- **Query 参数**：`pageNum, pageSize, isRead(可选)`
+- **Query 参数**：`pageNum, pageSize, isRead(可选), includeRoutine(可选，默认 false)`
+  - **V1.4.21 消息降噪**：默认只返回**关键通知**（`customer_review` / `evaluation_create` / `comment_create`）；
+    传 `includeRoutine=true` 才把常规操作（`node_create` / `node_update` / `node_delete` / `form_update`）的**历史**消息一并带出
 - **返回 data**：分页结构 `{items, total, pageNum, pageSize}`
 - **items 字段**：
 
@@ -1100,12 +1102,14 @@
 - **返回 data**：null
 - **权限**：登录用户
 
-### 12.3 全部标记已读（V1.4 新增）
+### 12.3 全部标记已读（V1.4 新增，V1.4.21 扩展）
 
 - **请求**：`POST /api/message/readAll`
-- **入参**：无
+- **入参**（JSON Body，可省略）：`{ "projectId": 1, "includeRoutine": false }`
+  - `projectId`：传则只标记该项目的消息（消息中心按项目分组的「本项目全部已读」）；不传=全部项目
+  - `includeRoutine`：默认 false，只标记关键通知；传 true 时连常规操作消息一起标记
 - **返回 data**：`{ "count": 9 }`（count = 本次标记为已读的条数）
-- **业务规则**：将本人全部未读消息批量标记为已读
+- **业务规则**：将本人未读消息批量标记为已读；默认口径与消息中心展示一致，避免出现「页面只看到 11 条、提示却说标记了 81 条」
 - **权限**：登录用户
 
 ---
@@ -1147,25 +1151,34 @@
 
 ## 消息推送规则（后端 service 层自动触发）
 
+> **V1.4.21 消息降噪**：消息中心只承载**关键事件**。常规操作（节点增删改、表单填写）**不再生成消息**，
+> 但仍全量写入审计日志 `sys_operation_log`（「系统管理 → 日志」），追溯能力不受影响。
+> 策略收敛在 `app/services/message_service.py` 的 `NOTIFY_TYPES` / `ROUTINE_TYPES` 两处常量，调用方无需改动。
+> 历史遗留的常规消息保留在库中，客户端默认不展示（`includeRoutine` 开关可查看）。
+
 ### 触发事件与推送范围
 
-| 触发事件 | msg_type | 推送范围 |
-|---|---|---|
-| 新增节点 | node_create | 项目创建人 + 项目关联设计师（排除操作人） |
-| 修改节点 | node_update | 项目创建人 + 项目关联设计师（排除操作人） |
-| 删除节点 | node_delete | 项目创建人 + 项目关联设计师（排除操作人） |
-| 表单填写修改 | form_update | 项目创建人 + 项目关联设计师（排除操作人） |
-| 发表评论 | comment_create | 项目创建人 + 项目关联设计师（排除操作人） |
+| 触发事件 | msg_type | 是否推送 | 推送范围 |
+|---|---|---|---|
+| 客户提交审核 | customer_review | ✅ 关键 | 项目创建人 + 项目关联设计师（操作人为客户，天然不在其中） |
+| 客户提交满意度评价 | evaluation_create | ✅ 关键 | 项目创建人 + 项目关联设计师 + 全部管理员 |
+| 发表评论 | comment_create | ✅ 关键 | 项目创建人 + 项目关联设计师（排除操作人） |
+| 新增节点 | node_create | ❌ 常规（仅审计日志） | — |
+| 修改节点 | node_update | ❌ 常规（仅审计日志） | — |
+| 删除节点 | node_delete | ❌ 常规（仅审计日志） | — |
+| 表单填写修改 | form_update | ❌ 常规（仅审计日志） | — |
 
 ### 消息内容模板
 
 | msg_type | msg_content 模板 | 示例 |
 |---|---|---|
-| node_create | `{操作人} 在项目「{项目名}」中新增了节点：{节点名}` | 张三 在项目「熊猫IP设计」中新增了节点：IP设计输出 |
-| node_update | `{操作人} 在项目「{项目名}」中修改了节点：{节点名}` | 张三 修改了节点：需求对齐 |
-| node_delete | `{操作人} 在项目「{项目名}」中删除了节点：{节点名}` | 张三 删除了节点：打样制作 |
-| form_update | `{操作人} 在项目「{项目名}」的「{节点名}」中填写了表单` | 张三 在「IP设计输出」中填写了表单 |
+| customer_review | `{客户名} 在项目「{项目名}」的「{节点名}」完成审核：{审核结论}` | 周峰 在项目「熊猫IP设计」的「八级节点审核」完成审核：通过 |
+| evaluation_create | `客户已对项目「{项目名}」提交满意度评价` | 客户已对项目「熊猫IP设计」提交满意度评价 |
 | comment_create | `{操作人} 在项目「{项目名}」中发表了评论：{评论前20字}...` | 张三 发表了评论：这个方案不错，建议调... |
+| node_create / node_update / node_delete / form_update | 模板保留但默认不再推送（见上方降噪说明） | — |
+
+> 前端展示约定：`msg_content` 中第一个「」恒为项目名，客户端据此把消息按项目分组，
+> 并把文案精简为「操作人 + 动作」（见 `frontend/src/utils/message.js`）。
 
 ---
 

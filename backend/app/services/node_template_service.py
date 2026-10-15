@@ -55,9 +55,19 @@ def _to_item(t: NodeTemplate) -> NodeTemplateItem:
         fields = json.loads(t.form_fields) if t.form_fields else []
     except (json.JSONDecodeError, TypeError):
         fields = []
+    try:
+        review_opts = json.loads(t.review_options) if t.review_options else None
+    except (json.JSONDecodeError, TypeError):
+        review_opts = None
+    try:
+        client_fields = json.loads(t.client_review_fields) if t.client_review_fields else []
+    except (json.JSONDecodeError, TypeError):
+        client_fields = []
     return NodeTemplateItem(
         id=t.id, node_title=t.node_title, node_remark=t.node_remark,
         icon=t.icon, sort=t.sort, form_fields=fields,
+        is_review=bool(t.is_review), review_options=review_opts,
+        client_review_fields=client_fields,
     )
 
 
@@ -75,6 +85,9 @@ def add(db: Session, operator_id: int, req: NodeTemplateAddRequest) -> int:
         icon=req.icon,
         sort=req.sort,
         form_fields=json.dumps([f.model_dump(by_alias=True) for f in req.form_fields], ensure_ascii=False) if req.form_fields else None,
+        is_review=req.is_review,
+        review_options=json.dumps(req.review_options, ensure_ascii=False) if req.review_options else None,
+        client_review_fields=json.dumps([f.model_dump(by_alias=True) for f in req.client_review_fields], ensure_ascii=False) if req.client_review_fields else None,
     )
     db.add(t)
     db.flush()
@@ -92,6 +105,9 @@ def update(db: Session, operator_id: int, req: NodeTemplateUpdateRequest) -> Non
     t.icon = req.icon
     t.sort = req.sort
     t.form_fields = json.dumps([f.model_dump(by_alias=True) for f in req.form_fields], ensure_ascii=False) if req.form_fields else None
+    t.is_review = req.is_review
+    t.review_options = json.dumps(req.review_options, ensure_ascii=False) if req.review_options else None
+    t.client_review_fields = json.dumps([f.model_dump(by_alias=True) for f in req.client_review_fields], ensure_ascii=False) if req.client_review_fields else None
     log_service.add_log(db, operator_id, "node_template_update", f"修改节点模板：{req.node_title}")
     db.commit()
 

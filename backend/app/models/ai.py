@@ -11,6 +11,7 @@ from sqlalchemy import BigInteger, Boolean, DateTime, Float, Index, Integer, Str
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils.timeutil import beijing_now
 
 
 class AiConfig(Base):
@@ -26,7 +27,7 @@ class AiConfig(Base):
     temperature: Mapped[float] = mapped_column(Float, nullable=False, default=0.7, comment="采样温度")
     max_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=2048, comment="单次最大 token")
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now(), comment="更新时间"
+        DateTime, nullable=False, default=beijing_now, onupdate=beijing_now, comment="更新时间"
     )
     updated_by: Mapped[int | None] = mapped_column(BigInteger, nullable=True, comment="最后更新人ID")
 
@@ -42,9 +43,9 @@ class AiConversation(Base):
     title: Mapped[str] = mapped_column(String(128), nullable=False, default="新对话", comment="会话标题（首条消息截断）")
     pinned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, comment="是否置顶")
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, comment="软删除标记（审计留痕，删除仅置位不物理删）")
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now(), comment="更新时间"
+        DateTime, nullable=False, default=beijing_now, onupdate=beijing_now, comment="更新时间"
     )
 
 
@@ -59,4 +60,4 @@ class AiMessage(Base):
     role: Mapped[str] = mapped_column(String(16), nullable=False, comment="角色：user / assistant")
     content: Mapped[str] = mapped_column(Text, nullable=False, comment="消息内容")
     sources: Mapped[str | None] = mapped_column(Text, nullable=True, comment="来源引用 JSON 数组")
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")

@@ -8,6 +8,7 @@ from sqlalchemy import DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils.timeutil import beijing_now
 
 
 class SysRole(Base):
@@ -15,4 +16,4 @@ class SysRole(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, comment="主键自增")
     role_name: Mapped[str] = mapped_column(String(32), unique=True, nullable=False, comment="角色名称，唯一")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")

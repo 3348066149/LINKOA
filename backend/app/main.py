@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -30,7 +31,7 @@ from app.utils.exceptions import register_exception_handlers
 from app.routers import (  # noqa: E402
     ai, attachment, auth, comment, customer, customer_category, evaluation,
     flow_template, flow_template_edge, message, node_template, project, project_node,
-    project_node_edge, report, sys_dept, sys_operation_log, sys_role, sys_user,
+    project_node_edge, report, review, sys_dept, sys_operation_log, sys_role, sys_user,
 )
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # backend/
@@ -68,6 +69,11 @@ class ForceStaticFiles(StaticFiles):
             mime = self.FORCE_MIME.get(os.path.splitext(path)[1].lower())
             if mime:
                 response.headers["content-type"] = f"{mime}; charset=utf-8"
+            # /assets/ 下文件名带内容 hash，可永久强缓存；其他路径不缓存
+            if path.startswith("assets" + os.sep) or "/assets/" in path:
+                response.headers["cache-control"] = "public, max-age=31536000, immutable"
+            else:
+                response.headers["cache-control"] = "no-cache"
         return response
 
 
@@ -161,6 +167,107 @@ DEFAULT_AI_SYSTEM_PROMPT = (
 )
 
 
+def _migrate_utc_to_beijing() -> None:
+    """V1.4.19 时间修正：把历史 UTC 时间字段统一 +8 小时转成北京时间（幂等）。
+
+    原因：之前 server_default=func.now() 在 SQLite 里写的是 UTC naive datetime，
+    前端直接展示比北京时间慢 8 小时。新数据已改落北京时间；此函数把老数据一次性
+    偏移过来。用 meta 表 _kv_migrate 标记，只跑一次。
+    """
+    from sqlalchemy import inspect, select, text
+
+    from app.database import SessionLocal, engine
+
+    if not settings.DB_URL.startswith("sqlite"):
+        return  # 仅 SQLite 需要；MySQL 有自己的时区配置，不动
+    insp = inspect(engine)
+    if not insp.has_table("_kv_migrate"):
+        with engine.begin() as conn:
+            conn.execute(text("CREATE TABLE _kv_migrate (k TEXT PRIMARY KEY, v TEXT)"))
+    db = SessionLocal()
+    try:
+        done = db.execute(
+            text("SELECT v FROM _kv_migrate WHERE k='utc_to_beijing'")
+        ).scalar()
+        if done:
+            return
+        # 每张表需要 +8h 的时间列
+        targets = {
+            "project": ["create_time", "update_time"],
+            "project_designer_rel": ["create_time"],
+            "project_contact_rel": ["create_time"],
+            "project_node": ["create_time", "update_time"],
+            "project_node_edge": ["create_time"],
+            "project_node_form_value": ["create_time", "update_time"],
+            "sys_user": ["create_time", "update_time"],
+            "sys_dept": ["create_time"],
+            "customer_category": ["create_time", "update_time"],
+            "customer": ["create_time", "update_time"],
+            "node_template": ["create_time", "update_time"],
+            "flow_template": ["create_time", "update_time"],
+            "flow_template_node": ["create_time", "update_time"],
+            "flow_template_node_edge": ["create_time"],
+            "flow_template_node_form": ["create_time", "update_time"],
+            "attachment": ["create_time"],
+            "comment": ["create_time"],
+            "message": ["create_time"],
+            "project_evaluation": ["evaluate_time", "create_time", "update_time"],
+            "sys_operation_log": ["oper_time"],
+            "ai_conversation": ["created_at", "updated_at"],
+            "ai_message": ["created_at"],
+            "ai_config": ["updated_at"],
+            "sys_role": ["create_time"],
+        }
+        with engine.begin() as conn:
+            for tname, cols in targets.items():
+                if not insp.has_table(tname):
+                    continue
+                existing_cols = {c["name"] for c in insp.get_columns(tname)}
+                for col in cols:
+                    if col not in existing_cols:
+                        continue
+                    # SQLite datetime() 支持 '+8 hours' 修饰；只对字符串型 naive datetime 安全
+                    conn.execute(
+                        text(f"UPDATE {tname} SET {col} = datetime({col}, '+8 hours') WHERE {col} IS NOT NULL")
+                    )
+            conn.execute(text("INSERT OR REPLACE INTO _kv_migrate(k, v) VALUES('utc_to_beijing', '1')"))
+    finally:
+        db.close()
+
+
+def _migrate_project_stages() -> None:
+    """V1.4.19 老数据：有 expect_time 但还没有任何环节的项目，自动补一条「项目整体截止」环节（幂等）"""
+    from sqlalchemy import inspect, select, text
+
+    from app.database import SessionLocal, engine
+    from app.models import Project, ProjectStage
+
+    insp = inspect(engine)
+    if not insp.has_table("project") or not insp.has_table("project_stage"):
+        return
+    db = SessionLocal()
+    try:
+        projects = db.execute(
+            select(Project).where(Project.expect_time.is_not(None))
+        ).scalars().all()
+        for p in projects:
+            exists = db.execute(
+                select(ProjectStage.id).where(ProjectStage.project_id == p.id)
+            ).first()
+            if exists:
+                continue
+            db.add(ProjectStage(
+                project_id=p.id,
+                stage_name="项目整体截止",
+                plan_time=p.expect_time,
+                actual_time=None,
+                sort=0,
+            ))
+        db.commit()
+    finally:
+        db.close()
+
+
 def _init_ai_config() -> None:
     """V1.4.8：首次启动写入 AI 默认配置（幂等）。
 
@@ -214,6 +321,10 @@ def init_database() -> None:
     _migrate_project_category()
     # V1.4.15 存量迁移：客户账号改为绑定客户单位，按老 customer_id 回填 category_id（幂等）
     _migrate_user_category_id()
+    # V1.4.19 时间修正：历史 UTC 时间 +8h 转北京时间（幂等）
+    _migrate_utc_to_beijing()
+    # V1.4.19 环节表老数据迁移：expect_time → 「项目整体截止」环节
+    _migrate_project_stages()
     # V1.4.8：AI 助手默认配置初始化（幂等）
     _init_ai_config()
     db = SessionLocal()
@@ -237,7 +348,10 @@ def init_database() -> None:
         db.close()
 
 
-app = FastAPI(title="领客文创OA", version="1.4.17", lifespan=lifespan)
+app = FastAPI(title="领客文创OA", version="1.4.21", lifespan=lifespan)
+
+# GZip 压缩：HTML/JS/CSS/JSON 等文本响应自动压缩，省 60-80% 流量
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 # CORS：开发环境放行前端 5173 端口
 app.add_middleware(
@@ -276,6 +390,7 @@ app.include_router(attachment.router, prefix="/api/attachment", tags=["附件"])
 app.include_router(comment.router, prefix="/api/comment", tags=["评论"])
 app.include_router(evaluation.router, prefix="/api/evaluation", tags=["客户评价"])
 app.include_router(message.router, prefix="/api/message", tags=["消息中心"])
+app.include_router(review.router, prefix="/api/review", tags=["客户审核"])
 app.include_router(sys_operation_log.router, prefix="/api/sysOperationLog", tags=["审计日志"])
 app.include_router(report.router, prefix="/api/report", tags=["报表导出"])
 app.include_router(ai.router, prefix="/api/ai", tags=["AI助手"])
@@ -296,7 +411,10 @@ if os.path.isdir(FRONTEND_DIST):
     @app.get("/{full_path:path}")
     async def spa_fallback(full_path: str):
         # 静态文件存在则直接返回，否则回退 index.html（避免刷新前端路由 404）
-        candidate = os.path.join(FRONTEND_DIST, full_path)
+        # 防路径穿越：realpath 后必须仍在 FRONTEND_DIST 内
+        candidate = os.path.realpath(os.path.join(FRONTEND_DIST, full_path))
+        if not candidate.startswith(FRONTEND_DIST + os.sep) and candidate != FRONTEND_DIST:
+            return FileResponse(os.path.join(FRONTEND_DIST, "index.html"))
         if full_path and os.path.isfile(candidate):
             return FileResponse(candidate)
         return FileResponse(os.path.join(FRONTEND_DIST, "index.html"))

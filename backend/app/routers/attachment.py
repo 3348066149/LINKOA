@@ -29,7 +29,7 @@ def list_by_node(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    items = file_service.list_by_node(db, projectNodeId)
+    items = file_service.list_by_node(db, projectNodeId, current_user)
     return ok([i.model_dump(by_alias=True) for i in items])
 
 
@@ -39,7 +39,7 @@ def list_by_project(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    items = file_service.list_by_project(db, projectId)
+    items = file_service.list_by_project(db, projectId, current_user)
     return ok([i.model_dump(by_alias=True) for i in items])
 
 
@@ -59,5 +59,5 @@ def download(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    file_path, file_name = file_service.get_download_info(db, attachmentId)
+    file_path, file_name = file_service.get_download_info(db, attachmentId, current_user)
     return FileResponse(path=file_path, filename=file_name)

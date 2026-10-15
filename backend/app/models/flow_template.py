@@ -6,6 +6,7 @@ from sqlalchemy import BigInteger, DateTime, Index, Integer, Numeric, String, Te
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils.timeutil import beijing_now
 
 
 class FlowTemplate(Base):
@@ -16,9 +17,9 @@ class FlowTemplate(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, comment="主键自增")
     template_name: Mapped[str] = mapped_column(String(128), nullable=False, comment="模板名称")
     create_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="创建人用户ID")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now(), comment="更新时间"
+        DateTime, nullable=False, default=beijing_now, onupdate=beijing_now, comment="更新时间"
     )
 
 
@@ -36,9 +37,9 @@ class FlowTemplateNode(Base):
     sort: Mapped[int] = mapped_column(Integer, nullable=False, default=0, comment="节点排序序号（用于列表展示顺序）")
     pos_x: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False, default=Decimal("0.00"), comment="节点画布X坐标")
     pos_y: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False, default=Decimal("0.00"), comment="节点画布Y坐标")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now(), comment="更新时间"
+        DateTime, nullable=False, default=beijing_now, onupdate=beijing_now, comment="更新时间"
     )
 
 
@@ -56,7 +57,7 @@ class FlowTemplateNodeEdge(Base):
     source_node_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="连线起始节点ID（关联 flow_template_node.id）")
     target_node_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="连线目标节点ID（关联 flow_template_node.id）")
     label: Mapped[str | None] = mapped_column(String(128), nullable=True, comment="连线文字标签，可空")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
 
 
 class FlowTemplateNodeForm(Base):
@@ -71,7 +72,7 @@ class FlowTemplateNodeForm(Base):
     field_type: Mapped[str] = mapped_column(String(32), nullable=False, comment="text_single单行 / text_multi多行 / select下拉单选")
     select_options: Mapped[str | None] = mapped_column(Text, nullable=True, comment="下拉选项JSON数组；非下拉存null")
     sort: Mapped[int] = mapped_column(Integer, nullable=False, default=0, comment="表单字段排序")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now(), comment="更新时间"
+        DateTime, nullable=False, default=beijing_now, onupdate=beijing_now, comment="更新时间"
     )

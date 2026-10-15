@@ -40,7 +40,18 @@
 | 停止 | `docker compose down` | `docker-compose down` | 数据保留在 data/ |
 | 导入离线镜像 | `docker load -i linkoa-latest.tar` | 同左 | 无外网场景 |
 | 拉在线镜像 | `docker pull ghcr.io/3348066149/linkoa:v1.4.18` | 同左 | 有外网场景 |
-| 无 compose 兜底 | `docker run -d --name linkoa --restart unless-stopped -p 8000:8000 -v <路径>/data:/app/data -e DB_URL="sqlite:////app/data/linkoa.db" -e UPLOAD_DIR="/app/data/uploads" -e JWT_SECRET=你的密钥 linkoa:latest` | 同左 | 任何 Docker 版本都能跑 |
+| 无 compose 兜底 | `docker run -d --name linkoa --restart unless-stopped -p 8000:8000 -v /volume2/共享盘2/LINKOA/data:/app/data -e DB_URL="sqlite:////app/data/linkoa.db" -e UPLOAD_DIR=/app/data/uploads linkoa:latest` | 同左 | 任何 Docker 版本都能跑 |
+# 1. 停掉旧容器
+docker stop linkoa && docker rm linkoa
+
+# 2. 删旧镜像（可选，释放磁盘）
+docker rmi linkoa:latest
+
+# 3. 加载新包
+docker load -i linkoa-latest.tar
+
+# 4. 启动
+docker run -d --name linkoa --restart unless-stopped -p 8000:8000 -v ./data:/app/data -e DB_URL="sqlite:////app/data/linkoa.db" -e UPLOAD_DIR=/app/data/uploads linkoa:latest
 
 ## 4. 数据与配置
 

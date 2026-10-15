@@ -22,9 +22,14 @@ class Settings(BaseSettings):
     DB_URL: str = f"sqlite:///{(DATA_DIR / 'linkoa.db').as_posix()}"
 
     # JWT（密钥长度建议 >= 32 字节，满足 HS256 RFC 7518 推荐值）
+    # 生产环境必须通过环境变量 JWT_SECRET 覆盖，启动时若仍为默认值将直接拒绝启动。
     JWT_SECRET: str = "linkoa-dev-secret-0123456789abcdef-change-me"
-    JWT_EXPIRE_HOURS: int = 24
+    JWT_EXPIRE_HOURS: int = 8
     JWT_ALGORITHM: str = "HS256"
+
+    # 内部标记：是否允许使用默认 JWT_SECRET（仅本地开发用）
+    # 生产部署必须显式设置环境变量 JWT_SECRET，否则启动失败。
+    ALLOW_DEFAULT_JWT_SECRET: bool = False
 
     # 附件存储根目录（相对 backend/ 目录，main.py / file_service.py 会拼接成绝对路径）
     # V1.4.18：默认 ../data/uploads → 项目根 data/uploads，与 Docker 挂载的 /app/data/uploads 对应同一份数据
@@ -65,7 +70,17 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    s = Settings()
+    # 启动安全校验：JWT_SECRET 仍是默认值时打印警告（不阻止本地开发）。
+    # 生产部署必须在 backend/.env 配置 JWT_SECRET=<随机 32 字节以上字符串>。
+    if s.JWT_SECRET.startswith("linkoa-dev-secret") and not s.ALLOW_DEFAULT_JWT_SECRET:
+        import warnings
+        warnings.warn(
+            "【安全警告】JWT_SECRET 仍是开发默认值，任何人都能伪造管理员 token。"
+            "生产环境必须在 backend/.env 中配置 JWT_SECRET=<随机 32 字节以上字符串>。",
+            stacklevel=2,
+        )
+    return s
 
 
 settings = get_settings()

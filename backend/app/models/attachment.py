@@ -5,6 +5,7 @@ from sqlalchemy import BigInteger, DateTime, Index, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils.timeutil import beijing_now
 
 
 class Attachment(Base):
@@ -21,4 +22,4 @@ class Attachment(Base):
     file_path: Mapped[str] = mapped_column(String(512), nullable=False, comment="服务器本地磁盘完整路径")
     file_size: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, comment="文件大小（byte）")
     upload_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="上传人ID")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="上传时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="上传时间")

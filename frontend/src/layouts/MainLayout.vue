@@ -54,8 +54,18 @@
             >
               <span class="bell-dot" aria-hidden="true" />
               <div class="bell-body">
-                <div class="bell-content">{{ m.msgContent }}</div>
-                <div class="bell-time">{{ (m.createTime || '').slice(5, 16) }}</div>
+                <div class="bell-proj">
+                  <el-icon :size="11"><Folder /></el-icon>
+                  <span>{{ splitMessage(m).projectName || '未关联项目' }}</span>
+                </div>
+                <div class="bell-content">
+                  <b v-if="splitMessage(m).actor" class="bell-actor">{{ splitMessage(m).actor }}</b>
+                  <span>{{ splitMessage(m).text }}</span>
+                </div>
+                <div class="bell-meta">
+                  <span class="bell-type">{{ typeLabel(m.msgType) }}</span>
+                  <span class="bell-time">{{ relativeTime(m.createTime) }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -142,10 +152,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   ArrowDown, Bell, Collection, DataAnalysis, Document, Files,
-  FolderOpened, Grid, Lock, MagicStick, Menu, SwitchButton, User, UserFilled
+  Folder, FolderOpened, Grid, Lock, MagicStick, Menu, SwitchButton, User, UserFilled
 } from '@element-plus/icons-vue'
 import request from '@/utils/request'
 import { markRead, myMessages } from '@/api/message'
+import { relativeTime, splitMessage, typeLabel } from '@/utils/message'
 import { useMessageStore } from '@/stores/message'
 import { useUserStore } from '@/stores/user'
 import { useIsMobile } from '@/composables/useIsMobile'
@@ -405,8 +416,24 @@ async function onUserCommand(cmd) {
   background: var(--lk-border-light, #e4e7ed);
   margin-top: 6px; flex-shrink: 0;
 }
-.bell-item.unread .bell-dot { background: var(--lk-primary, #409eff); }
+.bell-item.unread .bell-dot { background: var(--lk-accent, #e2231a); }
 .bell-body { flex: 1; min-width: 0; }
+/* V1.4.21：铃铛里加项目名 + 类型，和消息中心的分组口径保持一致 */
+.bell-proj {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--lk-text-3, #6f737a);
+  margin-bottom: 3px;
+}
+.bell-proj span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bell-content { font-size: 13px; color: var(--lk-text-2, #606266); line-height: 1.5; word-break: break-all; }
-.bell-time { font-size: 12px; color: var(--lk-text-3, #909399); margin-top: 3px; }
+.bell-actor { color: var(--lk-text-1, #303133); font-weight: 700; margin-right: 2px; }
+.bell-meta { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+.bell-type {
+  padding: 1px 6px;
+  font-size: 11px;
+  color: var(--lk-text-3, #6f737a);
+  border: 1px solid var(--lk-border-light, #e4e7ed);
+  border-radius: var(--lk-radius-round, 999px);
+}
+.bell-time { font-size: 11px; color: var(--lk-text-4, #9aa0a6); }
 </style>

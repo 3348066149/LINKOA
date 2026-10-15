@@ -5,6 +5,7 @@ from sqlalchemy import BigInteger, DateTime, Index, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils.timeutil import beijing_now
 
 
 class SysOperationLog(Base):
@@ -16,7 +17,7 @@ class SysOperationLog(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, comment="主键自增")
     oper_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="操作人ID")
-    oper_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="操作时间")
+    oper_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="操作时间")
     oper_type: Mapped[str] = mapped_column(String(128), nullable=False, comment="操作类型枚举（见 Database.md 清单）")
     oper_desc: Mapped[str | None] = mapped_column(Text, nullable=True, comment="变更简要描述（人类可读）")
     related_project_id: Mapped[int | None] = mapped_column(

@@ -37,16 +37,19 @@ def get_current_user(
     if not token:
         raise BusinessException(401, "未登录或登录状态无效")
 
-    user_id = decode_token(token)
+    user_id, token_version = decode_token(token)
 
     row = db.execute(
-        text("SELECT id, username, real_name, role, dept_id, customer_id, category_id, is_enable FROM sys_user WHERE id = :uid"),
+        text("SELECT id, username, real_name, role, dept_id, customer_id, category_id, is_enable, token_version FROM sys_user WHERE id = :uid"),
         {"uid": user_id},
     ).mappings().first()
     if row is None:
         raise BusinessException(401, "未登录或登录状态无效")
     if row["is_enable"] != 1:
         raise BusinessException(400, "账号已停用，请联系管理员")
+    # 改密码后旧 token 立即失效
+    if (row["token_version"] or 1) != token_version:
+        raise BusinessException(401, "登录已过期，请重新登录")
     return dict(row)
 
 

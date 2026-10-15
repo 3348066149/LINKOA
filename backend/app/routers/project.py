@@ -3,7 +3,13 @@ from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_current_user, get_db, require_roles
-from app.schemas import ProjectCreateRequest, ProjectIdRequest, ProjectListQuery, ProjectUpdateBaseRequest
+from app.schemas import (
+    ProjectCreateRequest,
+    ProjectIdRequest,
+    ProjectListQuery,
+    ProjectUpdateBaseRequest,
+    StageSaveRequest,
+)
 from app.services import project_service
 from app.utils.exceptions import ok
 
@@ -99,4 +105,14 @@ def project_delete(
     db: Session = Depends(get_db),
 ):
     project_service.project_delete(db, current_user["id"], req.project_id)
+    return ok(None)
+
+
+@router.post("/stage/save")
+def stage_save(
+    req: StageSaveRequest,
+    current_user: dict = Depends(require_roles(*WRITE_ROLES)),
+    db: Session = Depends(get_db),
+):
+    project_service.stage_save(db, current_user, req)
     return ok(None)

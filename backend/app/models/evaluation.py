@@ -9,6 +9,7 @@ from sqlalchemy import BigInteger, DateTime, Index, SmallInteger, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils.timeutil import beijing_now
 
 
 class ProjectEvaluation(Base):
@@ -25,11 +26,11 @@ class ProjectEvaluation(Base):
     product_score: Mapped[int] = mapped_column(SmallInteger, nullable=False, comment="最终产品满意度 1~5")
     customer_remark: Mapped[str | None] = mapped_column(Text, nullable=True, comment="客户备注（选填）")
     evaluate_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="评价人ID（sys_user.id，客户账号）")
-    evaluate_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="评价时间")
+    evaluate_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="评价时间")
     reflection: Mapped[str | None] = mapped_column(Text, nullable=True, comment="内部反思/总结（客户不可见）")
     reflection_user_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True, comment="反思编辑人ID")
     reflection_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, comment="反思编辑时间")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now(), comment="更新时间"
+        DateTime, nullable=False, default=beijing_now, onupdate=beijing_now, comment="更新时间"
     )

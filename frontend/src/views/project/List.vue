@@ -46,11 +46,16 @@
       <template v-else>
         <div v-if="tableData.length" class="card-grid">
           <div v-for="row in tableData" :key="row.id" class="proj-card">
-            <!-- 醒目倒计时条 -->
-            <div v-if="deadlineInfo(row.expectTime, row.projectStatus)" class="cd-strip" :class="`cd-${deadlineInfo(row.expectTime, row.projectStatus).type}`">
-              <span class="cd-label">距截止</span>
-              <span class="cd-value">{{ deadlineInfo(row.expectTime, row.projectStatus).label }}</span>
-              <span class="cd-date">{{ formatTime(row.expectTime) }}</span>
+            <!-- 醒目倒计时条：只按环节算，不再回退 expectTime；归档后不显示 -->
+            <div v-if="row.stageCount > 0 && row.projectStatus !== '已归档'" class="cd-strip" :class="row.activeStagePlanTime ? `cd-${deadlineInfo(row.activeStagePlanTime, row.projectStatus, row.activeStageName).type}` : 'cd-done'">
+              <template v-if="row.activeStagePlanTime">
+                <span class="cd-label">{{ row.activeStageName ? '当前环节' : '距截止' }}</span>
+                <span class="cd-value">{{ deadlineInfo(row.activeStagePlanTime, row.projectStatus, row.activeStageName).label }}</span>
+                <span class="cd-date">{{ formatTime(row.activeStagePlanTime) }}</span>
+              </template>
+              <template v-else>
+                <span class="cd-label">{{ row.lastStageName || '最近环节' }}已完成，待安排下一步</span>
+              </template>
             </div>
 
             <div class="proj-body">
@@ -150,11 +155,8 @@
         <el-form-item label="创建时间">
           <el-date-picker v-model="createForm.createTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="默认当前时间，可改为实际立项日期（补录历史项目）" />
         </el-form-item>
-        <el-form-item label="开始时间">
-          <el-date-picker v-model="createForm.startTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="项目开始时间（可留空）" />
-        </el-form-item>
         <el-form-item label="预计截止时间">
-          <el-date-picker v-model="createForm.expectTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="选择截止时间，项目卡片将显示倒计时" />
+          <el-date-picker v-model="createForm.expectTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="可选，创建后可在编辑里添加多环节" />
         </el-form-item>
         <el-form-item label="项目参与人">
           <el-select v-model="createForm.designerRelUserIdList" multiple style="width: 100%">
@@ -220,11 +222,20 @@
         <el-form-item label="创建时间">
           <el-date-picker v-model="editForm.createTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="立项时间，可修改为实际日期" />
         </el-form-item>
-        <el-form-item label="开始时间">
-          <el-date-picker v-model="editForm.startTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="项目开始时间（可留空）" />
-        </el-form-item>
-        <el-form-item label="预计截止时间">
-          <el-date-picker v-model="editForm.expectTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="设置后卡片显示倒计时" />
+        <el-form-item label="环节管理">
+          <div class="stage-box">
+            <div class="stage-head">
+              <span class="stage-tip">卡片倒计时 = 第一条"实际完成时间为空"的环节的预计时间</span>
+              <el-button size="small" type="primary" plain :icon="Plus" @click="addStage">添加环节</el-button>
+            </div>
+            <div v-if="editForm.stages.length === 0" class="stage-empty">暂无环节，点"添加环节"新建（如：IP设计截止 / 打样制作）</div>
+            <div v-for="(s, idx) in editForm.stages" :key="idx" class="stage-row">
+              <el-input v-model="s.stageName" placeholder="环节名称（如：IP设计截止）" style="flex: 2" />
+              <el-date-picker v-model="s.planTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" placeholder="预计时间" style="flex: 2" />
+              <el-date-picker v-model="s.actualTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" placeholder="实际完成（空=进行中）" style="flex: 2" />
+              <el-button size="small" type="danger" circle :icon="Delete" @click="editForm.stages.splice(idx, 1)" />
+            </div>
+          </div>
         </el-form-item>
         <el-form-item label="项目参与人">
           <template v-if="isAdmin">
@@ -267,7 +278,7 @@ import { listCategories, listCustomers } from '@/api/customer'
 import EvaluationStars from '@/components/EvaluationStars.vue'
 import {
   archiveProject, createProject, deleteProject, listProjects, projectDetail,
-  removeProjectCover, unArchiveProject, updateProjectBase, uploadProjectCover
+  removeProjectCover, saveProjectStages, unArchiveProject, updateProjectBase, uploadProjectCover
 } from '@/api/project'
 import { listTemplates } from '@/api/template'
 import { listUsers } from '@/api/sysUser'
@@ -399,9 +410,14 @@ const editLoading = ref(false)
 const saving = ref(false)
 const editForm = reactive({
   id: null, projectName: '', categoryId: null, contactCustomerIds: [], projectDesc: '',
-  createTime: null, startTime: null, expectTime: null,
-  designerRelUserIdList: [], designerList: [], coverImage: null, projectStatus: ''
+  createTime: null, expectTime: null,
+  designerRelUserIdList: [], designerList: [], coverImage: null, projectStatus: '',
+  stages: []
 })
+
+function addStage() {
+  editForm.stages.push({ stageName: '', planTime: null, actualTime: null })
+}
 
 function onEditCategoryChange() {
   editForm.contactCustomerIds = []
@@ -423,12 +439,14 @@ async function openQuickEdit(row) {
       contactCustomerIds: (detail.contactList || []).map((c) => c.customerId),
       projectDesc: row.projectDesc || detail.projectDesc || '',
       createTime: row.createTime || detail.createTime || null,
-      startTime: detail.startTime || row.startTime || null,
       expectTime: row.expectTime || detail.expectTime || null,
       designerRelUserIdList: (detail.designerList || []).map((d) => d.userId),
       designerList: detail.designerList || [],
       coverImage: row.coverImage || detail.coverImage || null,
-      projectStatus: row.projectStatus
+      projectStatus: row.projectStatus,
+      stages: (detail.stages || []).map((s) => ({
+        id: s.id, stageName: s.stageName, planTime: s.planTime, actualTime: s.actualTime
+      }))
     })
     editVisible.value = true
   } catch {
@@ -491,9 +509,21 @@ async function submitEdit() {
       contactCustomerIds: editForm.contactCustomerIds,
       projectDesc: editForm.projectDesc,
       createTime: editForm.createTime,
-      startTime: editForm.startTime,
       expectTime: editForm.expectTime,
       designerRelUserIdList: editForm.designerRelUserIdList
+    })
+    // 环节全量保存
+    await saveProjectStages({
+      projectId: editForm.id,
+      stages: editForm.stages
+        .filter((s) => s.stageName && s.stageName.trim())
+        .map((s, idx) => ({
+          id: s.id || null,
+          stageName: s.stageName.trim(),
+          planTime: s.planTime || null,
+          actualTime: s.actualTime || null,
+          sort: idx
+        }))
     })
     ElMessage.success('已保存')
     editVisible.value = false
@@ -609,6 +639,7 @@ onMounted(async () => {
 .cd-primary { background: var(--lk-primary, #409eff); }
 .cd-warning { background: var(--lk-warning, #e6a23c); }
 .cd-danger { background: var(--lk-danger, #f56c6c); animation: cd-pulse 1.6s ease-in-out infinite; }
+.cd-done { background: #909399; justify-content: center; }
 @keyframes cd-pulse {
   0%, 100% { filter: brightness(1); }
   50% { filter: brightness(1.18); }
@@ -693,4 +724,11 @@ onMounted(async () => {
 .cover-preview-img { width: 100%; height: 100%; display: block; }
 .cover-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .cover-tip { font-size: 12px; color: var(--lk-text-3); margin: 0; line-height: 1.5; }
+
+/* ---- 环节管理（V1.4.19） ---- */
+.stage-box { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.stage-head { display: flex; justify-content: space-between; align-items: center; }
+.stage-tip { font-size: 12px; color: var(--lk-text-3); }
+.stage-empty { font-size: 12px; color: var(--lk-text-3); padding: 12px; border: 1px dashed var(--lk-border, #dcdfe6); border-radius: 6px; text-align: center; }
+.stage-row { display: flex; gap: 6px; align-items: center; }
 </style>

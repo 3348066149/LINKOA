@@ -1,14 +1,25 @@
 """消息中心 Service：自动通知 + 本人消息查询
 
 推送范围红线：项目创建人 + 项目所有关联设计师，**自动排除操作人自己**。
-触发事件：node_create / node_update / node_delete / form_update / comment_create。
+
+消息降噪（V1.4.21）：消息中心只承载**关键事件**，常规操作不再产生消息通知 ——
+  - 关键（生成消息）：comment_create 新评论 / customer_review 客户审核提交 / evaluation_create 客户评价
+  - 常规（不生成消息）：node_create 节点新增 / node_update 节点修改 / node_delete 节点删除 / form_update 表单填写
+常规操作并非不记录：`sys_operation_log` 审计日志全量留痕（谁在何时改了什么），
+需要追溯时到「系统管理 → 日志」查，不必刷屏消息中心。
+调用方（node_service 等）的 push() 调用**保留不动**，策略只在本文件收敛一处，便于日后调整。
 """
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app.models import Message, Project, ProjectDesignerRel, SysUser
 from app.schemas import MessageItem, MessageListQuery, PageResult
 from app.utils.exceptions import BusinessException
+
+# 关键通知白名单：只有这些类型会真正落库 + 默认展示 + 计入未读数
+NOTIFY_TYPES: tuple[str, ...] = ("comment_create", "customer_review", "evaluation_create")
+# 常规操作类型：保留识别能力（含历史数据），默认不展示、可开关查看
+ROUTINE_TYPES: tuple[str, ...] = ("node_create", "node_update", "node_delete", "form_update")
 
 
 def _recipients(db: Session, project: Project, operator_id: int) -> set[int]:
@@ -34,7 +45,13 @@ def push(
     node_title: str | None = None,
     comment_content: str | None = None,
 ) -> None:
-    """按模板批量写入消息（不 commit，由调用方事务统一提交）"""
+    """按模板批量写入消息（不 commit，由调用方事务统一提交）
+
+    V1.4.21 降噪：常规操作（节点增删改 / 表单填写）在此直接返回、不再生成消息；
+    文案模板保留，日后若要重新启用，把类型加回 NOTIFY_TYPES 即可。
+    """
+    if msg_type in ROUTINE_TYPES:
+        return
     pname = project.project_name
     if msg_type == "node_create":
         content = f"{operator_name} 在项目「{pname}」中新增了节点：{node_title}"
@@ -47,6 +64,8 @@ def push(
     elif msg_type == "comment_create":
         preview = (comment_content or "")[:20]
         content = f"{operator_name} 在项目「{pname}」中发表了评论：{preview}..."
+    elif msg_type == "customer_review":
+        content = f"{operator_name} 在项目「{pname}」的「{node_title}」完成审核：{comment_content}"
     else:
         raise BusinessException(400, f"未知消息类型: {msg_type}")
 
@@ -87,19 +106,21 @@ def push_evaluation_create(db: Session, project: Project) -> None:
 
 
 def my_list(db: Session, user_id: int, query: MessageListQuery) -> PageResult[MessageItem]:
-    """本人消息分页，支持已读/未读筛选"""
-    stmt = select(Message).where(Message.receive_user_id == user_id).order_by(Message.id.desc())
-    if query.is_read is not None:
-        stmt = stmt.where(Message.is_read == query.is_read)
+    """本人消息分页，支持已读/未读筛选
 
-    total = len(db.execute(select(Message.id).where(Message.receive_user_id == user_id)).scalars().all())
+    V1.4.21：默认只返回关键通知；`includeRoutine=true` 时才把常规操作的历史消息一并带出。
+    """
+    conds = [Message.receive_user_id == user_id]
+    if not query.include_routine:
+        conds.append(Message.msg_type.in_(NOTIFY_TYPES))
     if query.is_read is not None:
-        total = len(
-            db.execute(
-                select(Message.id).where(Message.receive_user_id == user_id, Message.is_read == query.is_read)
-            ).scalars().all()
-        )
-    rows = db.execute(stmt.offset((query.page_num - 1) * query.page_size).limit(query.page_size)).scalars().all()
+        conds.append(Message.is_read == query.is_read)
+
+    total = db.execute(select(func.count()).select_from(Message).where(*conds)).scalar_one()
+    rows = db.execute(
+        select(Message).where(*conds).order_by(Message.id.desc())
+        .offset((query.page_num - 1) * query.page_size).limit(query.page_size)
+    ).scalars().all()
     items = [
         MessageItem(
             id=m.id,
@@ -115,11 +136,15 @@ def my_list(db: Session, user_id: int, query: MessageListQuery) -> PageResult[Me
 
 
 def unread_count(db: Session, user_id: int) -> int:
-    return len(
-        db.execute(
-            select(Message.id).where(Message.receive_user_id == user_id, Message.is_read == 0)
-        ).scalars().all()
-    )
+    """未读数只统计关键通知 —— 与消息中心的默认展示保持一致，
+    否则铃铛出现「有红点但列表是空的」（V1.4.21）。"""
+    return db.execute(
+        select(func.count()).select_from(Message).where(
+            Message.receive_user_id == user_id,
+            Message.is_read == 0,
+            Message.msg_type.in_(NOTIFY_TYPES),
+        )
+    ).scalar_one()
 
 
 def mark_read(db: Session, user_id: int, message_id: int) -> None:
@@ -133,12 +158,21 @@ def mark_read(db: Session, user_id: int, message_id: int) -> None:
     db.commit()
 
 
-def mark_read_all(db: Session, user_id: int) -> int:
-    """一键全部已读：本人全部未读消息，返回标记数量"""
-    result = db.execute(
-        update(Message)
-        .where(Message.receive_user_id == user_id, Message.is_read == 0)
-        .values(is_read=1)
-    )
+def mark_read_all(
+    db: Session, user_id: int, project_id: int | None = None, include_routine: bool = False
+) -> int:
+    """一键全部已读：本人未读消息，返回标记数量
+
+    V1.4.21：
+    - 传 project_id 时只标记该项目的消息（消息中心按项目分组后的「本项目全部已读」）
+    - include_routine=False（默认）时不动常规操作消息，与消息中心默认展示口径一致，
+      避免出现「页面只看到 11 条、提示却说标记了 81 条」
+    """
+    conds = [Message.receive_user_id == user_id, Message.is_read == 0]
+    if project_id is not None:
+        conds.append(Message.project_id == project_id)
+    if not include_routine:
+        conds.append(Message.msg_type.in_(NOTIFY_TYPES))
+    result = db.execute(update(Message).where(*conds).values(is_read=1))
     db.commit()
     return result.rowcount or 0

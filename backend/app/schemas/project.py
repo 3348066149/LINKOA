@@ -60,7 +60,11 @@ class ProjectListItem(CamelModel):
     designer_names: str = ""  # 全部我方设计师，顿号分隔
     create_time: datetime | None = None  # 立项时间（=创建时间）
     start_time: datetime | None = None  # 项目开始时间
-    expect_time: datetime | None = None  # 预计结束时间（卡片倒计时用）
+    expect_time: datetime | None = None  # 预计结束时间（兼容字段，倒计时改按环节）
+    active_stage_name: str | None = None  # 当前进行中环节名（V1.4.19）
+    active_stage_plan_time: datetime | None = None  # 当前进行中环节预计时间（卡片倒计时用）
+    stage_count: int = 0  # 环节总数（>0 时前端不再回退到 expectTime）
+    last_stage_name: str | None = None  # 最后一个环节名（全完成时灰色条用）
     cover_image: str | None = None  # 卡片封面图相对路径
     project_status: str
     progress_percent: int = 0  # 节点进度占比（已填表单节点/全部节点），内部用
@@ -90,6 +94,10 @@ class ProjectNodeBrief(CamelModel):
     has_form: bool = False
     form_filled: bool = False
     attachment_count: int = 0
+    is_review: bool = False  # V1.4.19：客户审核节点
+    review_options: list[str] | None = None  # V1.4.19：审核选项
+    review_result: dict | None = None  # V1.4.19：客户已提交的审核结果
+    client_review_fields: list[dict] = []  # V1.4.20：客户审核反馈字段定义
     create_time: datetime | None = None  # 节点创建时间
     update_time: datetime | None = None  # 节点最后更新时间
 
@@ -99,6 +107,36 @@ class ProjectEdgeOut(CamelModel):
     source_node_id: int
     target_node_id: int
     label: str | None = None
+
+
+# ---- 项目环节（V1.4.19）----
+
+class StageItemIn(CamelModel):
+    """环节新增/编辑入参：id 为空=新增，非空=编辑"""
+    id: int | None = None
+    stage_name: str = Field(..., min_length=1, max_length=128)
+    plan_time: datetime | None = None
+    actual_time: datetime | None = None
+    sort: int = 0
+
+
+class StageSaveRequest(CamelModel):
+    """项目环节全量保存（管理员在项目编辑弹窗里一次性提交）"""
+    project_id: int = Field(..., gt=0)
+    stages: list[StageItemIn] = []
+
+
+class StageDeleteRequest(CamelModel):
+    project_id: int = Field(..., gt=0)
+    stage_id: int = Field(..., gt=0)
+
+
+class StageItemOut(CamelModel):
+    id: int
+    stage_name: str
+    plan_time: datetime | None = None
+    actual_time: datetime | None = None
+    sort: int = 0
 
 
 class ProjectDetail(CamelModel):
@@ -115,8 +153,13 @@ class ProjectDetail(CamelModel):
     project_status: str
     create_user_name: str | None = None
     create_time: datetime | None = None  # 立项时间
+    active_stage_name: str | None = None  # 当前进行中环节名（V1.4.19）
+    active_stage_plan_time: datetime | None = None  # 当前进行中环节预计时间
+    stage_count: int = 0  # 环节总数
+    last_stage_name: str | None = None  # 最后一个环节名
     designer_list: list[DesignerItem] = []
     contact_list: list[ContactItem] = []  # 全部客户对接人
     nodes: list[ProjectNodeBrief] = []
     edges: list[ProjectEdgeOut] = []
+    stages: list[StageItemOut] = []  # 项目环节（V1.4.19，替代单一 expect_time）
     evaluation: EvaluationPublicOut | None = None  # 客户评价（公开字段；反思走内部 GET /api/evaluation/{projectId}）

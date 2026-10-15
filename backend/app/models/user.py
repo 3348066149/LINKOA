@@ -5,6 +5,7 @@ from sqlalchemy import BigInteger, DateTime, SmallInteger, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils.timeutil import beijing_now
 
 
 class SysUser(Base):
@@ -27,7 +28,12 @@ class SysUser(Base):
         DateTime, nullable=True,
         comment="锁定截止时间（超过该时间自动解锁；V1.4.6 防暴力破解）"
     )
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    # V1.4.21：JWT 失效版本号。改密码时 +1，旧 token 立即失效。
+    token_version: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1,
+        comment="JWT 失效版本号（改密码时 +1）"
+    )
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now(), comment="更新时间"
+        DateTime, nullable=False, default=beijing_now, onupdate=beijing_now, comment="更新时间"
     )

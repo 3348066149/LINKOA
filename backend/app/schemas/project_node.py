@@ -69,6 +69,7 @@ class FormFieldOut(CamelModel):
     sort: int = 0
     field_value: str | None = None
     update_time: datetime | None = None  # 字段最后保存/更新时间（图像字段=上传保存时间）
+    side: str = "designer"  # V1.4.20：designer=我方填写；client=客户审核反馈
 
 
 # ---- 项目节点连线 ----

@@ -87,6 +87,51 @@
                 @save="onSaveForm"
               />
             </el-tab-pane>
+            <el-tab-pane v-if="selectedNode.isReview" label="客户审核" name="review">
+              <div v-if="selectedNode.reviewResult" class="review-result-box">
+                <el-alert
+                  :title="`客户已于 ${selectedNode.reviewResult.time || ''} 审核完成`"
+                  type="success" :closable="false" class="review-status-alert"
+                />
+                <el-descriptions :column="1" border size="small" class="review-desc">
+                  <el-descriptions-item label="审核结论">
+                    <el-tag type="success" effect="dark" size="small">{{ selectedNode.reviewResult.option }}</el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="审核人">{{ selectedNode.reviewResult.reviewer || '—' }}</el-descriptions-item>
+                  <el-descriptions-item label="批注">{{ selectedNode.reviewResult.comment || '—' }}</el-descriptions-item>
+                </el-descriptions>
+
+                <div v-if="clientFeedbackFields.length" class="review-feedback-block">
+                  <div class="rf-title">客户反馈内容</div>
+                  <el-descriptions :column="1" border size="small">
+                    <el-descriptions-item v-for="f in clientFeedbackFields" :key="f.id" :label="f.fieldLabel">
+                      <template v-if="f.fieldType === 'image' && f.fieldValue">
+                        <el-image :src="`/uploads/${f.fieldValue}`" :preview-src-list="[`/uploads/${f.fieldValue}`]" :preview-teleported="true" fit="cover" style="width: 120px; height: 120px; border-radius: 6px" />
+                      </template>
+                      <span v-else :class="{ 'empty-text': !f.fieldValue }">{{ f.fieldValue || '未填写' }}</span>
+                    </el-descriptions-item>
+                  </el-descriptions>
+                </div>
+
+                <el-button
+                  v-if="!isArchived"
+                  type="warning" size="small" plain
+                  :loading="resettingReview"
+                  style="margin-top: 12px"
+                  @click="onResetReview"
+                >重置客户审核（让客户重新提交）</el-button>
+              </div>
+              <div v-else class="review-pending-box">
+                <el-alert title="等待客户审核" type="error" :closable="false" class="review-status-alert" />
+                <div class="review-pending-tip">
+                  客户登录客户门户后会看到该节点的红色待审提示，提交后此处将展示审核结论与反馈。
+                </div>
+                <div class="review-options-preview">
+                  <span class="rp-label">审核选项：</span>
+                  <el-tag v-for="opt in (selectedNode.reviewOptions || [])" :key="opt" size="small" class="rp-tag">{{ opt }}</el-tag>
+                </div>
+              </div>
+            </el-tab-pane>
             <el-tab-pane label="附件" name="attachment">
               <div class="attach-header">
                 <el-upload
@@ -280,6 +325,7 @@ import { addEdge, addNode, batchUpdatePositions, deleteEdge, deleteNode, getNode
 import { archiveProject, deleteProject, projectDetail, unArchiveProject, updateProjectBase } from '@/api/project'
 import { listUsers } from '@/api/sysUser'
 import { listNodeTemplates } from '@/api/nodeTemplate'
+import { resetReview } from '@/api/review'
 import { useMessageStore } from '@/stores/message'
 import { useUserStore } from '@/stores/user'
 import { deadlineInfo } from '@/utils/deadline'
@@ -367,6 +413,9 @@ async function onSaveReflection() {
 // ---- 节点选中：加载表单与附件 ----
 const formFields = ref([])
 const attachments = ref([])
+// 客户审核反馈字段（V1.4.20）：审核节点 tab 用
+const clientFeedbackFields = ref([])
+const resettingReview = ref(false)
 
 // 未保存修改拦截：表单脏时弹确认框。
 // confirm(保存) → 落库后放行；cancel(放弃修改) → 直接放行；X/ESC 关闭 → 中止当前操作。
@@ -403,10 +452,12 @@ async function onNodeClick(nodeId) {
   const n = nodes.value.find((x) => x.id === nodeId)
   renameDraft.value = n.nodeTitle
   const [form, attach] = await Promise.all([getNodeForm(nodeId), listAttachments(nodeId)])
-  formFields.value = form.fields || []
+  const allFields = form.fields || []
+  formFields.value = allFields.filter((f) => f.side !== 'client')
+  clientFeedbackFields.value = allFields.filter((f) => f.side === 'client')
   attachments.value = attach || []
   // 更新节点徽章：表单已填/附件计数
-  n.formFilled = (form.fields || []).some((f) => f.fieldValue)
+  n.formFilled = allFields.filter((f) => f.side !== 'client').some((f) => f.fieldValue)
   n.attachmentCount = (attach || []).length
 }
 
@@ -454,7 +505,8 @@ async function onAddPreset(preset) {
   renameDraft.value = selectedNode.value?.nodeTitle || ''
   // 新增节点后面板保持新节点：加载其空表单与空附件，避免残留上一节点的表单字段
   const [form, attach] = await Promise.all([getNodeForm(data.id), listAttachments(data.id)])
-  formFields.value = form.fields || []
+  formFields.value = (form.fields || []).filter((f) => f.side !== 'client')
+  clientFeedbackFields.value = (form.fields || []).filter((f) => f.side === 'client')
   attachments.value = attach || []
   messageStore.fetchUnread()
 }
@@ -626,6 +678,26 @@ async function onDeleteAttachment(a) {
   attachments.value = await listAttachments(selectedNodeId.value)
   if (selectedNode.value) selectedNode.value.attachmentCount = attachments.value.length
   ElMessage.success('已删除')
+}
+
+// ---- 客户审核（V1.4.20）----
+async function onResetReview() {
+  if (!selectedNodeId.value) return
+  await ElMessageBox.confirm(
+    '重置后客户可重新提交审核，当前审核结论、批注和客户反馈内容将全部清空。确定重置？',
+    '重置客户审核',
+    { type: 'warning', confirmButtonText: '确认重置' }
+  )
+  resettingReview.value = true
+  try {
+    await resetReview(selectedNodeId.value)
+    if (selectedNode.value) selectedNode.value.reviewResult = null
+    clientFeedbackFields.value = []
+    ElMessage.success('已重置，客户可重新审核')
+    await loadDetail()
+  } finally {
+    resettingReview.value = false
+  }
 }
 
 // ---- 评论 ----
@@ -802,6 +874,16 @@ onBeforeRouteLeave(async (to, from, next) => {
 .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 .panel-title { font-size: 15px; font-weight: bold; }
 .empty-text { color: var(--lk-text-3); font-size: 13px; padding: 8px 0; }
+
+/* 客户审核 tab（V1.4.20） */
+.review-status-alert { margin-bottom: 10px; }
+.review-desc { margin-bottom: 10px; }
+.review-feedback-block { margin-top: 8px; }
+.rf-title { font-size: 13px; font-weight: 700; margin: 6px 0 6px; color: var(--lk-text-1, #303133); }
+.review-pending-tip { font-size: 13px; color: var(--lk-text-2, #606266); padding: 10px 0; line-height: 1.6; }
+.review-options-preview { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.rp-label { font-size: 13px; color: var(--lk-text-2, #606266); }
+.rp-tag { margin-right: 4px; }
 .designer-list { display: flex; flex-wrap: wrap; gap: 6px; }
 .designer-tag { margin-right: 4px; }
 .comment-input { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
@@ -810,7 +892,7 @@ onBeforeRouteLeave(async (to, from, next) => {
 .comment-head { display: flex; align-items: center; gap: 8px; }
 .comment-user { font-weight: bold; font-size: 13px; }
 .comment-time { color: var(--lk-text-3); font-size: 12px; flex: 1; }
-.comment-content { margin-top: 4px; font-size: 13px; color: #606266; white-space: pre-wrap; }
+.comment-content { margin-top: 4px; font-size: 13px; color: #606266; white-space: pre-wrap; word-break: break-all; }
 .log-user { font-weight: bold; }
 /* 客户评价 + 反思 */
 .eval-block { margin-bottom: 8px; }

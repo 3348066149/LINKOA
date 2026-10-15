@@ -95,6 +95,36 @@
         <el-form-item label="面板排序">
           <el-input-number v-model="editForm.sort" :min="0" />
         </el-form-item>
+        <el-divider content-position="left">客户审核设置（V1.4.19）</el-divider>
+        <el-form-item label="是否客户审核节点">
+          <el-switch v-model="editForm.isReview" active-text="客户可在门户对此节点提交审核结论" />
+        </el-form-item>
+        <el-form-item v-if="editForm.isReview" label="审核选项（客户可选）">
+          <el-select
+            v-model="editForm.reviewOptions"
+            multiple filterable allow-create default-first-option
+            placeholder="输入选项后回车，如：通过 / 需修改 / 驳回"
+            style="width: 100%"
+          />
+        </el-form-item>
+
+        <template v-if="editForm.isReview">
+          <el-divider content-position="left">客户反馈字段（审核时让客户填写）</el-divider>
+          <div v-for="(f, idx) in editForm.clientReviewFields" :key="f._key" class="field-item">
+            <div class="field-head">
+              <el-input v-model="f.fieldLabel" placeholder="字段名称" size="small" class="field-label-input" />
+              <el-select v-model="f.fieldType" size="small" style="width: 130px">
+                <el-option label="单行文本" value="text_single" />
+                <el-option label="多行文本" value="text_multi" />
+                <el-option label="上传图像" value="image" />
+              </el-select>
+              <el-input-number v-model="f.sort" :min="0" size="small" style="width: 90px" />
+              <el-button link type="danger" size="small" :icon="Delete" @click="editForm.clientReviewFields.splice(idx, 1)" />
+            </div>
+            <div v-if="f.fieldType === 'image'" class="field-tip">客户可上传 1 张图片（jpg/png/webp ≤5MB）</div>
+          </div>
+          <el-button size="small" :icon="Plus" plain @click="addClientField">添加反馈字段</el-button>
+        </template>
       </el-form>
 
       <el-divider content-position="left">建议表单字段（实例化到流程模板时带出）</el-divider>
@@ -147,7 +177,7 @@ const editVisible = ref(false)
 const saving = ref(false)
 const uploading = ref(false)
 let fieldSeq = 0
-const editForm = reactive({ id: null, icon: '', nodeTitle: '', nodeRemark: '', sort: 0, formFields: [] })
+const editForm = reactive({ id: null, icon: '', nodeTitle: '', nodeRemark: '', sort: 0, formFields: [], isReview: false, reviewOptions: [], clientReviewFields: [] })
 
 async function loadData() {
   loading.value = true
@@ -165,9 +195,18 @@ function openEdit(row) {
     nodeTitle: row?.nodeTitle ?? '',
     nodeRemark: row?.nodeRemark ?? '',
     sort: row?.sort ?? (tableData.value.length + 1),
-    formFields: (row?.formFields || []).map((f) => ({ _key: ++fieldSeq, ...f, selectOptions: f.selectOptions || [] }))
+    formFields: (row?.formFields || []).map((f) => ({ _key: ++fieldSeq, ...f, selectOptions: f.selectOptions || [] })),
+    isReview: row?.isReview ?? false,
+    reviewOptions: row?.reviewOptions ? [...row.reviewOptions] : [],
+    clientReviewFields: (row?.clientReviewFields || []).map((f) => ({ _key: ++fieldSeq, ...f }))
   })
   editVisible.value = true
+}
+
+function addClientField() {
+  editForm.clientReviewFields.push({
+    _key: ++fieldSeq, fieldLabel: '', fieldType: 'text_single', sort: editForm.clientReviewFields.length + 1
+  })
 }
 
 function addField() {
@@ -221,6 +260,15 @@ async function submitEdit() {
       nodeRemark: editForm.nodeRemark,
       icon: editForm.icon || null,
       sort: editForm.sort,
+      isReview: editForm.isReview,
+      reviewOptions: editForm.isReview ? (editForm.reviewOptions || []) : null,
+      clientReviewFields: editForm.isReview
+        ? editForm.clientReviewFields.filter((f) => f.fieldLabel.trim()).map((f) => ({
+            fieldLabel: f.fieldLabel.trim(),
+            fieldType: f.fieldType,
+            sort: f.sort
+          }))
+        : [],
       formFields: editForm.formFields.map((f) => ({
         fieldLabel: f.fieldLabel,
         fieldType: f.fieldType,

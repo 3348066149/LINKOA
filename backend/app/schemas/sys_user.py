@@ -45,11 +45,10 @@ class DeleteUserRequest(CamelModel):
 
 
 class SysUserItem(CamelModel):
-    """用户列表项（含明文密码，内网约定）"""
+    """用户列表项（密码不返回前端，V1.4.21）"""
 
     id: int
     username: str
-    password: str
     real_name: str
     role: str
     dept_id: int | None = None

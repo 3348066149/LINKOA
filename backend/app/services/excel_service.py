@@ -6,6 +6,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app.models import CustomerCategory, Project, ProjectEvaluation
 from app.schemas import ReportExportQuery
@@ -44,7 +45,7 @@ def export_projects(db: Session, query: ReportExportQuery) -> tuple[bytes, str]:
     if query.end_time:
         stmt = stmt.where(Project.create_time <= query.end_time)
 
-    rows = db.execute(stmt).all()
+    rows = db.execute(stmt.execution_options(yield_per=500)).all()
     name_map = _designer_names(db, [p.id for p, _ in rows])
     contact_map = _contact_names(db, [p.id for p, _ in rows])
     eval_map = _evaluation_export_map(db, [p.id for p, _ in rows])

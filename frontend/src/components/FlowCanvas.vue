@@ -187,6 +187,9 @@ function toVfNode(n) {
       attachmentCount: n.attachmentCount ?? 0,
       createTime: n.createTime,
       updateTime: n.updateTime,
+      isReview: n.isReview,
+      reviewOptions: n.reviewOptions,
+      reviewResult: n.reviewResult,
       showDelete: props.deletable && !props.readonly
     },
     selected: String(props.selectedNodeId) === String(n.id)

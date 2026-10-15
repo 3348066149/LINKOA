@@ -44,6 +44,17 @@ python migrate_sqlite_to_mysql.py   # SQLite → MySQL
 - 启动时幂等执行存量迁移：V1.4 部门权限模板 → 用户角色；V1.4.2 老角色（设计师/设计总监/行政）→ 普通（admin 强制保持管理员）；V1.4.7 `_migrate_project_category()` 为历史项目回填客户单位并补对接人关联
 - **V1.4.4 起结构自愈**：启动时 `auto_add_missing_columns()` 比对 ORM 模型与实际库结构，缺失列自动 `ALTER TABLE ADD COLUMN` 补齐（SQLite / MySQL 均生效）。模型加列后无需手写迁移 SQL，启动一次即升级；仅补列，不改列类型、不删列。
 
+## 版本特性（V1.4.21）
+
+- **客户审核反馈图片上传修复（V1.4.21）**：`POST /api/review/upload` 的 multipart 字段名由 `project_node_id` 改为 `projectNodeId`，与前端 `el-upload` 的 `:data` 及其它上传接口（attachment / customer cover / project cover）统一。此前字段名不一致会触发 FastAPI 422，被全局异常处理器包成 **HTTP 200 + code=400「请求参数错误」**；而 `el-upload` 只按 HTTP 状态判定成败，前端读不到 `res.data.path` 就静默丢弃，客户点「上传图片」后毫无反应。前端同时补了失败提示与大小/类型预检。
+
+- **消息中心降噪与按项目分组（V1.4.21）**：
+  - **降噪**：消息只承载关键事件 —— 客户审核提交 / 客户满意度评价 / 新评论；常规操作（节点新增·修改·删除、表单填写）**不再生成消息**（审计日志 `sys_operation_log` 仍全量留痕）。策略收敛在 `services/message_service.py` 的 `NOTIFY_TYPES` / `ROUTINE_TYPES`；调用方 `push()` 调用保留不动，便于日后调整。
+  - **接口**：`GET /api/message/myList` 新增 `includeRoutine`（默认 false，只返回关键通知）；未读数 `unreadCount` 只统计关键通知，避免「铃铛有红点、列表却空」；`POST /api/message/readAll` 新增可选 `projectId` / `includeRoutine`（按项目标记、且默认不误伤隐藏的常规消息）。
+  - **前端**：消息中心改为按项目分组的卡片列表（组头未读数/最新时间/进入项目/本项目全部已读 + 组内类型筛选 chips + 组内展开），铃铛弹层补项目名与类型；新增 `frontend/src/utils/message.js` 统一解析项目名与精简文案。
+
+- **长文本溢出修复（V1.4.21）**：客户填写的多行文本若整段没有断行点（连续顿号、长英文串、URL），浏览器不会断行，会把 `el-descriptions` 单元格最小内容宽度撑到数千像素，导致文本只显示一行、右侧被裁掉、标签列被挤成竖排。已在 `App.vue` 全局为 `.el-descriptions__content` 加 `word-break: break-all` + `overflow-wrap: anywhere` + `white-space: pre-wrap`（同时保留用户输入的换行）。
+
 ## 版本特性（V1.4.18）
 
 - **Docker 部署目录化（V1.4.18）**：Docker 相关文件统一收进项目根 `docker/` 目录（Dockerfile / docker-compose.yml / docker-compose.mysql.yml / docker-entrypoint.sh / 部署指南 docker/README.md），部署时进入 `docker/` 目录执行 `docker compose up -d --build` 即可；容器数据挂载到项目根 `data/`。本版本为部署与文档整理，**功能与接口无变更**。
@@ -88,6 +99,8 @@ tests/                 # 各版本自检脚本（见下）
 python tests/full_flow_check.py             # ✅ 全流程回归（需后端已启动，92/92 通过）
 python tests/check_cover_api.py             # ✅ 项目封面（7/7 通过）
 python tests/check_customer_cover_api.py    # ✅ 客户封面（9/9 通过）
+python tests/check_review_upload.py        # ✅ 客户审核反馈图片上传（13/13 通过，临时库副本、不污染数据）
+python tests/check_message_policy.py       # ✅ 消息降噪与按项目已读（13/13 通过，内置「当前用的是临时库」隔离断言）
 
 # ---- 历史检查点（接口演进后未同步，仅存档）----
 python tests/check_step5_services.py        # ⚠️ Service 层检查点（V1.4.4 时代）

@@ -136,6 +136,9 @@ def node_add(db: Session, operator: dict, req: NodeAddRequest) -> int:
         sort=req.sort,
         pos_x=req.pos_x,
         pos_y=req.pos_y,
+        is_review=bool(tpl.is_review),
+        review_options=tpl.review_options,
+        client_review_fields=tpl.client_review_fields,
         create_user_id=operator["id"],
     )
     db.add(node)
@@ -223,6 +226,7 @@ def get_form(db: Session, project_node_id: int) -> list[FormFieldOut]:
             sort=0,
             field_value=r.field_value,
             update_time=r.update_time,
+            side=r.side or "designer",
         )
         for r in rows
     ]

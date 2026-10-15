@@ -54,7 +54,7 @@ from app.schemas.flow_template import (
     TemplateNodeOut,
     TemplateUpdateRequest,
 )
-from app.schemas.message import MessageItem, MessageListQuery, MessageReadRequest
+from app.schemas.message import MessageItem, MessageListQuery, MessageReadAllRequest, MessageReadRequest
 from app.schemas.node_template import (
     NodeTemplateAddRequest,
     NodeTemplateFieldIn,
@@ -72,6 +72,10 @@ from app.schemas.project import (
     ProjectListQuery,
     ProjectNodeBrief,
     ProjectUpdateBaseRequest,
+    StageDeleteRequest,
+    StageItemIn,
+    StageItemOut,
+    StageSaveRequest,
 )
 from app.schemas.project_node import (
     BatchPositionRequest,

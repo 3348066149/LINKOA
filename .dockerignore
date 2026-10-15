@@ -7,7 +7,6 @@
 **/__pycache__
 *.pyc
 frontend/node_modules
-frontend/dist
 frontend/vite.config.js.timestamp-*.mjs
 
 # ---- 数据（属于运行数据，用数据卷持久化，不写进镜像）----

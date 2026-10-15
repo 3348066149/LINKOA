@@ -28,6 +28,10 @@ class NodeTemplateAddRequest(CamelModel):
     icon: str | None = Field(None, max_length=512)
     sort: int = 0
     form_fields: list[NodeTemplateFieldIn] = []
+    is_review: bool = False
+    review_options: list[str] | None = None
+    # V1.4.20：客户审核反馈字段
+    client_review_fields: list[NodeTemplateFieldIn] = []
 
 
 class NodeTemplateUpdateRequest(CamelModel):
@@ -37,6 +41,9 @@ class NodeTemplateUpdateRequest(CamelModel):
     icon: str | None = Field(None, max_length=512)
     sort: int = 0
     form_fields: list[NodeTemplateFieldIn] = []
+    is_review: bool = False
+    review_options: list[str] | None = None
+    client_review_fields: list[NodeTemplateFieldIn] = []
 
 
 class NodeTemplateItem(CamelModel):
@@ -46,3 +53,6 @@ class NodeTemplateItem(CamelModel):
     icon: str | None = None
     sort: int
     form_fields: list[NodeTemplateFieldIn] = []
+    is_review: bool = False
+    review_options: list[str] | None = None
+    client_review_fields: list[NodeTemplateFieldIn] = []

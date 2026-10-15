@@ -5,6 +5,7 @@ from sqlalchemy import BigInteger, DateTime, Index, SmallInteger, String, Text, 
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils.timeutil import beijing_now
 
 
 class Message(Base):
@@ -22,4 +23,4 @@ class Message(Base):
     )
     msg_content: Mapped[str] = mapped_column(Text, nullable=False, comment="消息简要内容（人类可读文案）")
     is_read: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0, comment="0未读，1已读")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="消息生成时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="消息生成时间")

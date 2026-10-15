@@ -20,6 +20,7 @@ from app.schemas import (
 from app.services import log_service
 from app.utils.exceptions import BusinessException
 from app.utils.jwt import create_token
+from app.utils.password import hash_password, is_hashed, verify_password
 
 
 def _user_info(db: Session, user: SysUser) -> UserInfo:
@@ -71,8 +72,8 @@ def login(db: Session, req: LoginRequest) -> LoginData:
             user.locked_until = None
             user.login_fail_count = 0
 
-        # 2) 密码校验
-        if user.password != req.password:
+        # 2) 密码校验（bcrypt；老明文密码首次登录自动升级成哈希）
+        if not verify_password(req.password, user.password):
             user.login_fail_count = (user.login_fail_count or 0) + 1
             left = settings.LOGIN_MAX_FAIL - user.login_fail_count
             if left <= 0:
@@ -92,6 +93,10 @@ def login(db: Session, req: LoginRequest) -> LoginData:
             db.commit()
             raise BusinessException(400, f"账号或密码错误，还可尝试 {left} 次")
 
+        # 老明文密码升级成 bcrypt 哈希（一次性平滑迁移）
+        if not is_hashed(user.password):
+            user.password = hash_password(req.password)
+
         # 3) 密码正确：检查启用状态
         if user.is_enable != 1:
             raise BusinessException(400, "账号已停用，请联系管理员")
@@ -99,7 +104,7 @@ def login(db: Session, req: LoginRequest) -> LoginData:
         # 4) 成功：清零失败计数与锁定
         user.login_fail_count = 0
         user.locked_until = None
-        token = create_token(user.id)
+        token = create_token(user.id, user.token_version or 1)
         log_service.add_log(db, user.id, "user_login", f"{user.real_name} 登录系统")
         db.commit()
         return LoginData(token=token, user_info=_user_info(db, user))
@@ -122,20 +127,22 @@ def unlock_user(db: Session, operator_id: int, user_id: int) -> None:
 
 def update_my_pwd(db: Session, current_user: dict, req: UpdateMyPwdRequest) -> None:
     user = db.get(SysUser, current_user["id"])
-    if user is None or user.password != req.old_password:
+    if user is None or not verify_password(req.old_password, user.password):
         raise BusinessException(400, "原密码错误")
-    user.password = req.new_password
+    user.password = hash_password(req.new_password)
+    # 改密码后旧 token 立即失效
+    user.token_version = (user.token_version or 1) + 1
     db.commit()
 
 
 def list_users(db: Session) -> list[SysUserItem]:
-    """全部用户（含明文密码，内网约定，仅管理员可见）"""
+    """全部用户（密码不再返回前端，仅管理员可见）"""
     users = db.execute(select(SysUser).order_by(SysUser.id)).scalars().all()
     dept_map = {d.id: d.dept_name for d in db.execute(select(SysDept)).scalars().all()}
     cat_map = {c.id: c.category_name for c in db.execute(select(CustomerCategory)).scalars().all()}
     return [
         SysUserItem(
-            id=u.id, username=u.username, password=u.password,
+            id=u.id, username=u.username,
             real_name=u.real_name, role=u.role,
             dept_id=u.dept_id, dept_name=dept_map.get(u.dept_id) if u.dept_id else None,
             customer_id=u.customer_id,
@@ -170,7 +177,7 @@ def create_user(db: Session, operator_id: int, req: SysUserCreateRequest) -> int
         if not req.role:
             raise BusinessException(400, "请为账号分配角色（普通/管理员）")
         user = SysUser(
-            username=req.username, password=req.password,
+            username=req.username, password=hash_password(req.password),
             real_name=req.real_name, role=req.role, dept_id=req.dept_id, is_enable=1,
         )
         dept_label = f"{dept.dept_name}/{req.role}"
@@ -179,7 +186,7 @@ def create_user(db: Session, operator_id: int, req: SysUserCreateRequest) -> int
         if cat is None:
             raise BusinessException(400, "客户单位不存在")
         user = SysUser(
-            username=req.username, password=req.password,
+            username=req.username, password=hash_password(req.password),
             real_name=req.real_name, role="客户", category_id=req.category_id, is_enable=1,
         )
         dept_label = cat.category_name
@@ -228,7 +235,9 @@ def reset_pwd(db: Session, operator_id: int, req: ResetPwdRequest) -> None:
     user = db.get(SysUser, req.user_id)
     if user is None:
         raise BusinessException(400, "用户不存在")
-    user.password = req.new_password
+    user.password = hash_password(req.new_password)
+    # 重置密码后旧 token 立即失效
+    user.token_version = (user.token_version or 1) + 1
     db.commit()
 
 

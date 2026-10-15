@@ -9,6 +9,8 @@
 
 不含进度百分比、当前节点、交付紧迫度/逾期天数等字段（相关实现已随改造删除）。
 """
+import threading
+import time
 from datetime import datetime
 
 from sqlalchemy import select
@@ -22,6 +24,12 @@ from app.models import (
     ProjectDesignerRel,
     SysUser,
 )
+
+# 内存缓存：key=(is_customer, category_id)，5 分钟 TTL
+# 项目数据变更时（创建/编辑/归档）不主动失效，靠 TTL 兜底；内网 OA 可接受。
+_CACHE_TTL = 300.0  # 秒
+_kb_cache: dict[tuple, tuple[float, str, list]] = {}
+_kb_lock = threading.Lock()
 
 
 def _scope_category_id(current_user: dict) -> int | None:
@@ -102,7 +110,7 @@ def _fetch_designers(db: Session, project_ids: list[int]) -> dict[int, list[str]
 
 
 def build_knowledge_base(db: Session, current_user: dict) -> tuple[str, list[dict]]:
-    """实时现算结构化知识库（每次提问调用，不做缓存/快照）。
+    """实时现算结构化知识库（5 分钟内存缓存）。
 
     返回：
         context : str         知识库全文（含表头 + 每项目一行）
@@ -119,6 +127,13 @@ def build_knowledge_base(db: Session, current_user: dict) -> tuple[str, list[dic
     if is_customer and not category_id:
         return "", []
 
+    cache_key = (is_customer, category_id)
+    now = time.time()
+    with _kb_lock:
+        cached = _kb_cache.get(cache_key)
+        if cached and now - cached[0] < _CACHE_TTL:
+            return cached[1], cached[2]
+
     rows = _fetch_projects(db, category_id)
     if not rows:
         return "", []
@@ -133,7 +148,6 @@ def build_knowledge_base(db: Session, current_user: dict) -> tuple[str, list[dic
         project_name = (p.project_name or "").strip() or "未命名项目"
         company = company_name or "未设置"
         contact_names = contacts_map.get(p.id) or []
-        # 对接人：rel 多人拼接优先；为空回退 Project.customer_id 首位对接人；再空「未设置」
         contact_desc = _join_names(contact_names, first_contact_name or "未设置")
         designer_names = designers_map.get(p.id) or []
         designer_desc = _join_names(designer_names, "未分配")
@@ -151,4 +165,6 @@ def build_knowledge_base(db: Session, current_user: dict) -> tuple[str, list[dic
         "系统内项目知识库（每条一行，仅据此回答项目/客户相关的业务问题，严禁编造）：\n"
         + "\n".join(lines)
     )
+    with _kb_lock:
+        _kb_cache[cache_key] = (now, context, sources)
     return context, sources

@@ -2,10 +2,11 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import BigInteger, DateTime, Index, Integer, Numeric, String, Text, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Index, Integer, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils.timeutil import beijing_now
 
 
 class ProjectNode(Base):
@@ -22,10 +23,16 @@ class ProjectNode(Base):
     sort: Mapped[int] = mapped_column(Integer, nullable=False, default=0, comment="节点排序序号")
     pos_x: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False, default=Decimal("0.00"), comment="节点画布X坐标")
     pos_y: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False, default=Decimal("0.00"), comment="节点画布Y坐标")
+    # V1.4.19：客户审核节点
+    is_review: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, comment="是否客户审核节点（从模板冗余）")
+    review_options: Mapped[str | None] = mapped_column(Text, nullable=True, comment="审核选项JSON数组（从模板冗余）")
+    review_result: Mapped[str | None] = mapped_column(Text, nullable=True, comment="客户审核结果JSON：{option, comment, time}；空=待审")
+    # V1.4.20：客户审核反馈字段定义JSON（从模板冗余）
+    client_review_fields: Mapped[str | None] = mapped_column(Text, nullable=True, comment="客户审核反馈字段JSON数组")
     create_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="创建人ID")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now(), comment="更新时间"
+        DateTime, nullable=False, default=beijing_now, onupdate=beijing_now, comment="更新时间"
     )
 
 
@@ -43,7 +50,7 @@ class ProjectNodeEdge(Base):
     source_node_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="连线起始节点ID（关联 project_node.id）")
     target_node_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="连线目标节点ID（关联 project_node.id）")
     label: Mapped[str | None] = mapped_column(String(128), nullable=True, comment="连线文字标签，可空")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
 
 
 class ProjectNodeFormValue(Base):
@@ -59,8 +66,10 @@ class ProjectNodeFormValue(Base):
     field_type: Mapped[str] = mapped_column(String(32), nullable=False, comment="冗余：字段类型")
     select_options: Mapped[str | None] = mapped_column(Text, nullable=True, comment="冗余：下拉选项JSON数组（V1.3）")
     field_value: Mapped[str | None] = mapped_column(Text, nullable=True, comment="用户填写内容")
+    # V1.4.20：designer=我方设计师填写；client=客户审核反馈填写
+    side: Mapped[str] = mapped_column(String(16), nullable=False, default="designer", comment="填写方：designer/client")
     create_user_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True, comment="填写人ID")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now(), comment="更新时间"
+        DateTime, nullable=False, default=beijing_now, onupdate=beijing_now, comment="更新时间"
     )

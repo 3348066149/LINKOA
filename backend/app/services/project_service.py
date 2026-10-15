@@ -1,4 +1,5 @@
 """项目 Service：模板实例化（ID 重映射）、归档硬拦截、级联删除"""
+import json
 import os
 import uuid
 from datetime import datetime
@@ -23,6 +24,7 @@ from app.models import (
     ProjectNode,
     ProjectNodeEdge,
     ProjectNodeFormValue,
+    ProjectStage,
     SysUser,
 )
 from app.schemas import (
@@ -36,6 +38,8 @@ from app.schemas import (
     ProjectListQuery,
     ProjectNodeBrief,
     ProjectUpdateBaseRequest,
+    StageItemOut,
+    StageSaveRequest,
     PageResult,
 )
 from app.services import file_service, log_service
@@ -72,15 +76,17 @@ def _instantiate_from_template(db: Session, project: Project, template_id: int, 
     id_map: dict[int, int] = {}
     node_tpl_map: dict[int, int | None] = {}
     # V1.4.3：溯源节点模板图标（flow_template_node 不冗余存 icon）
+    # V1.4.19：同时冗余 is_review / review_options
     ntid_list = [tn.node_template_id for tn in tpl_nodes if tn.node_template_id]
     icons_by_tpl: dict[int, str | None] = {}
+    review_by_tpl: dict[int, dict] = {}
     if ntid_list:
         from app.models import NodeTemplate as _NT
-        icons_by_tpl = {
-            nt.id: nt.icon
-            for nt in db.execute(select(_NT).where(_NT.id.in_(ntid_list))).scalars().all()
-        }
+        for nt in db.execute(select(_NT).where(_NT.id.in_(ntid_list))).scalars().all():
+            icons_by_tpl[nt.id] = nt.icon
+            review_by_tpl[nt.id] = {"is_review": bool(nt.is_review), "review_options": nt.review_options, "client_review_fields": nt.client_review_fields}
     for tn in tpl_nodes:
+        rv = review_by_tpl.get(tn.node_template_id, {})
         node = ProjectNode(
             project_id=project.id,
             node_title=tn.node_title,
@@ -89,6 +95,9 @@ def _instantiate_from_template(db: Session, project: Project, template_id: int, 
             sort=tn.sort,
             pos_x=tn.pos_x,
             pos_y=tn.pos_y,
+            is_review=rv.get("is_review", False),
+            review_options=rv.get("review_options"),
+            client_review_fields=rv.get("client_review_fields"),
             create_user_id=operator_id,
         )
         db.add(node)
@@ -234,6 +243,29 @@ def _evaluation_map(db: Session, project_ids: list[int]) -> dict[int, Evaluation
     return result
 
 
+def _stages_by_project(db: Session, project_ids: list[int]) -> dict[int, list[ProjectStage]]:
+    """批量查项目环节，按 sort, id 升序；无环节返回空列表"""
+    if not project_ids:
+        return {}
+    rows = db.execute(
+        select(ProjectStage)
+        .where(ProjectStage.project_id.in_(project_ids))
+        .order_by(ProjectStage.sort, ProjectStage.id)
+    ).scalars().all()
+    result: dict[int, list[ProjectStage]] = {}
+    for s in rows:
+        result.setdefault(s.project_id, []).append(s)
+    return result
+
+
+def _active_stage(stages: list[ProjectStage]) -> ProjectStage | None:
+    """卡片倒计时用：取 actual_time 为空的第一条环节（进行中）"""
+    for s in stages:
+        if s.actual_time is None and s.plan_time is not None:
+            return s
+    return None
+
+
 def project_list(db: Session, query: ProjectListQuery, current_user: dict | None = None) -> PageResult[ProjectListItem]:
     stmt = (
         select(
@@ -244,7 +276,7 @@ def project_list(db: Session, query: ProjectListQuery, current_user: dict | None
         .outerjoin(CustomerCategory, CustomerCategory.id == Project.category_id)
         .outerjoin(Customer, Customer.id == Project.customer_id)
     )
-    count_stmt = select(Project.id)
+    count_stmt = select(func.count(Project.id))
 
     # 客户账号：只能看到自己所属客户单位名下的全部项目（按单位隔离，V1.4.7）
     if current_user and current_user.get("role") == "客户":
@@ -286,27 +318,33 @@ def project_list(db: Session, query: ProjectListQuery, current_user: dict | None
         stmt = stmt.where(Project.create_time <= query.create_time_end)
         count_stmt = count_stmt.where(Project.create_time <= query.create_time_end)
 
-    total = len(db.execute(count_stmt).scalars().all())
+    total = db.execute(count_stmt).scalar() or 0
     rows = db.execute(stmt.offset((query.page_num - 1) * query.page_size).limit(query.page_size)).all()
     name_map = _designer_names(db, [p.id for p, _, _ in rows])
     contact_map = _contact_names(db, [p.id for p, _, _ in rows])
     progress_map = _project_progress_map(db, [p.id for p, _, _ in rows])
     evaluation_map = _evaluation_map(db, [p.id for p, _, _ in rows])
-    items = [
-        ProjectListItem(
+    stages_map = _stages_by_project(db, [p.id for p, _, _ in rows])
+    items = []
+    for p, company_name, first_contact_name in rows:
+        active = _active_stage(stages_map.get(p.id, []))
+        _stages = stages_map.get(p.id, [])
+        items.append(ProjectListItem(
             id=p.id, project_name=p.project_name,
             category_id=p.category_id, company_name=company_name,
             customer_id=p.customer_id, customer_name=first_contact_name,
             contact_names=contact_map.get(p.id, ""),
             designer_names=name_map.get(p.id, ""),
             create_time=p.create_time, start_time=p.start_time, expect_time=p.expect_time,
+            active_stage_name=active.stage_name if active else None,
+            active_stage_plan_time=active.plan_time if active else None,
+            stage_count=len(_stages),
+            last_stage_name=_stages[-1].stage_name if _stages else None,
             cover_image=p.cover_image,
             progress_percent=progress_map.get(p.id, 0),
             project_status=p.project_status,
             evaluation=evaluation_map.get(p.id),
-        )
-        for p, company_name, first_contact_name in rows
-    ]
+        ))
     return PageResult[ProjectListItem](items=items, total=total, page_num=query.page_num, page_size=query.page_size)
 
 
@@ -413,6 +451,11 @@ def project_detail(db: Session, project_id: int, current_user: dict | None = Non
         select(ProjectNodeEdge).where(ProjectNodeEdge.project_id == project_id).order_by(ProjectNodeEdge.id)
     ).scalars().all()
 
+    stages = db.execute(
+        select(ProjectStage).where(ProjectStage.project_id == project_id).order_by(ProjectStage.sort, ProjectStage.id)
+    ).scalars().all()
+    active = _active_stage(list(stages))
+
     evaluation = db.execute(
         select(ProjectEvaluation).where(ProjectEvaluation.project_id == project_id)
     ).scalars().first()
@@ -431,6 +474,10 @@ def project_detail(db: Session, project_id: int, current_user: dict | None = Non
         project_status=project.project_status,
         create_user_name=create_user.real_name if create_user else "已删除用户",
         create_time=project.create_time,
+        active_stage_name=active.stage_name if active else None,
+        active_stage_plan_time=active.plan_time if active else None,
+        stage_count=len(stages),
+        last_stage_name=stages[-1].stage_name if stages else None,
         designer_list=[DesignerItem(user_id=uid, real_name=name or "已删除用户") for uid, name in designers],
         contact_list=[ContactItem(customer_id=cid, customer_name=cname or "已删除对接人") for cid, cname in contacts],
         nodes=[
@@ -440,6 +487,10 @@ def project_detail(db: Session, project_id: int, current_user: dict | None = Non
                 has_form=n.id in form_node_ids,
                 form_filled=n.id in form_filled_node_ids,
                 attachment_count=attachment_count_map.get(n.id, 0),
+                is_review=bool(n.is_review),
+                review_options=json.loads(n.review_options) if n.review_options else None,
+                review_result=json.loads(n.review_result) if n.review_result else None,
+                client_review_fields=json.loads(n.client_review_fields) if n.client_review_fields else [],
                 create_time=n.create_time,
                 update_time=n.update_time,
             )
@@ -448,6 +499,10 @@ def project_detail(db: Session, project_id: int, current_user: dict | None = Non
         edges=[
             ProjectEdgeOut(id=e.id, source_node_id=e.source_node_id, target_node_id=e.target_node_id, label=e.label)
             for e in edges
+        ],
+        stages=[
+            StageItemOut(id=s.id, stage_name=s.stage_name, plan_time=s.plan_time, actual_time=s.actual_time, sort=s.sort)
+            for s in stages
         ],
         evaluation=EvaluationPublicOut(
             design_score=evaluation.design_score,
@@ -615,3 +670,49 @@ def cover_remove(db: Session, operator: dict, project_id: int) -> None:
     log_service.add_log(db, operator["id"], "project_cover_remove", "移除项目封面图", related_project_id=project_id)
     db.commit()
     file_service.remove_disk_file(os.path.join(file_service.UPLOAD_ROOT, old.replace("/", os.sep)))
+
+
+# ---- 项目环节（V1.4.19）----
+
+def stage_save(db: Session, operator: dict, req: StageSaveRequest) -> None:
+    """全量保存项目环节：传入完整 stages 列表（含 id），服务端做 upsert。
+
+    - id 为空 → 新增
+    - id 存在 → 更新
+    - 数据库里有但列表里没传的 → 删除
+    """
+    project = get_project_or_400(db, req.project_id)
+    check_project_archived(project)
+
+    incoming_ids = [s.id for s in req.stages if s.id]
+    # 删：库中存在但本次未提交
+    if incoming_ids:
+        db.execute(
+            delete(ProjectStage).where(
+                ProjectStage.project_id == req.project_id,
+                ProjectStage.id.notin_(incoming_ids),
+            )
+        )
+    else:
+        db.execute(delete(ProjectStage).where(ProjectStage.project_id == req.project_id))
+
+    for idx, s in enumerate(req.stages):
+        if s.id:
+            row = db.get(ProjectStage, s.id)
+            if row is None or row.project_id != req.project_id:
+                raise BusinessException(400, "环节不存在或不属于该项目")
+            row.stage_name = s.stage_name
+            row.plan_time = s.plan_time
+            row.actual_time = s.actual_time
+            row.sort = idx
+        else:
+            db.add(ProjectStage(
+                project_id=req.project_id,
+                stage_name=s.stage_name,
+                plan_time=s.plan_time,
+                actual_time=s.actual_time,
+                sort=idx,
+            ))
+
+    log_service.add_log(db, operator["id"], "stage_save", f"维护项目环节：{project.project_name}（{len(req.stages)} 条）", related_project_id=project.id)
+    db.commit()

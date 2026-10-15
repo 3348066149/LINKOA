@@ -5,6 +5,7 @@ from sqlalchemy import BigInteger, DateTime, Index, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils.timeutil import beijing_now
 
 
 class CustomerCategory(Base):
@@ -14,9 +15,9 @@ class CustomerCategory(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, comment="主键自增")
     category_name: Mapped[str] = mapped_column(String(128), nullable=False, comment="分类名称")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now(), comment="更新时间"
+        DateTime, nullable=False, default=beijing_now, onupdate=beijing_now, comment="更新时间"
     )
 
 
@@ -32,7 +33,7 @@ class Customer(Base):
     contact: Mapped[str | None] = mapped_column(String(128), nullable=True, comment="联系方式（电话/微信/邮箱）")
     remark: Mapped[str | None] = mapped_column(Text, nullable=True, comment="客户备注（对接人、合作信息）")
     cover_image: Mapped[str | None] = mapped_column(String(512), nullable=True, comment="卡片封面图相对路径（uploads/cover 下）")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now(), comment="更新时间"
+        DateTime, nullable=False, default=beijing_now, onupdate=beijing_now, comment="更新时间"
     )

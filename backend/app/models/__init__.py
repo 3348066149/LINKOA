@@ -15,6 +15,7 @@ from app.models.message import Message
 from app.models.node_template import NodeTemplate
 from app.models.project import Project, ProjectContactRel, ProjectDesignerRel
 from app.models.project_node import ProjectNode, ProjectNodeEdge, ProjectNodeFormValue
+from app.models.project_stage import ProjectStage
 from app.models.role import SysRole
 from app.models.sys_operation_log import SysOperationLog
 from app.models.user import SysUser
@@ -38,6 +39,7 @@ __all__ = [
     "ProjectNode",
     "ProjectNodeEdge",
     "ProjectNodeFormValue",
+    "ProjectStage",
     "ProjectEvaluation",
     "Attachment",
     "Comment",

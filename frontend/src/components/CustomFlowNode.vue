@@ -1,6 +1,6 @@
 <template>
   <!-- 文创卡片节点：序号圆标 + 标题 + 徽章 + 备注摘要（PRD 9.6） -->
-  <div class="flow-node" :class="{ selected }">
+  <div class="flow-node" :class="{ selected, 'review-pending': data.isReview && !data.reviewResult, 'review-done': data.reviewResult }">
     <!-- 连线锚点：悬浮淡入 -->
     <Handle type="target" :position="Position.Left" class="node-handle" />
     <Handle type="source" :position="Position.Right" class="node-handle" />
@@ -23,8 +23,11 @@
     </div>
 
     <!-- 节点体：创建/更新时间 + 信息徽章（说明不再展示，仅在节点库悬停时提示） -->
-    <div v-if="data.createTime || data.hasForm || data.attachmentCount > 0" class="node-body">
-      <div v-if="data.createTime" class="node-created">🕐 创建：{{ data.createTime }}</div>
+    <div v-if="data.createTime || data.hasForm || data.attachmentCount > 0 || data.isReview" class="node-body">
+      <div v-if="data.createTime" class="node-created">🕐 创建：{{ formatNodeTime(data.createTime) }}</div>
+      <div v-if="data.isReview" class="review-badge" :class="data.reviewResult ? 'done' : 'pending'">
+        {{ data.reviewResult ? `✓ 已审：${data.reviewResult.option || ''}` : '⏳ 待客户审核' }}
+      </div>
       <div v-if="data.hasForm || data.attachmentCount > 0" class="badges">
         <span v-if="data.hasForm" class="badge form-badge" :class="{ filled: data.formFilled }">
           🏷️ 表单({{ data.formFilled ? '已填' : '未填' }})
@@ -49,6 +52,12 @@ defineProps({
 })
 
 const emit = defineEmits(['delete'])
+
+// 2026-10-13T07:49:00 / 2026-10-13 07:49:00 → 2026-10-13 07:49
+function formatNodeTime(t) {
+  if (!t) return ''
+  return String(t).replace('T', ' ').slice(0, 16)
+}
 
 </script>
 
@@ -126,4 +135,22 @@ const emit = defineEmits(['delete'])
 .form-badge { background: #fdf6ec; color: #e6a23c; }
 .form-badge.filled { background: #f0f9eb; color: #67c23a; }
 .attach-badge { background: #ecf5ff; color: #409eff; }
+
+/* 审核节点状态（V1.4.19） */
+.flow-node.review-pending {
+  border-color: #f56c6c;
+  box-shadow: 0 0 0 3px rgba(245, 108, 108, 0.25), 0 0 12px rgba(245, 108, 108, 0.4);
+  animation: review-pulse 1.6s ease-in-out infinite;
+}
+.flow-node.review-done { border-color: #67c23a; }
+@keyframes review-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(245, 108, 108, 0.25), 0 0 8px rgba(245, 108, 108, 0.3); }
+  50% { box-shadow: 0 0 0 5px rgba(245, 108, 108, 0.35), 0 0 16px rgba(245, 108, 108, 0.55); }
+}
+.review-badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-bottom: 4px;
+  display: inline-block; white-space: nowrap;
+}
+.review-badge.pending { background: #fef0f0; color: #f56c6c; }
+.review-badge.done { background: #f0f9eb; color: #67c23a; }
 </style>

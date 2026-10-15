@@ -5,6 +5,7 @@ from sqlalchemy import BigInteger, DateTime, Index, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils.timeutil import beijing_now
 
 
 class Project(Base):
@@ -32,9 +33,9 @@ class Project(Base):
     project_status: Mapped[str] = mapped_column(String(32), nullable=False, default="进行中", comment="进行中 / 已归档")
     cover_image: Mapped[str | None] = mapped_column(String(512), nullable=True, comment="卡片封面图相对路径（uploads/ 下）")
     create_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="创建人ID")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now(), onupdate=func.now(), comment="更新时间"
+        DateTime, nullable=False, default=beijing_now, onupdate=beijing_now, comment="更新时间"
     )
 
 
@@ -50,7 +51,7 @@ class ProjectDesignerRel(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, comment="主键自增")
     project_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="项目ID")
     user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="设计师用户ID")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
 
 
 class ProjectContactRel(Base):
@@ -65,4 +66,4 @@ class ProjectContactRel(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, comment="主键自增")
     project_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="项目ID")
     customer_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="对接人ID（customer.id）")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")

@@ -9,6 +9,7 @@ from sqlalchemy import BigInteger, DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils.timeutil import beijing_now
 
 
 class SysDept(Base):
@@ -19,4 +20,4 @@ class SysDept(Base):
     dept_type: Mapped[str] = mapped_column(String(16), nullable=False, default="internal", comment="internal 内置员工部门 / customer 客户部门")
     role: Mapped[str | None] = mapped_column(String(32), nullable=True, comment="内部部门默认权限角色：设计师/行政/设计总监")
     customer_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True, comment="客户部门关联的客户ID（customer.id）")
-    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), comment="创建时间")
+    create_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=beijing_now, comment="创建时间")
