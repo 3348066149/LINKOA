@@ -63,6 +63,39 @@
       </div>
       <el-empty v-else description="该项目暂无节点" />
 
+      <!-- 项目附件（客户查看设计师上传的所有文件） -->
+      <h3 class="section-title">项目附件</h3>
+      <div v-if="projectAttachments.length" class="attach-grid">
+        <div v-for="a in projectAttachments" :key="a.id" class="attach-card">
+          <el-image
+            v-if="isImage(a.fileName)"
+            :src="downloadUrl(a.id)"
+            :preview-src-list="[downloadUrl(a.id)]"
+            fit="cover"
+            class="attach-thumb"
+            preview-teleported
+          />
+          <div v-else-if="isPdf(a.fileName)" class="attach-thumb pdf-thumb" @click="onPreview(a)">
+            <span class="file-icon big">PDF</span>
+          </div>
+          <div v-else-if="isVideo(a.fileName)" class="attach-thumb video-thumb" @click="onPreview(a)">
+            <span class="file-icon big">▶</span>
+          </div>
+          <div v-else class="attach-thumb other-thumb">
+            <span class="file-icon big">{{ fileTag(a.fileName) }}</span>
+          </div>
+          <div class="attach-info">
+            <div class="attach-name" :title="a.fileName">{{ a.fileName }}</div>
+            <div class="attach-meta">{{ a.nodeTitle || '项目附件' }} · {{ (a.fileSize / 1024 / 1024).toFixed(1) }}MB</div>
+          </div>
+          <div class="attach-actions">
+            <el-button link type="primary" size="small" @click="onPreview(a)">预览</el-button>
+            <el-button link type="primary" size="small" @click="window.open(downloadUrl(a.id), '_blank')">下载</el-button>
+          </div>
+        </div>
+      </div>
+      <el-empty v-else description="暂无附件" :image-size="60" />
+
       <!-- 节点表单只读弹窗 -->
       <el-dialog v-model="formVisible" :title="`${currentNode?.nodeTitle || ''} - 已填内容`" width="min(560px, 92vw)">
         <div v-if="currentNode" class="node-time-bar">🕐 创建：{{ formatTime(currentNode.createTime) }}</div>
@@ -186,6 +219,7 @@ import FlowCanvas from '@/components/FlowCanvas.vue'
 import { projectDetail } from '@/api/project'
 import { getNodeForm } from '@/api/projectNode'
 import { submitReview } from '@/api/review'
+import { listByProject, downloadUrl } from '@/api/attachment'
 import { useUserStore } from '@/stores/user'
 import { deadlineInfo } from '@/utils/deadline'
 
@@ -195,6 +229,27 @@ const userStore = useUserStore()
 
 const detail = ref(null)
 const loading = ref(false)
+const projectAttachments = ref([])
+
+const IMAGE_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp']
+const PDF_EXTS = ['pdf']
+const VIDEO_EXTS = ['mp4', 'webm', 'ogg']
+function isImage(name) { return IMAGE_EXTS.includes((name || '').split('.').pop().toLowerCase()) }
+function isPdf(name) { return PDF_EXTS.includes((name || '').split('.').pop().toLowerCase()) }
+function isVideo(name) { return VIDEO_EXTS.includes((name || '').split('.').pop().toLowerCase()) }
+function fileTag(name) {
+  const ext = (name || '').split('.').pop().toLowerCase()
+  const map = { psd: 'PSD', ai: 'AI', zip: 'ZIP', rar: 'ZIP', pdf: 'PDF', doc: 'DOC', docx: 'DOC', xls: 'XLS', xlsx: 'XLS', mp4: 'MP4', ppt: 'PPT', pptx: 'PPT', mp3: 'MP3' }
+  return map[ext] || 'FILE'
+}
+function onPreview(a) {
+  const url = downloadUrl(a.id)
+  if (isPdf(a.fileName) || isVideo(a.fileName) || isImage(a.fileName)) {
+    window.open(url, '_blank')
+  } else {
+    ElMessage.info('该文件类型不支持在线预览，请下载查看')
+  }
+}
 
 // 表单只读
 const formVisible = ref(false)
@@ -248,6 +303,7 @@ async function loadData() {
   loading.value = true
   try {
     detail.value = await projectDetail(route.params.id)
+    projectAttachments.value = await listByProject(route.params.id) || []
   } finally {
     loading.value = false
   }
@@ -426,6 +482,18 @@ onMounted(loadData)
 .feedback-label { font-size: 12px; color: var(--lk-text-2, #606266); }
 .img-preview { display: flex; align-items: flex-end; gap: 10px; margin-top: 6px; }
 .review-sign { font-size: 12px; color: var(--lk-text-3, #909399); text-align: right; margin-top: 6px; }
+
+/* 项目附件网格卡片 */
+.attach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.attach-card { border: 1px solid #ebeef5; border-radius: 8px; overflow: hidden; background: #fff; transition: box-shadow .2s; }
+.attach-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+.attach-thumb { width: 100%; height: 100px; object-fit: cover; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #f5f7fa; }
+.file-icon { font-size: 14px; font-weight: 600; color: #909399; }
+.file-icon.big { font-size: 18px; }
+.attach-info { padding: 8px; }
+.attach-name { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.attach-meta { font-size: 11px; color: var(--lk-text-3, #6f737a); margin-top: 2px; }
+.attach-actions { padding: 0 8px 8px; display: flex; gap: 4px; }
 
 /* 移动端窄屏适配：防止品牌标题竖排换行 */
 @media (max-width: 768px) {

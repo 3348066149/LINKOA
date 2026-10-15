@@ -139,33 +139,49 @@
                   :show-file-list="false"
                   :http-request="onUpload"
                   accept="*/*"
+                  multiple
                 >
                   <el-button type="primary" size="small" :icon="Upload" :loading="uploading">上传附件</el-button>
                 </el-upload>
               </div>
               <div v-if="attachments.length === 0" class="empty-text">暂无附件</div>
-              <div v-for="a in attachments" :key="a.id" class="attach-item">
-                <!-- 图片缩略图 + 大图预览 -->
-                <el-image
-                  v-if="isImage(a.fileName)"
-                  :src="downloadUrl(a.id)"
-                  :preview-src-list="[downloadUrl(a.id)]"
-                  fit="cover"
-                  class="attach-thumb"
-                  preview-teleported
-                />
-                <span v-else class="file-icon">{{ fileIcon(a.fileName) }}</span>
-                <div class="attach-info">
-                  <div class="attach-name" :title="a.fileName">{{ a.fileName }}</div>
-                  <div class="attach-meta">{{ a.uploadUserName }} · {{ formatSize(a.fileSize) }} · {{ formatTime(a.createTime) }}</div>
-                </div>
-                <div class="attach-actions">
-                  <el-button link type="primary" size="small" @click="onDownload(a)">下载</el-button>
-                  <el-button
-                    v-if="!isArchived && (a.uploadUserId === userStore.userInfo?.id || userStore.role === '管理员')"
-                    link type="danger" size="small"
-                    @click="onDeleteAttachment(a)"
-                  >删除</el-button>
+              <div v-else class="attach-grid">
+                <div v-for="a in attachments" :key="a.id" class="attach-card">
+                  <!-- 图片缩略图 -->
+                  <el-image
+                    v-if="isImage(a.fileName)"
+                    :src="downloadUrl(a.id)"
+                    :preview-src-list="[downloadUrl(a.id)]"
+                    fit="cover"
+                    class="attach-thumb"
+                    preview-teleported
+                    @click="onPreview(a)"
+                  />
+                  <!-- PDF 缩略图（点击在线预览） -->
+                  <div v-else-if="isPdf(a.fileName)" class="attach-thumb pdf-thumb" @click="onPreview(a)">
+                    <span class="file-icon big">PDF</span>
+                  </div>
+                  <!-- 视频缩略图（点击在线播放） -->
+                  <div v-else-if="isVideo(a.fileName)" class="attach-thumb video-thumb" @click="onPreview(a)">
+                    <span class="file-icon big">▶</span>
+                  </div>
+                  <!-- 其他文件类型 -->
+                  <div v-else class="attach-thumb other-thumb">
+                    <span class="file-icon big">{{ fileIcon(a.fileName) }}</span>
+                  </div>
+                  <div class="attach-info">
+                    <div class="attach-name" :title="a.fileName">{{ a.fileName }}</div>
+                    <div class="attach-meta">{{ a.uploadUserName }} · {{ formatSize(a.fileSize) }}</div>
+                  </div>
+                  <div class="attach-actions">
+                    <el-button link type="primary" size="small" @click="onPreview(a)">预览</el-button>
+                    <el-button link type="primary" size="small" @click="onDownload(a)">下载</el-button>
+                    <el-button
+                      v-if="!isArchived && (a.uploadUserId === userStore.userInfo?.id || userStore.role === '管理员')"
+                      link type="danger" size="small"
+                      @click="onDeleteAttachment(a)"
+                    >删除</el-button>
+                  </div>
                 </div>
               </div>
             </el-tab-pane>
@@ -360,11 +376,23 @@ function formatSize(bytes) {
   return `${(bytes / 1024 / 1024 / 1024).toFixed(2)}GB`
 }
 const IMAGE_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'svg']
+const PDF_EXTS = ['pdf']
+const VIDEO_EXTS = ['mp4', 'webm', 'ogg']
 function isImage(name) { return IMAGE_EXTS.includes((name || '').split('.').pop().toLowerCase()) }
+function isPdf(name) { return PDF_EXTS.includes((name || '').split('.').pop().toLowerCase()) }
+function isVideo(name) { return VIDEO_EXTS.includes((name || '').split('.').pop().toLowerCase()) }
 function fileIcon(name) {
   const ext = (name || '').split('.').pop().toLowerCase()
-  const map = { psd: '🎨', ai: '🎨', zip: '📦', rar: '📦', pdf: '📕', doc: '📘', docx: '📘', xls: '📗', xlsx: '📗', mp4: '🎬' }
-  return map[ext] || '📄'
+  const map = { psd: 'PSD', ai: 'AI', zip: 'ZIP', rar: 'ZIP', pdf: 'PDF', doc: 'DOC', docx: 'DOC', xls: 'XLS', xlsx: 'XLS', mp4: 'MP4', ppt: 'PPT', pptx: 'PPT', mp3: 'MP3' }
+  return map[ext] || 'FILE'
+}
+function onPreview(a) {
+  const url = downloadUrl(a.id)
+  if (isPdf(a.fileName) || isVideo(a.fileName) || isImage(a.fileName)) {
+    window.open(url, '_blank')
+  } else {
+    ElMessage.info('该文件类型不支持在线预览，请下载查看')
+  }
 }
 
 // ---- 数据加载 ----
@@ -900,14 +928,18 @@ onBeforeRouteLeave(async (to, from, next) => {
 .reflection-box { display: flex; flex-direction: column; gap: 8px; }
 .reflection-box .el-button { align-self: flex-end; }
 .reflection-meta { font-size: 12px; color: var(--lk-text-3); }
-.attach-header { margin-bottom: 8px; }
-.attach-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #ebeef5; }
-.attach-thumb { width: 48px; height: 48px; border-radius: 6px; flex-shrink: 0; }
-.file-icon { font-size: 28px; flex-shrink: 0; }
-.attach-info { flex: 1; min-width: 0; }
-.attach-name { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.attach-meta { font-size: 12px; color: var(--lk-text-3); }
-.attach-actions { flex-shrink: 0; }
+.attach-header { margin-bottom: 12px; }
+.attach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.attach-card { border: 1px solid #ebeef5; border-radius: 8px; overflow: hidden; background: #fff; transition: box-shadow .2s; }
+.attach-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+.attach-thumb { width: 100%; height: 100px; object-fit: cover; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #f5f7fa; }
+.pdf-thumb, .video-thumb, .other-thumb { cursor: pointer; }
+.file-icon { font-size: 14px; font-weight: 600; color: #909399; }
+.file-icon.big { font-size: 18px; }
+.attach-info { padding: 8px; }
+.attach-name { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.attach-meta { font-size: 11px; color: var(--lk-text-3); margin-top: 2px; }
+.attach-actions { padding: 0 8px 8px; display: flex; gap: 4px; }
 
 /* ---- 移动端：画布在上（vh 自适应），面板在下堆叠 ---- */
 @media (max-width: 767px) {
