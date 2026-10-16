@@ -53,11 +53,13 @@ def login(username, password):
 
 
 ok_count = 0
-TOTAL = 16
+TOTAL = 15
 cleanup_users = []
 cleanup_customers = []
+cleanup_categories = []
 cleanup_projects = []
 cleanup_templates = []
+cleanup_flow_templates = []
 
 
 def check(name, cond, extra=""):
@@ -74,16 +76,30 @@ def main():
     admin = login("admin", "admin123")
     at = admin["token"]
 
-    # 0. 清理残留
-    for t in req("/api/nodeTemplate/list", token=at):
-        if t["nodeTitle"].startswith("测试节点"):
-            req("/api/nodeTemplate/delete", "POST", {"id": t["id"]}, at)
-    for u in req("/api/sysUser/list", token=at):
-        if u["username"] in ("ic_cust",):
+    # 0. 清理残留（幂等自愈：中途 assert 失败会跳过末尾清理，残留数据必须在这里先清掉，
+    #    否则重跑必然撞「登录账号已存在」「单位下存在对接人」等重名/依赖错误，越积越多）
+    # 注意：nodeTemplate/list 的 data 是数组（不是分页对象），而 project/customer 的 data 是
+    # {items:[...]}。混用会导致遍历到字符串键而抛 TypeError，这里显式取 data。
+    # 清理顺序必须按依赖倒序：项目 → 用户 → 客户 → 分类 → 节点模板 → 流程模板。
+    for proj in req("/api/project/list?pageNum=1&pageSize=200", token=at)["data"]["items"]:
+        if "图标测试" in proj["projectName"] or "图标流程项目" in proj["projectName"]:
+            req("/api/project/delete", "POST", {"projectId": proj["id"]}, at)
+    for u in (req("/api/sysUser/list", token=at).get("data") or []):
+        if u["username"] in ("ic_cust", "ic_staff") or "图标" in str(u.get("realName", "")):
             req("/api/sysUser/delete", "POST", {"userId": u["id"]}, at)
-    for c in req("/api/customer/list?pageNum=1&pageSize=100", token=at)["data"]["items"]:
+    for c in req("/api/customer/list?pageNum=1&pageSize=200", token=at)["data"]["items"]:
         if c["customerName"] == "图标测试客户":
             req("/api/customer/delete", "POST", {"id": c["id"]}, at)
+    for cc in (req("/api/customerCategory/list", token=at).get("data") or []):
+        if cc["categoryName"] == "图标测试单位":
+            req("/api/customerCategory/delete", "POST", {"id": cc["id"]}, at)
+    for t in (req("/api/nodeTemplate/list", token=at).get("data") or []):
+        if t["nodeTitle"].startswith("测试节点") or "图标测试" in t["nodeTitle"]:
+            req("/api/nodeTemplate/delete", "POST", {"id": t["id"]}, at)
+    for f in (req("/api/flowTemplate/list", token=at).get("data") or []):
+        if "图标流程模板" in str(f.get("templateName", "")):
+            req("/api/flowTemplate/delete", "POST", {"id": f["id"]}, at)
+
     for proj in req("/api/project/list?pageNum=1&pageSize=100", token=at)["data"]["items"]:
         if proj["projectName"] == "图标测试项目":
             req("/api/project/delete", "POST", {"projectId": proj["id"]}, at)
@@ -101,7 +117,7 @@ def main():
     assert res["code"] == 200, f"建模板失败: {res}"
     tpl_a = res["data"]["id"]
     cleanup_templates.append(tpl_a)
-    tpls = req("/api/nodeTemplate/list", token=at)
+    tpls = (req("/api/nodeTemplate/list", token=at).get("data") or [])
     ta = next(t for t in tpls if t["id"] == tpl_a)
     check("模板保存预设图标+image/link字段", ta["icon"] == "Document" and
           {f["fieldType"] for f in ta["formFields"]} == {"image", "link", "select"}, str(ta))
@@ -116,19 +132,29 @@ def main():
     assert res["code"] == 200, f"建模板B失败: {res}"
     tpl_b = res["data"]["id"]
     cleanup_templates.append(tpl_b)
-    tb = next(t for t in req("/api/nodeTemplate/list", token=at) if t["id"] == tpl_b)
+    tb = next(t for t in (req("/api/nodeTemplate/list", token=at).get("data") or []) if t["id"] == tpl_b)
     check("自定义图标模板", tb["icon"] == icon_path, tb["icon"])
 
     # 3. 图标上传限制（非法格式 + 超限大小用 1MB+ 模拟）
     res = upload("/api/nodeTemplate/icon/upload", at, "bad.exe", b"MZ\x90\x00")
     check("非法图标格式拦截", res["code"] == 400 and "格式" in res["msg"], str(res))
 
-    # 4. 建客户+项目，用模板A建节点 → icon 冗余拷贝
-    res = req("/api/customer/add", "POST", {"categoryId": 1, "customerName": "图标测试客户", "contact": "1"}, at)
+    # 4. 建客户分类+客户+项目，用模板A建节点 → icon 冗余拷贝
+    # 注意：客户/项目模型已升级（V1.4.13+）——项目归属「客户单位」categoryId（必填），
+    # 对接人走 contactCustomerIds（必填≥1）。旧写法硬编码 categoryId=1 且只传 customerId 会失败。
+    cat_name = "图标测试单位"
+    res = req("/api/customerCategory/add", "POST", {"categoryName": cat_name}, at)
+    assert res["code"] == 200, f"建客户单位失败: {res}"
+    cat_id = res["data"]["id"]
+    cleanup_categories.append(cat_id)
+
+    res = req("/api/customer/add", "POST", {"categoryId": cat_id, "customerName": "图标测试客户", "contact": "1"}, at)
     assert res["code"] == 200, f"建客户失败: {res}"
     cid = res["data"]["id"]
     cleanup_customers.append(cid)
-    res = req("/api/project/create", "POST", {"projectName": "图标测试项目", "customerId": cid}, at)
+
+    res = req("/api/project/create", "POST",
+              {"projectName": "图标测试项目", "categoryId": cat_id, "contactCustomerIds": [cid]}, at)
     assert res["code"] == 200, f"建项目失败: {res}"
     pid = res["data"]["projectId"]
     cleanup_projects.append(pid)
@@ -179,8 +205,8 @@ def main():
     staff = login("ic_staff", "staff123")
     res = upload("/api/projectNode/formImage/upload", staff["token"], "s.png", png)
     check("普通用户可上传表单图片", res["code"] == 200, str(res))
-    # 客户账号
-    res = req("/api/sysUser/create", "POST", {"username": "ic_cust", "password": "cust123", "realName": "图标客户", "customerId": cid}, at)
+    # 客户账号：V1.4.15 起「绑定客户单位」用 categoryId，不再使用已废弃的 customerId
+    res = req("/api/sysUser/create", "POST", {"username": "ic_cust", "password": "cust123", "realName": "图标客户", "categoryId": cat_id}, at)
     assert res["code"] == 200, f"建客户账号失败: {res}"
     cleanup_users.append(res["data"]["userId"])
     cust = login("ic_cust", "cust123")
@@ -200,7 +226,10 @@ def main():
     }, at)
     assert res["code"] == 200, f"建流程模板失败: {res}"
     ftpl = res["data"]["id"]
-    res = req("/api/project/create", "POST", {"projectName": "图标流程项目", "customerId": cid, "templateId": ftpl}, at)
+    cleanup_flow_templates.append(ftpl)
+    res = req("/api/project/create", "POST",
+              {"projectName": "图标流程项目", "categoryId": cat_id,
+               "contactCustomerIds": [cid], "templateId": ftpl}, at)
     assert res["code"] == 200, f"流程实例化失败: {res}"
     pid2 = res["data"]["projectId"]
     cleanup_projects.append(pid2)
@@ -217,6 +246,10 @@ def main():
         req("/api/sysUser/delete", "POST", {"userId": uid}, at)
     for tid in cleanup_templates:
         req("/api/nodeTemplate/delete", "POST", {"id": tid}, at)
+    for fid in cleanup_flow_templates:
+        req("/api/flowTemplate/delete", "POST", {"id": fid}, at)
+    for cat in cleanup_categories:
+        req("/api/customerCategory/delete", "POST", {"id": cat}, at)
     check("测试数据已清理", True)
 
     print(f"\n=== 通过 {ok_count}/{TOTAL} ===")

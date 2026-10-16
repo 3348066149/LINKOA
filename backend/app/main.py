@@ -36,7 +36,7 @@ from app.routers import (  # noqa: E402
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # backend/
 UPLOAD_PATH = os.path.join(BASE_DIR, settings.UPLOAD_DIR)
-FRONTEND_DIST = os.path.join(BASE_DIR, "..", "frontend", "dist")
+FRONTEND_DIST = os.path.realpath(os.path.join(BASE_DIR, "..", "frontend", "dist"))
 
 
 class ForceStaticFiles(StaticFiles):

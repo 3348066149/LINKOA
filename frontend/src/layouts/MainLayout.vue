@@ -151,7 +151,7 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
-  ArrowDown, Bell, Collection, DataAnalysis, Document, Files,
+  ArrowDown, Bell, DataAnalysis, Document, Files,
   Folder, FolderOpened, Grid, Lock, MagicStick, Menu, SwitchButton, User, UserFilled
 } from '@element-plus/icons-vue'
 import request from '@/utils/request'
@@ -170,11 +170,10 @@ const messageStore = useMessageStore()
 const { isMobile: isNarrow } = useIsMobile(900)
 const drawerVisible = ref(false)
 
-// 顶部主菜单（V1.4：去掉侧边栏，改顶部主导航）
+// 顶部主菜单（V1.4：去掉侧边栏，改顶部主导航；V1.4.22：流程模板功能下线，移除「模板」入口）
 const menus = [
   { path: '/projects', title: '项目', icon: FolderOpened, roles: null },
   { path: '/customers', title: '客户', icon: UserFilled, roles: null },
-  { path: '/templates', title: '模板', icon: Collection, roles: null },
   { path: '/files', title: '文件', icon: Files, roles: null },
   { path: '/messages', title: '消息', icon: Bell, roles: null },
   { path: '/reports', title: '报表', icon: DataAnalysis, roles: ['管理员'] },

@@ -106,7 +106,12 @@
                   <el-descriptions :column="1" border size="small">
                     <el-descriptions-item v-for="f in clientFeedbackFields" :key="f.id" :label="f.fieldLabel">
                       <template v-if="f.fieldType === 'image' && f.fieldValue">
-                        <el-image :src="`/uploads/${f.fieldValue}`" :preview-src-list="[`/uploads/${f.fieldValue}`]" :preview-teleported="true" fit="cover" style="width: 120px; height: 120px; border-radius: 6px" />
+                        <div class="cf-files">
+                          <template v-for="(path, i) in parseFormFiles(f.fieldValue)" :key="i">
+                            <el-image v-if="isFormImg(path)" :src="`/uploads/${path.replace(/^uploads\//,'')}`" :preview-src-list="parseFormFiles(f.fieldValue).filter(isFormImg).map(p => `/uploads/${p.replace(/^uploads\//,'')}`)" :preview-teleported="true" fit="cover" class="cf-thumb" />
+                            <div v-else class="cf-thumb cf-thumb-icon" @click="window.open(`/uploads/${path.replace(/^uploads\//,'')}`, '_blank')">{{ formFileTag(path) }}</div>
+                          </template>
+                        </div>
                       </template>
                       <span v-else :class="{ 'empty-text': !f.fieldValue }">{{ f.fieldValue || '未填写' }}</span>
                     </el-descriptions-item>
@@ -394,6 +399,21 @@ function onPreview(a) {
     ElMessage.info('该文件类型不支持在线预览，请下载查看')
   }
 }
+// 表单文件值解析：兼容 JSON 数组（多文件）与旧单值字符串。
+// 必须过滤掉 null/空串/非字符串项，否则后续 .split('.') 会抛异常导致整个详情页白屏。
+function parseFormFiles(v) {
+  if (!v) return []
+  let arr
+  try {
+    const parsed = JSON.parse(v)
+    arr = Array.isArray(parsed) ? parsed : [parsed]
+  } catch {
+    arr = [v]
+  }
+  return arr.filter((p) => typeof p === 'string' && p.trim() !== '')
+}
+function isFormImg(p) { return ['png','jpg','jpeg','gif','bmp','webp'].includes((p.split('.').pop()||'').toLowerCase()) }
+function formFileTag(p) { const e=(p.split('.').pop()||'').toLowerCase(); return {psd:'PSD',ai:'AI',zip:'ZIP',pdf:'PDF',doc:'DOC',docx:'DOC',xls:'XLS',xlsx:'XLS',mp4:'MP4',ppt:'PPT',pptx:'PPT'}[e]||'FILE' }
 
 // ---- 数据加载 ----
 async function loadDetail() {
@@ -940,6 +960,10 @@ onBeforeRouteLeave(async (to, from, next) => {
 .attach-name { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .attach-meta { font-size: 11px; color: var(--lk-text-3); margin-top: 2px; }
 .attach-actions { padding: 0 8px 8px; display: flex; gap: 4px; }
+
+.cf-files { display: flex; flex-wrap: wrap; gap: 6px; }
+.cf-thumb { width: 80px; height: 80px; border-radius: 6px; object-fit: cover; }
+.cf-thumb-icon { display: flex; align-items: center; justify-content: center; background: #f5f7fa; cursor: pointer; font-size: 10px; font-weight: 600; color: #909399; }
 
 /* ---- 移动端：画布在上（vh 自适应），面板在下堆叠 ---- */
 @media (max-width: 767px) {

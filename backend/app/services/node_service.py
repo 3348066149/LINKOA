@@ -24,25 +24,36 @@ from app.schemas import (
 from app.services import log_service, message_service, project_service
 from app.utils.exceptions import BusinessException
 
-MAX_FORM_IMAGE_SIZE = 5 * 1024 * 1024  # 单张 5MB
-ALLOWED_FORM_IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp"}
+MAX_FORM_FILE_SIZE = 100 * 1024 * 1024  # 单文件 100MB（与报错文案保持一致）
+FORBIDDEN_FORM_EXT = {
+    ".exe", ".bat", ".cmd", ".ps1", ".sh", ".html", ".htm",
+    ".js", ".mjs", ".svg", ".php", ".asp", ".aspx", ".jsp",
+    ".dll", ".so", ".msi", ".com", ".scr", ".jar",
+}
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # backend/
 UPLOAD_ROOT = os.path.join(BASE_DIR, settings.UPLOAD_DIR)
 
 
-def upload_form_image(file: UploadFile) -> str:
-    """节点表单「上传图像」字段：返回相对 uploads/ 的路径（V1.4.3）
+def save_upload(file: UploadFile, subdir: str, *, unique_prefix: bool = True) -> str:
+    """通用分块落盘：返回相对 uploads/ 的路径（供节点表单/客户反馈共用）
 
-    仅存储并返回路径，不落库；由前端保存表单时写入 field_value。
+    - 拒绝可执行/脚本类扩展名（黑名单，大小写不敏感）
+    - 文件名先 basename 化，防路径穿越；再可选加 uuid 前缀防重名覆盖
+    - 分块读取，累计超限即删文件抛业务异常，不留半截文件
     """
-    ext = os.path.splitext(file.filename or "")[1].lower()
-    if ext not in ALLOWED_FORM_IMAGE_EXT:
-        raise BusinessException(400, "仅支持 jpg/png/webp 格式的图片")
-    save_dir = os.path.join(UPLOAD_ROOT, "node_form")
+    raw_name = os.path.basename(file.filename or "") or "file"
+    ext = os.path.splitext(raw_name)[1].lower()
+    if ext in FORBIDDEN_FORM_EXT:
+        raise BusinessException(400, f"禁止上传 {ext} 类型文件")
+    if not ext:
+        raise BusinessException(400, "文件缺少扩展名，无法识别类型")
+
+    save_dir = os.path.join(UPLOAD_ROOT, subdir)
     os.makedirs(save_dir, exist_ok=True)
-    save_name = f"{uuid.uuid4().hex}{ext}"
+    save_name = f"{uuid.uuid4().hex}_{raw_name}" if unique_prefix else raw_name
     save_path = os.path.join(save_dir, save_name)
+
     size = 0
     try:
         with open(save_path, "wb") as f:
@@ -51,13 +62,29 @@ def upload_form_image(file: UploadFile) -> str:
                 if not chunk:
                     break
                 size += len(chunk)
-                if size > MAX_FORM_IMAGE_SIZE:
-                    raise BusinessException(400, "图片大小超过 5MB 上限")
+                if size > MAX_FORM_FILE_SIZE:
+                    f.close()
+                    _remove_file(save_path)
+                    raise BusinessException(
+                        400, f"文件大小超过 {MAX_FORM_FILE_SIZE // (1024 * 1024)}MB 上限")
                 f.write(chunk)
     except BusinessException:
         _remove_file(save_path)
         raise
-    return f"node_form/{save_name}"
+    except OSError:
+        _remove_file(save_path)
+        raise BusinessException(500, "文件保存失败")
+
+    if size == 0:
+        _remove_file(save_path)
+        raise BusinessException(400, "上传文件内容为空")
+
+    return f"{subdir}/{save_name}"
+
+
+def upload_form_image(file: UploadFile) -> str:
+    """节点表单上传字段（设计师/员工侧）：支持所有文件类型，返回相对 uploads/ 的路径"""
+    return save_upload(file, "node_form")
 
 
 def _remove_file(path: str) -> None:

@@ -102,13 +102,27 @@
         <el-descriptions v-if="currentFormFields.length" :column="1" border>
           <el-descriptions-item v-for="f in currentFormFields" :key="f.id || f.fieldLabel" :label="f.fieldLabel">
             <template v-if="f.fieldType === 'image' && f.fieldValue">
-              <el-image
-                :src="f.fieldValue.startsWith('http') ? f.fieldValue : `/uploads/${f.fieldValue}`"
-                :preview-src-list="[f.fieldValue.startsWith('http') ? f.fieldValue : `/uploads/${f.fieldValue}`]"
-                :preview-teleported="true"
-                fit="cover"
-                style="width: 120px; height: 120px; border-radius: 8px"
-              />
+              <!-- 图片：卡片 -->
+              <div v-if="parseFiles(f.fieldValue).filter(isImg).length" class="file-preview-grid">
+                <div v-for="(path, i) in parseFiles(f.fieldValue).filter(isImg)" :key="'c'+i" class="file-card-sm">
+                  <el-image
+                    :src="fileUrl(path)"
+                    :preview-src-list="parseFiles(f.fieldValue).filter(isImg).map(fileUrl)"
+                    :preview-teleported="true"
+                    fit="cover"
+                    class="file-thumb-sm"
+                  />
+                  <div class="file-card-name-sm" :title="fileName(path)">{{ fileName(path) }}</div>
+                </div>
+              </div>
+              <!-- 其他：列表 -->
+              <div v-if="parseFiles(f.fieldValue).filter(p => !isImg(p)).length" class="file-list-sm">
+                <div v-for="(path, i) in parseFiles(f.fieldValue).filter(p => !isImg(p))" :key="'l'+i" class="file-item-sm">
+                  <span class="ft-badge" :class="extOf(path)">{{ fileTag(path) }}</span>
+                  <span class="file-item-name-sm" :title="fileName(path)">{{ fileName(path) }}</span>
+                  <el-icon class="file-item-icon" @click="window.open(fileUrl(path), '_blank')"><Download /></el-icon>
+                </div>
+              </div>
               <div v-if="f.updateTime" class="image-time">🕐 上传时间：{{ formatTime(f.updateTime) }}</div>
             </template>
             <template v-else-if="f.fieldType === 'select' && Array.isArray(f.fieldValueParsed)">
@@ -145,7 +159,17 @@
           <el-descriptions v-if="currentFormFields.length" :column="1" border size="small" class="review-fields">
             <el-descriptions-item v-for="f in currentFormFields" :key="f.id" :label="f.fieldLabel">
               <template v-if="f.fieldType === 'image' && f.fieldValue">
-                <el-image :src="`/uploads/${f.fieldValue}`" :preview-src-list="[`/uploads/${f.fieldValue}`]" :preview-teleported="true" fit="cover" style="width: 100px; height: 100px; border-radius: 6px" />
+                <div class="file-preview-grid">
+                  <div v-for="path in parseFiles(f.fieldValue).filter(isImg)" :key="'c'+path" class="file-card-sm">
+                    <el-image :src="fileUrl(path)" :preview-src-list="parseFiles(f.fieldValue).filter(isImg).map(fileUrl)" :preview-teleported="true" fit="cover" class="file-thumb-sm" />
+                    <div class="file-card-name-sm" :title="fileName(path)">{{ fileName(path) }}</div>
+                  </div>
+                </div>
+                <div v-for="path in parseFiles(f.fieldValue).filter(p => !isImg(p))" :key="'l'+path" class="file-item-sm">
+                  <span class="ft-badge" :class="extOf(path)">{{ fileTag(path) }}</span>
+                  <span class="file-item-name-sm" :title="fileName(path)">{{ fileName(path) }}</span>
+                  <el-icon class="file-item-icon" @click="window.open(fileUrl(path), '_blank')"><Download /></el-icon>
+                </div>
               </template>
               <template v-else>
                 <span :class="{ 'empty-value': !f.fieldValue }">{{ f.fieldValue || '未填写' }}</span>
@@ -170,8 +194,18 @@
               <!-- 只读模式 -->
               <template v-if="reviewReadonly">
                 <template v-if="f.fieldType === 'image'">
-                  <el-image v-if="reviewForm.feedback[f.fieldLabel]" :src="'/uploads/' + reviewForm.feedback[f.fieldLabel]" :preview-src-list="['/uploads/' + reviewForm.feedback[f.fieldLabel]]" :preview-teleported="true" fit="cover" style="width: 120px; height: 120px; border-radius: 6px" />
-                  <span v-else class="empty-value">未上传</span>
+                  <div v-if="reviewForm.feedback[f.fieldLabel]" class="file-preview-grid">
+                    <div v-for="path in parseFiles(reviewForm.feedback[f.fieldLabel]).filter(isImg)" :key="'c'+path" class="file-card-sm">
+                      <el-image :src="fileUrl(path)" :preview-src-list="parseFiles(reviewForm.feedback[f.fieldLabel]).filter(isImg).map(fileUrl)" :preview-teleported="true" fit="cover" class="file-thumb-sm" />
+                      <div class="file-card-name-sm" :title="fileName(path)">{{ fileName(path) }}</div>
+                    </div>
+                  </div>
+                  <div v-for="path in parseFiles(reviewForm.feedback[f.fieldLabel]).filter(p => !isImg(p))" :key="'l'+path" class="file-item-sm">
+                    <span class="ft-badge" :class="extOf(path)">{{ fileTag(path) }}</span>
+                    <span class="file-item-name-sm" :title="fileName(path)">{{ fileName(path) }}</span>
+                    <el-icon class="file-item-icon" @click="window.open(fileUrl(path), '_blank')"><Download /></el-icon>
+                  </div>
+                  <span v-if="!reviewForm.feedback[f.fieldLabel]" class="empty-value">未上传</span>
                 </template>
                 <span v-else :class="{ 'empty-value': !reviewForm.feedback[f.fieldLabel] }">{{ reviewForm.feedback[f.fieldLabel] || '未填写' }}</span>
               </template>
@@ -180,12 +214,22 @@
                 <el-input v-if="f.fieldType === 'text_single'" v-model="reviewForm.feedback[f.fieldLabel]" placeholder="请输入" />
                 <el-input v-else-if="f.fieldType === 'text_multi'" v-model="reviewForm.feedback[f.fieldLabel]" type="textarea" :rows="3" placeholder="请输入" />
                 <template v-else-if="f.fieldType === 'image'">
-                  <el-upload :show-file-list="false" :action="reviewUploadUrl" :data="{projectNodeId: currentNode.id}" :headers="{'Authorization': 'Bearer ' + (userStore.token || '')}" accept="image/*" :before-upload="beforeReviewImageUpload" :on-success="(res) => onReviewImageSuccess(res, f.fieldLabel)" :on-error="onReviewImageError">
-                    <el-button size="small" :icon="Picture">上传图片</el-button>
+                  <el-upload :show-file-list="false" :before-upload="(file) => onReviewUploadFile(file, f.fieldLabel)" accept="*/*" multiple>
+                    <el-button size="small" :icon="Picture">上传文件</el-button>
                   </el-upload>
                   <div v-if="reviewForm.feedback[f.fieldLabel]" class="img-preview">
-                    <el-image :src="'/uploads/' + reviewForm.feedback[f.fieldLabel]" :preview-src-list="['/uploads/' + reviewForm.feedback[f.fieldLabel]]" :preview-teleported="true" fit="cover" style="width: 120px; height: 120px; border-radius: 6px" />
-                    <el-button v-if="!reviewReadonly" link type="danger" size="small" @click="reviewForm.feedback[f.fieldLabel] = ''">删除</el-button>
+                    <div class="file-preview-grid">
+                      <div v-for="path in parseFiles(reviewForm.feedback[f.fieldLabel]).filter(isImg)" :key="'c'+path" class="file-card-sm">
+                        <el-image :src="fileUrl(path)" :preview-src-list="parseFiles(reviewForm.feedback[f.fieldLabel]).filter(isImg).map(fileUrl)" :preview-teleported="true" fit="cover" class="file-thumb-sm" />
+                        <div class="file-card-name-sm" :title="fileName(path)">{{ fileName(path) }}</div>
+                      </div>
+                    </div>
+                    <div v-for="path in parseFiles(reviewForm.feedback[f.fieldLabel]).filter(p => !isImg(p))" :key="'l'+path" class="file-item-sm">
+                      <span class="ft-badge" :class="extOf(path)">{{ fileTag(path) }}</span>
+                      <span class="file-item-name-sm" :title="fileName(path)">{{ fileName(path) }}</span>
+                      <el-icon class="file-item-icon" @click="window.open(fileUrl(path), '_blank')"><Download /></el-icon>
+                      <el-icon class="file-item-icon danger" @click="removeReviewFile(f.fieldLabel, path)"><Delete /></el-icon>
+                    </div>
                   </div>
                 </template>
               </template>
@@ -218,7 +262,7 @@ import { ElMessage } from 'element-plus'
 import FlowCanvas from '@/components/FlowCanvas.vue'
 import { projectDetail } from '@/api/project'
 import { getNodeForm } from '@/api/projectNode'
-import { submitReview } from '@/api/review'
+import { submitReview, uploadReviewFile } from '@/api/review'
 import { listByProject, downloadUrl } from '@/api/attachment'
 import { useUserStore } from '@/stores/user'
 import { deadlineInfo } from '@/utils/deadline'
@@ -238,10 +282,35 @@ function isImage(name) { return IMAGE_EXTS.includes((name || '').split('.').pop(
 function isPdf(name) { return PDF_EXTS.includes((name || '').split('.').pop().toLowerCase()) }
 function isVideo(name) { return VIDEO_EXTS.includes((name || '').split('.').pop().toLowerCase()) }
 function fileTag(name) {
-  const ext = (name || '').split('.').pop().toLowerCase()
+  const ext = (name.split('/').pop() || name.split('.').pop() || '').toLowerCase()
   const map = { psd: 'PSD', ai: 'AI', zip: 'ZIP', rar: 'ZIP', pdf: 'PDF', doc: 'DOC', docx: 'DOC', xls: 'XLS', xlsx: 'XLS', mp4: 'MP4', ppt: 'PPT', pptx: 'PPT', mp3: 'MP3' }
   return map[ext] || 'FILE'
 }
+// 表单文件值解析：兼容 JSON 数组（多文件）与旧单值字符串。
+// 必须过滤 null/空串/非字符串项，否则 link 预览会对 null 调 .split() 抛异常导致白屏。
+function parseFiles(v) {
+  if (!v) return []
+  let arr
+  try {
+    const parsed = JSON.parse(v)
+    arr = Array.isArray(parsed) ? parsed : [parsed]
+  } catch {
+    arr = [v]
+  }
+  return arr.filter((p) => typeof p === 'string' && p.trim() !== '')
+}
+function fileUrl(p) { return p.startsWith('http') ? p : `/uploads/${p.replace(/^uploads\//, '')}` }
+function isImg(p) { return ['png','jpg','jpeg','gif','bmp','webp'].includes((p.split('.').pop()||'').toLowerCase()) }
+function canPreviewFile(p) { return isImg(p) || ['pdf','mp4','webm'].includes((p.split('.').pop()||'').toLowerCase()) }
+function fileName(p) {
+  const n = p.split('/').pop() || p
+  // 新格式：{uuid}_{原文件名}，去掉 uuid_ 前缀
+  const i = n.indexOf('_')
+  if (i > 0 && /^[0-9a-f]{20,}$/.test(n.slice(0, i))) return n.slice(i + 1)
+  // 旧数据：没有 uuid 前缀，直接返回文件名
+  return n
+}
+function extOf(p) { return (p.split('.').pop()||'').toLowerCase() }
 function onPreview(a) {
   const url = downloadUrl(a.id)
   if (isPdf(a.fileName) || isVideo(a.fileName) || isImage(a.fileName)) {
@@ -262,35 +331,36 @@ const reviewReadonly = ref(false)  // 已审时只读展示
 const reviewForm = ref({ option: '', comment: '', feedback: {} })
 const submittedFeedbackFields = ref([])  // 已审时客户提交的反馈字段值
 const submittingReview = ref(false)
-const reviewUploadUrl = '/api/review/upload'  // 客户审核专用上传接口（V1.4.20）
 
-// 客户反馈图片上传：el-upload 直接打后端 multipart 接口，回调拿到的是原始响应体。
-// 注意后端统一约定 HTTP 状态恒为 200、业务码在 body.code，所以业务失败也会走 on-success，
-// 必须自己判断 code 并提示，否则客户点「上传图片」失败时页面毫无反应（V1.4.21 修复）。
-function beforeReviewImageUpload(file) {
-  if (!file.type || !file.type.startsWith('image/')) {
-    ElMessage.error('只能上传图片文件')
+// 客户审核多文件上传：必须走客户专用接口 /review/upload。
+// 客户账号调用设计师侧的 /projectNode/formImage/upload 会被 require_not_customer 拦成 403，
+// 所以这里不能复用 uploadFormImage（V1.4.22 修复）。
+async function onReviewUploadFile(file, fieldKey) {
+  const nodeId = currentNode.value?.id
+  if (!nodeId) {
+    ElMessage.error('节点信息缺失，请刷新后重试')
     return false
   }
-  if (file.size > 5 * 1024 * 1024) {
-    ElMessage.error('图片不能超过 5MB')
-    return false
+  try {
+    const data = await uploadReviewFile(file, nodeId)
+    const path = data?.path || data?.imagePath
+    if (!path) {
+      ElMessage.error('文件上传失败，请重试')
+      return false
+    }
+    const existing = parseFiles(reviewForm.value.feedback[fieldKey] || '[]')
+    existing.push(path)
+    reviewForm.value.feedback[fieldKey] = JSON.stringify(existing)
+    ElMessage.success('文件已上传')
+  } catch {
+    ElMessage.error('文件上传失败，请检查网络后重试')
   }
-  return true
+  return false
 }
 
-function onReviewImageSuccess(res, fieldKey) {
-  const p = res?.data?.path
-  if (res?.code !== 200 || !p) {
-    ElMessage.error(res?.msg || '图片上传失败，请重试')
-    return
-  }
-  reviewForm.value.feedback[fieldKey] = p
-  ElMessage.success('图片上传成功')
-}
-
-function onReviewImageError(err) {
-  ElMessage.error(err?.message || '图片上传失败，请检查网络后重试')
+function removeReviewFile(fieldKey, path) {
+  const arr = parseFiles(reviewForm.value.feedback[fieldKey] || '[]').filter(p => p !== path)
+  reviewForm.value.feedback[fieldKey] = arr.length ? JSON.stringify(arr) : ''
 }
 
 // 项目参与者 / 我方负责人（顿号分隔）
@@ -400,6 +470,34 @@ onMounted(loadData)
 </script>
 
 <style scoped>
+/* 弹窗溢出修复：长文本/长字段值必须在弹窗内换行或滚动，不得撑破对话框铺到页面上 */
+.client-layout :deep(.el-dialog) {
+  max-width: 92vw;
+}
+.client-layout :deep(.el-dialog .el-dialog__body) {
+  max-height: 68vh;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.client-layout :deep(.el-dialog .el-descriptions) {
+  width: 100%;
+  table-layout: fixed;
+}
+.client-layout :deep(.el-dialog .el-descriptions__label),
+.client-layout :deep(.el-dialog .el-descriptions__content) {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+.client-layout :deep(.el-dialog .el-descriptions__cell) {
+  max-width: 0; /* 配合 table-layout:fixed，强制单元格按列宽换行而非撑开 */
+}
+.client-layout :deep(.el-dialog .link-value) {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+
 .client-layout { min-height: 100vh; background: var(--lk-bg, #f5f7fa); display: flex; flex-direction: column; }
 .client-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -494,6 +592,20 @@ onMounted(loadData)
 .attach-name { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .attach-meta { font-size: 11px; color: var(--lk-text-3, #6f737a); margin-top: 2px; }
 .attach-actions { padding: 0 8px 8px; display: flex; gap: 4px; }
+
+.file-preview-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.file-card-sm { position: relative; width: 80px; margin-bottom: 18px; }
+.file-thumb-sm { width: 80px; height: 80px; border-radius: 6px; object-fit: cover; display: block; }
+.file-thumb-sm-icon { display: flex; align-items: center; justify-content: center; background: #f5f7fa; cursor: pointer; }
+.file-card-name-sm { font-size: 10px; color: #909399; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; margin-top: 2px; }
+.ft-badge { font-size: 10px; font-weight: 700; color: #fff; padding: 2px 6px; border-radius: 3px; background: #909399; }
+.ft-badge.small { font-size: 9px; padding: 1px 4px; }
+
+.file-list-sm { margin-bottom: 6px; }
+.file-item-sm { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid #e4e7ed; border-radius: 4px; margin-bottom: 3px; background: #fafafa; }
+.file-item-name-sm { flex: 1; font-size: 12px; color: #303133; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.file-item-icon { cursor: pointer; color: #909399; font-size: 13px; }
+.file-item-icon:hover { color: #409eff; }
 
 /* 移动端窄屏适配：防止品牌标题竖排换行 */
 @media (max-width: 768px) {

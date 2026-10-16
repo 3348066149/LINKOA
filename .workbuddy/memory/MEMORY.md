@@ -1,5 +1,21 @@
 # LINKOA 项目长期记忆
 
+## 上传功能（V1.4.22）
+- 表单「上传图像」已升级为「上传文件」：字段类型仍叫 `image`（勿改，兼容存量），支持任意类型/多个，单文件上限 **100MB**，落盘 `data/uploads/node_form/{uuid}_{原名}`；黑名单拒绝可执行/脚本扩展名（大小写不敏感）。
+- **设计师侧** `POST /api/projectNode/formImage/upload`（`require_not_customer`，客户必 403）；**客户侧** `POST /api/review/upload`（仅客户，节点须待审且归属本单位，multipart 字段名必须 camelCase `projectNodeId`）。两者共用 `node_service.save_upload()`。
+- 表单值存 **JSON 数组字符串**；前端解析必须过滤 null/空串（否则 `null.split()` 抛异常 → 页面白屏）。前端 `parseFiles/parseFormFiles/getFiles` 三处已加固。
+- **踩坑（P0）**：客户审核弹窗曾误用设计师接口 → 客户上传 100% 失败。客户侧任何上传都必须走 `/api/review/upload`。
+- **环境坑**：沙箱对 `os.remove` 有批量删除守卫（`sitecustomize.py` 抛 SystemExit），封面/附件删除接口会返回 500，但**数据库字段已正确清空**（判业务结果，勿误判为 BUG）。
+
+## 用户角色模型（V1.4.15 起，已简化）
+- 用户 `role` 收敛为 **管理员 / 普通 / 客户** 三值字面量；部门（sysDept）仅组织归属，**不返回 role 字段**，不再承载权限模板。
+- 因此 `tests/check_dept_role_split.py`、`check_role_api.py`、`check_dept_client_api.py` 三个旧脚本已过时（标注 `[已过时-不可运行]`），其覆盖由 full_flow_check 接手。**勿按它们的失败判定系统有 BUG**。
+
+## 测试基线（上线前应全绿）
+- `full_flow_check.py` 92 项、`multifile_upload_check.py` 61 项（多文件上传专项，V1.4.22 新建）、`ai_full_check.py` 19 项、`check_review_upload` 13、`check_node_icon_form` 15、`check_message_policy` 13、`check_cover_api` 8、`check_customer_cover_api` 9。
+- 封面类测试已改为自建隔离数据 + 测完自删，**不再复用 items[0] 污染真实项目**；过时脚本已加自愈前置清理（否则中途失败会残留数据导致下轮撞名）。
+- 清理孤立上传文件的正确姿势：比对 `project_node_form_value.field_value` 的引用，只删未被引用的（勿按文件名猜）。
+
 ## 路径规范（用户明确要求）
 - 所有启动/配置路径必须用**相对路径**，禁止写死绝对路径。`backend/.env` 的 `DB_URL` 用 `sqlite:///./linkoa.db`，config.py 自动转成 backend/ 下绝对路径。曾因 .env 残留旧机器绝对路径导致启动报 `sqlite3.OperationalError`，已修。
 

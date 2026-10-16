@@ -6,24 +6,14 @@
       <p>开始管理你的项目</p>
     </div>
 
-    <!-- 创建项目卡片（仅管理员） -->
+    <!-- 创建项目卡片（仅管理员；流程模板功能已下线，直接打开新建弹窗） -->
     <el-card v-if="canWrite" class="create-card" shadow="never">
       <h2 class="create-title">创建项目</h2>
       <div class="create-options">
         <div class="option" @click="onCreate('blank')">
           <div class="option-icon">📄</div>
-          <div class="option-title">从空白创建</div>
-          <div class="option-desc">从零开始搭建画布</div>
-        </div>
-        <div class="option" @click="onCreate('template')">
-          <div class="option-icon">🗂️</div>
-          <div class="option-title">从模板创建</div>
-          <div class="option-desc">使用标准流程模板</div>
-        </div>
-        <div class="option" @click="onCreate('json')">
-          <div class="option-icon">📦</div>
-          <div class="option-title">从 JSON 导入</div>
-          <div class="option-desc">从模板 JSON 文件导入</div>
+          <div class="option-title">创建项目</div>
+          <div class="option-desc">填写封面、名称、对接人、环节等信息</div>
         </div>
       </div>
     </el-card>

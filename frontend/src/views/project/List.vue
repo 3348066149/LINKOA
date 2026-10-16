@@ -134,8 +134,34 @@
     </el-card>
 
     <!-- 新建项目弹窗 -->
-    <el-dialog v-model="createVisible" title="新建项目" width="min(560px, 92vw)">
+    <el-dialog v-model="createVisible" title="新建项目" width="min(600px, 92vw)" top="4vh">
       <el-form :model="createForm" label-width="110px">
+        <el-form-item label="封面图">
+          <div class="cover-editor">
+            <div class="cover-preview">
+              <el-image
+                v-if="createForm.coverPreview"
+                :src="createForm.coverPreview"
+                fit="cover"
+                class="cover-preview-img"
+                alt="封面"
+              />
+              <el-icon v-else :size="22"><Picture /></el-icon>
+            </div>
+            <div class="cover-actions">
+              <el-upload
+                :show-file-list="false"
+                accept=".jpg,.jpeg,.png,.webp"
+                :before-upload="beforeCoverUpload"
+                :http-request="(opt) => onCreateCoverPick(opt.file)"
+              >
+                <el-button size="small" :icon="Upload">{{ createForm.coverFile ? '更换封面' : '上传封面' }}</el-button>
+              </el-upload>
+              <el-button v-if="createForm.coverFile" size="small" type="danger" link :icon="Delete" @click="onCreateCoverRemove">移除</el-button>
+              <p class="cover-tip">jpg / png / webp，≤5MB；创建项目时自动上传</p>
+            </div>
+          </div>
+        </el-form-item>
         <el-form-item label="项目名称" required>
           <el-input v-model="createForm.projectName" maxlength="256" />
         </el-form-item>
@@ -149,24 +175,30 @@
             <el-option v-for="c in contactsOf(createForm.categoryId)" :key="c.id" :label="c.customerName" :value="c.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="项目描述">
-          <el-input v-model="createForm.projectDesc" type="textarea" :rows="3" />
-        </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker v-model="createForm.createTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="默认当前时间，可改为实际立项日期（补录历史项目）" />
         </el-form-item>
-        <el-form-item label="预计截止时间">
-          <el-date-picker v-model="createForm.expectTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" placeholder="可选，创建后可在编辑里添加多环节" />
+        <el-form-item label="环节管理">
+          <div class="stage-box">
+            <div class="stage-head">
+              <span class="stage-tip">可选。卡片倒计时 = 第一条未完成环节的预计时间</span>
+              <el-button size="small" type="primary" plain :icon="Plus" @click="addCreateStage">添加环节</el-button>
+            </div>
+            <div v-if="createForm.stages.length === 0" class="stage-empty">暂无环节，点"添加环节"新建（如：IP设计截止 / 打样制作）</div>
+            <div v-for="(s, idx) in createForm.stages" :key="idx" class="stage-row">
+              <el-input v-model="s.stageName" placeholder="环节名称（如：IP设计截止）" style="flex: 2" />
+              <el-date-picker v-model="s.planTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" placeholder="预计时间" style="flex: 2" />
+              <el-button size="small" type="danger" circle :icon="Delete" @click="createForm.stages.splice(idx, 1)" />
+            </div>
+          </div>
         </el-form-item>
         <el-form-item label="项目参与人">
           <el-select v-model="createForm.designerRelUserIdList" multiple style="width: 100%">
             <el-option v-for="u in designerOptions" :key="u.id" :label="u.realName" :value="u.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="流程模板">
-          <el-select v-model="createForm.templateId" placeholder="不选择则创建空项目" clearable style="width: 100%">
-            <el-option v-for="t in templateOptions" :key="t.id" :label="t.templateName" :value="t.id" />
-          </el-select>
+        <el-form-item label="项目描述">
+          <el-input v-model="createForm.projectDesc" type="textarea" :rows="3" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -280,7 +312,6 @@ import {
   archiveProject, createProject, deleteProject, listProjects, projectDetail,
   removeProjectCover, saveProjectStages, unArchiveProject, updateProjectBase, uploadProjectCover
 } from '@/api/project'
-import { listTemplates } from '@/api/template'
 import { listUsers } from '@/api/sysUser'
 import { useUserStore } from '@/stores/user'
 import { deadlineInfo } from '@/utils/deadline'
@@ -301,7 +332,6 @@ const query = reactive({
 
 const categoryOptions = ref([])
 const customerOptions = ref([])
-const templateOptions = ref([])
 const designerOptions = ref([])
 
 // 某客户单位下的对接人选项（V1.4.7）
@@ -368,15 +398,38 @@ const createVisible = ref(false)
 const creating = ref(false)
 const createForm = reactive({
   projectName: '', categoryId: null, contactCustomerIds: [], projectDesc: '',
-  createTime: new Date(), startTime: null, expectTime: null, designerRelUserIdList: [], templateId: null
+  createTime: new Date(), designerRelUserIdList: [],
+  coverFile: null, coverPreview: '',  // 封面：创建成功后再上传（需要 projectId）
+  stages: []                          // 环节：创建成功后批量保存
 })
 
 function openCreate() {
+  onCreateCoverRemove()
   Object.assign(createForm, {
     projectName: '', categoryId: null, contactCustomerIds: [], projectDesc: '',
-    createTime: new Date(), startTime: null, expectTime: null, designerRelUserIdList: [], templateId: null
+    createTime: new Date(), designerRelUserIdList: [],
+    coverFile: null, coverPreview: '',
+    stages: []
   })
   createVisible.value = true
+}
+
+// 新建弹窗封面：先本地预览，创建成功拿到 projectId 后再真正上传
+function onCreateCoverPick(file) {
+  if (!beforeCoverUpload(file)) return
+  if (createForm.coverPreview) URL.revokeObjectURL(createForm.coverPreview)
+  createForm.coverFile = file
+  createForm.coverPreview = URL.createObjectURL(file)
+}
+
+function onCreateCoverRemove() {
+  if (createForm.coverPreview) URL.revokeObjectURL(createForm.coverPreview)
+  createForm.coverFile = null
+  createForm.coverPreview = ''
+}
+
+function addCreateStage() {
+  createForm.stages.push({ stageName: '', planTime: null })
 }
 
 // 切换单位时清空已选对接人，避免残留其他单位的选项
@@ -395,10 +448,39 @@ async function submitCreate() {
   }
   creating.value = true
   try {
-    const data = await createProject(createForm)
+    // 1. 创建项目（封面/环节需要 projectId，创建后串行处理）
+    const data = await createProject({
+      projectName: createForm.projectName,
+      categoryId: createForm.categoryId,
+      contactCustomerIds: createForm.contactCustomerIds,
+      projectDesc: createForm.projectDesc || null,
+      createTime: createForm.createTime,
+      designerRelUserIdList: createForm.designerRelUserIdList
+    })
+    const pid = data.projectId
+    // 2. 封面（失败不阻断创建，仅提示）
+    if (createForm.coverFile) {
+      try {
+        await uploadProjectCover(pid, createForm.coverFile)
+      } catch {
+        ElMessage.warning('项目已创建，但封面上传失败，可在卡片编辑里补传')
+      }
+    }
+    // 3. 环节（同样不阻断）
+    const stages = createForm.stages
+      .filter((s) => s.stageName && s.stageName.trim())
+      .map((s, idx) => ({ id: null, stageName: s.stageName.trim(), planTime: s.planTime || null, actualTime: null, sort: idx }))
+    if (stages.length) {
+      try {
+        await saveProjectStages({ projectId: pid, stages })
+      } catch {
+        ElMessage.warning('项目已创建，但环节保存失败，可在编辑里重新添加')
+      }
+    }
+    onCreateCoverRemove()
     ElMessage.success('项目创建成功')
     createVisible.value = false
-    router.push(`/projects/${data.projectId}`)
+    router.push(`/projects/${pid}`)
   } finally {
     creating.value = false
   }
@@ -560,27 +642,22 @@ async function onDelete(row) {
 
 onMounted(async () => {
   loadData()
-  // 筛选项数据：客户单位、对接人（复用列表第一页大容量）、模板、设计师
-  const [, cats, custs, tpls] = await Promise.all([
+  // 筛选项数据：客户单位、对接人（复用列表第一页大容量）、设计师（模板功能已下线）
+  const [, cats, custs] = await Promise.all([
     Promise.resolve(),
     listCategories().catch(() => []),
-    listCustomers({ pageNum: 1, pageSize: 200 }).catch(() => ({ items: [] })),
-    listTemplates().catch(() => [])
+    listCustomers({ pageNum: 1, pageSize: 200 }).catch(() => ({ items: [] }))
   ])
   categoryOptions.value = cats || []
   customerOptions.value = custs.items || []
-  templateOptions.value = tpls || []
   // 设计师选项：仅管理员能取用户列表，其他角色退化为空（编辑弹窗内只读展示）
   if (userStore.role === '管理员') {
     const users = await listUsers().catch(() => [])
     designerOptions.value = (users || []).filter((u) => u.isEnable === 1 && u.role !== '客户')
   }
-  // 从首页「创建项目」卡片跳转：自动打开新建弹窗（create=blank 空白 / create=template 预选第一个模板）
+  // 从首页「创建项目」卡片跳转：自动打开新建弹窗
   if (route.query.create) {
     openCreate()
-    if (route.query.create === 'template' && tpls && tpls.length) {
-      createForm.templateId = tpls[0].id
-    }
   }
 })
 </script>

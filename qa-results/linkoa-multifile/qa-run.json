@@ -1,0 +1,139 @@
+{
+  "schema_version": 2,
+  "run_id": "qa-4bd2b98fde2c",
+  "revision": 1,
+  "profile": "plan",
+  "test_intent": "non_ui_validation",
+  "execution_level": "blocked",
+  "selected_path": "undetermined",
+  "created_at": "2026-10-15T08:06:31.494577+00:00",
+  "target": {
+    "type": "attachment_or_directory",
+    "name": "LINKOA OA系统多文件上传功能",
+    "source": "E:\\BaiduNetdiskDownload\\LINKOA"
+  },
+  "request_contract": {
+    "request_summary": "LINKOA OA系统多文件上传功能改造后的代码审查与系统测试，覆盖表单多文件上传、附件tab、客户审核节点、客户端展示、数据兼容",
+    "request_hash": "sha256:ca820689ae488ae330a3b10e2a635d3ec2a903fddffeb2c6615595e2320d02fc",
+    "task_mode": "plan",
+    "scope": {
+      "included_source_ids": [],
+      "excluded_source_ids": [],
+      "included_rounds": [],
+      "excluded_rounds": []
+    },
+    "evidence_policy": {
+      "allow_new_execution": false,
+      "allow_precheck_bug_promotion": false,
+      "required_bug_evidence_level": "L2_observation"
+    },
+    "delivery": {
+      "artifact_required": true,
+      "format": "lark_doc",
+      "carrier": "lark_doc",
+      "filenames": [
+        "LINKOA OA系统多文件上传功能-QA测试方案与报告"
+      ],
+      "artifacts": [
+        {
+          "format": "lark_doc",
+          "carrier": "lark_doc",
+          "filename": "LINKOA OA系统多文件上传功能-QA测试方案与报告"
+        }
+      ],
+      "required_sections": [],
+      "section_order": [],
+      "must_surface_to_user": true
+    }
+  },
+  "phase_receipts": [],
+  "input": {
+    "summary": "",
+    "sources": [],
+    "assumptions": [],
+    "conflicts": [],
+    "artifacts": []
+  },
+  "open_questions": [],
+  "change_ledger": [
+    {
+      "id": "CHG-001",
+      "revision": 1,
+      "action": "ADD",
+      "object_type": "run",
+      "added_ids": [
+        "qa-4bd2b98fde2c"
+      ],
+      "removed_ids": [],
+      "modified_ids": [],
+      "before_count": 0,
+      "after_count": 1,
+      "delta_count": 1,
+      "source": "任务初始化",
+      "summary": "建立 QA canonical 记录"
+    }
+  ],
+  "environment": {},
+  "screenshot_policy": "unconfirmed",
+  "plan": {
+    "scope": [],
+    "out_of_scope": [],
+    "entry_criteria": [],
+    "exit_criteria": [],
+    "regression": []
+  },
+  "requirements": [],
+  "risk_mechanisms": [],
+  "observed_surfaces": [],
+  "cases": [],
+  "executions": [],
+  "evidence": [],
+  "bugs": [],
+  "bug_candidates": [],
+  "risks": [],
+  "acceptance_checks": [],
+  "blockers": [],
+  "manual_handoff": {
+    "required": false,
+    "status": "not_required",
+    "reason": "",
+    "target_platform": "",
+    "operator": "",
+    "prerequisites": [],
+    "case_ids": [],
+    "evidence_requirements": [],
+    "result_submission": []
+  },
+  "unverified": [],
+  "coverage": {
+    "requirement_total": 0,
+    "requirement_linked": 0,
+    "requirement_unlinked": 0,
+    "p0_requirement_total": 0,
+    "p0_requirement_linked": 0,
+    "case_total": 0,
+    "case_status_counts": {},
+    "acceptance_total": 0,
+    "acceptance_status_counts": {}
+  },
+  "release_decision": {
+    "decision": "undetermined",
+    "rationale": "尚未执行。",
+    "conditions": []
+  },
+  "delivery_manifest": {
+    "source_revision": 1,
+    "outputs": []
+  },
+  "test_data": {
+    "writes_allowed": false,
+    "accounts": [],
+    "created_records": [],
+    "cleanup": {
+      "required": false,
+      "status": "completed",
+      "command": "none",
+      "residuals": []
+    }
+  }
+}

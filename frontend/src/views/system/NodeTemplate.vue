@@ -116,12 +116,12 @@
               <el-select v-model="f.fieldType" size="small" style="width: 130px">
                 <el-option label="单行文本" value="text_single" />
                 <el-option label="多行文本" value="text_multi" />
-                <el-option label="上传图像" value="image" />
+                <el-option label="上传文件" value="image" />
               </el-select>
               <el-input-number v-model="f.sort" :min="0" size="small" style="width: 90px" />
               <el-button link type="danger" size="small" :icon="Delete" @click="editForm.clientReviewFields.splice(idx, 1)" />
             </div>
-            <div v-if="f.fieldType === 'image'" class="field-tip">客户可上传 1 张图片（jpg/png/webp ≤5MB）</div>
+            <div v-if="f.fieldType === 'image'" class="field-tip">客户可上传文件（图片/PDF/视频等，可多个）</div>
           </div>
           <el-button size="small" :icon="Plus" plain @click="addClientField">添加反馈字段</el-button>
         </template>
@@ -135,7 +135,7 @@
             <el-option label="单行文本" value="text_single" />
             <el-option label="多行文本" value="text_multi" />
             <el-option label="下拉单选" value="select" />
-            <el-option label="上传图像" value="image" />
+            <el-option label="上传文件" value="image" />
             <el-option label="链接" value="link" />
           </el-select>
           <el-input-number v-model="f.sort" :min="0" size="small" style="width: 90px" />
@@ -149,7 +149,7 @@
           size="small"
           class="options-editor"
         />
-        <div v-else-if="f.fieldType === 'image'" class="field-tip">用户可在项目节点中上传 1 张图片（jpg/png/webp ≤5MB），可点击放大查看</div>
+        <div v-else-if="f.fieldType === 'image'" class="field-tip">用户可上传文件（图片/PDF/视频等，可多个，可删除）</div>
         <div v-else-if="f.fieldType === 'link'" class="field-tip">用户填写链接地址，点击可跳转</div>
       </div>
       <el-button size="small" :icon="Plus" plain @click="addField">添加字段</el-button>

@@ -3,7 +3,20 @@ chcp 65001 >nul
 cd /d "%~dp0\.."
 
 echo ==^> [1/3] 构建镜像 linkoa:latest ...
-docker compose -f docker/docker-compose.yml build
+
+rem --- 选择可用的 compose 命令：优先新版插件 "docker compose"，回退旧版 "docker-compose" ---
+set "DC=docker compose"
+docker compose version >nul 2>&1
+if errorlevel 1 (
+  docker-compose version >nul 2>&1
+  if errorlevel 1 (
+    echo [错误] 未检测到 docker compose，请先安装 Docker Desktop 并确保其正在运行。
+    goto :err
+  )
+  set "DC=docker-compose"
+)
+echo    使用命令: %DC%
+%DC% -f docker/docker-compose.yml build
 if errorlevel 1 goto :err
 
 echo.
